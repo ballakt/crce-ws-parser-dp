@@ -2,6 +2,8 @@ package cz.zcu.kiv.crce.classmodel.structures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import org.objectweb.asm.Opcodes;
 
 /**
  * Created by ghessova on 05.03.2018.
@@ -16,10 +18,16 @@ public class Method extends PathPart {
     private List<List<String>> responsesLog = new ArrayList<>();
     private List<Operation> bodyLog = new ArrayList<>();
 
+    private String returnValue = null;
+
     public Method(int access, String name, String desc) {
         this.access = access;
         this.name = name;
         this.desc = desc;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public DataType getReturnType() {
@@ -46,7 +54,7 @@ public class Method extends PathPart {
         return responsesLog;
     }
 
-    public List<Operation> getBodyLog() {
+    public List<Operation> getOperations() {
         return bodyLog;
     }
 
@@ -80,9 +88,21 @@ public class Method extends PathPart {
 
     @Override
     public String toString() {
-        return "Method{" +
-                "name='" + name + '\'' +
-                ", returnType='" + returnType + '\'' +
-                '}';
+        return "Method{" + "name='" + name + '\'' + ", returnType='" + returnType + '\''
+                + " returnValue=" + returnValue + '}';
+    }
+
+    /**
+     * @return the returnValue
+     */
+    public String getReturnValue() {
+        return returnValue;
+    }
+
+    /**
+     * @param returnValue the returnValue to set
+     */
+    public void setReturnValue(String returnValue) {
+        this.returnValue = returnValue;
     }
 }

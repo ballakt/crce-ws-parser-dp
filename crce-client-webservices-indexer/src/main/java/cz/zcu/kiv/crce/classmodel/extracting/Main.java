@@ -6,11 +6,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.JarFile;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.stream.Stream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.Collector;
+import cz.zcu.kiv.crce.classmodel.processor.ClassMap;
+import cz.zcu.kiv.crce.classmodel.processor.Helpers;
+import cz.zcu.kiv.crce.classmodel.processor.Processor;
+import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 
 public class Main {
     /*
@@ -39,7 +44,6 @@ public class Main {
                 EClassVisitor classVisitor = new EClassVisitor(Opcodes.ASM9, null);
                 ClassReader classReader = new ClassReader(getEntryInputStream(jis));
                 classReader.accept(classVisitor, ClassReader.SKIP_DEBUG);
-                // parseClass(), classVisitor);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,8 +63,14 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         File jarFile = new File(
-                "/home/tomas/projects/Škola/Diplomka/crce-ws-parser-dp/crce-client-webservices-indexer/target/classes/cz/zcu/kiv/crce/examples/asm/test_9.jar");
+                "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/main/java/cz/zcu/kiv/crce/examples/asm/test_12.jar");
         loadClasses(jarFile);
         Collector.getInstance().process();
+        List<Endpoint> endpoints = Processor
+                .processMany(Helpers.convertStructMap(Collector.getInstance().getClasses()));
+
+        for (Endpoint endpoint : endpoints) {
+            System.out.println(endpoint);
+        }
     }
 }

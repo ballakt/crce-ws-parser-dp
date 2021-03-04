@@ -11,7 +11,8 @@ public class Operation {
     private String dataType;
     private int index;
     private String owner;
-    private String name;
+    private String fName;
+    private String fieldName;
     private String desc;
 
     private String description;
@@ -65,12 +66,20 @@ public class Operation {
         this.owner = owner;
     }
 
-    public String getName() {
-        return name;
+    public String getFuncName() {
+        return fName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFuncName(String name) {
+        this.fName = name;
+    }
+
+    public void setFieldName(String name) {
+        this.fieldName = name;
+    }
+
+    public String getFieldName() {
+        return this.fieldName;
     }
 
     public String getDesc() {
@@ -102,7 +111,7 @@ public class Operation {
 
     @Override
     public String toString() {
-        return description + ": " + type + "(opcode=" + opcode + ", name=" + this.getName()
+        return description + ": " + type + "(opcode=" + opcode + ", name=" + this.getFuncName()
                 + ", value=" + value + "), " + (desc == null ? "" : desc);
     }
 

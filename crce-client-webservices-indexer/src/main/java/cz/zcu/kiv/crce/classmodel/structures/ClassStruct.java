@@ -1,8 +1,10 @@
 package cz.zcu.kiv.crce.classmodel.structures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -11,7 +13,8 @@ import java.util.Set;
 public class ClassStruct extends PathPart {
 
     private String parent;
-    private List<Method> methods = new ArrayList<>();
+    private Map<String, Method> methodsMap = new HashMap<>();
+    private List<Method> methods = null;
     private Set<Field> fields = new HashSet<>();
     private String[] interfaces;
     private Method clnitMethod;
@@ -39,10 +42,20 @@ public class ClassStruct extends PathPart {
     }
 
     public void addMethod(Method method) {
-        methods.add(method);
+        methodsMap.put(method.getName(), method);
+    }
+
+    public Method getMethod(String name) {
+        if (!methodsMap.containsKey(name)) {
+            return null;
+        }
+        return methodsMap.get(name);
     }
 
     public List<Method> getMethods() {
+        if (methods == null) {
+            methods = new ArrayList<Method>(methodsMap.values());
+        }
         return methods;
     }
 
@@ -78,7 +91,7 @@ public class ClassStruct extends PathPart {
 
     @Override
     public String toString() {
-        return "ClassStruct{" + "name=" + name + ", methods=" + methods + ", fields=" + fields
-                + ", parent=" + parent + ", interfaces=" + interfaces + '}';
+        return "ClassStruct{" + "name=" + name + ", methods=" + methodsMap.values() + ", fields="
+                + fields + ", parent=" + parent + ", interfaces=" + interfaces + '}';
     }
 }

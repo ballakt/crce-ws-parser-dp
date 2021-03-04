@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Set status to debug to see if log4j2 is working correctly-->
+<Configuration status="debug" monitorInterval="30">
+    <!--Remove monitorInterval if you never configure logging at runtime-->
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>
+                    %msg%n
+                    <!--[LogLevel] Time [Thread] LoggerName Message NewLine-->
+                </pattern>
+            </PatternLayout>
+        </Console>
+        <!--
+        - The following code is for logging to files
+        - Since the logging shall be fast it is asynchronous 
+        -->
+        <!--         <RandomAccessFile name="RandomAccessFileAppenderError" fileName="Logs/ErrorLog.log" immediateFlush="false" append="true">
+            <PatternLayout>
+                <pattern>
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+                </pattern>
+            </PatternLayout>
+        </RandomAccessFile>
+        <RandomAccessFile name="RandomAccessFileAppenderInfo" fileName="Logs/InfoLog.log" immediateFlush="false" append="false">
+            <PatternLayout>
+                <pattern>
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+                </pattern>
+            </PatternLayout>
+        </RandomAccessFile> -->
+        <RandomAccessFile name="RandomAccessFileAppenderDebug" fileName="Logs/DebugLog.log" immediateFlush="false" append="false">
+            <PatternLayout>
+                <pattern>
+                    %msg%n
+                </pattern>
+            </PatternLayout>
+        </RandomAccessFile>
+        <RandomAccessFile name="RandomAccessFileAppenderDebugEndpoints" fileName="Logs/EndpointsDebugLog.log" immediateFlush="false" append="false">
+            <PatternLayout>
+                <pattern>
+                    %msg%n
+                </pattern>
+            </PatternLayout>
+        </RandomAccessFile>
+        <TextPaneAppender name="VisualAppender">
+            <PatternLayout>
+                <pattern>%msg%n</pattern>
+            </PatternLayout>
+        </TextPaneAppender>
+    </Appenders>
+    <Loggers>
+        <!--The default log level is trace that means if you don't explicitly set the level on the AppenderRef it will log -->
+        <!--The default log level is trace | includeLocation is set false because it decreases performance-->
+        <Logger name="endpoints" level="debug" additivity="false">
+            <AppenderRef ref="RandomAccessFileAppenderDebugEndpoints" />
+            <AppenderRef ref="ConsoleAppender" level="debug" />
+        </Logger>
+        <Logger name="extractor" level="debug" additivity="false">
+            <AppenderRef ref="RandomAccessFileAppenderDebug" />
+            <AppenderRef ref="ConsoleAppender" level="debug" />
+        </Logger>
+    </Loggers>
+</Configuration>

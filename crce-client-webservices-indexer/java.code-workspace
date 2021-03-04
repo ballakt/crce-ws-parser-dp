@@ -14,7 +14,8 @@
             "visualstudioexptteam.vscodeintellicode",
             "redhat.vscode-xml",
             "aaron-bond.better-comments",
-            "sohibe.java-generate-setters-getters"
+            "sohibe.java-generate-setters-getters",
+            "vscode-icons-team.vscode-icons"
         ]
     },
     "settings": {

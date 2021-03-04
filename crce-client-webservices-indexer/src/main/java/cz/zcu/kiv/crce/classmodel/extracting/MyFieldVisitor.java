@@ -13,18 +13,15 @@ public class MyFieldVisitor extends FieldVisitor {
     public MyFieldVisitor(Field field) {
         super(Opcodes.ASM9);
         this.field = field;
-        // TODO Auto-generated constructor stub
     }
 
     @Override
     public void visitAttribute(Attribute attribute) {
-        // TODO Auto-generated method stub
         super.visitAttribute(attribute);
     }
 
     @Override
     public void visitEnd() {
-        // TODO Auto-generated method stub
         state.getClassType().addField(field);
         super.visitEnd();
     }

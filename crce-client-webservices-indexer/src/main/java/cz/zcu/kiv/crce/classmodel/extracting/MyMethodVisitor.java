@@ -2,6 +2,9 @@ package cz.zcu.kiv.crce.classmodel.extracting;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /*
  * package cz.zcu.kiv.crce.restimpl.indexer.classmodel.extracting;
  * 
@@ -17,6 +20,7 @@ import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Variable;
+import cz.zcu.kiv.crce.classmodel.structures.Operation.OperationType;
 
 /**
  * Created by ghessova on 22.01.2018.
@@ -31,9 +35,12 @@ import cz.zcu.kiv.crce.classmodel.structures.Variable;
  */
 public class MyMethodVisitor extends MethodVisitor {
 
+    private final int minICONST = -1;
     private State state = State.getInstance();
     private Method method;
     private List<String> log = new ArrayList<>();
+    static Logger logger = LogManager.getLogger("extractor");
+
 
     // private static final Logger logger = LoggerFactory.getLogger(MyMethodVisitor.class);
 
@@ -79,22 +86,21 @@ public class MyMethodVisitor extends MethodVisitor {
             return;
         }
         List<Variable> parameters = method.getParameters();
-        
-          if (parameters != null) { 
-              int paramIndex = state.getParametersProcessed();
-               if (paramIndex < parameters.size()) { 
-                   parameters.get(paramIndex).setName(name);
-                   state.setParametersProcessed(paramIndex + 1);
-               } else if (paramIndex == parameters.size()) { 
-                   // parameter processing is finished // log.add(name + "-" + dataType + "-" + s2 + "-" +
-                    //label + "-" + label1 + "-" + i);
-                    state.setParametersProcessed(0);
-                } 
-                  
-        
 
-        System.out.println("name: " + name);
-        super.visitLocalVariable(name, desc, signature, start, end, index);
+        if (parameters != null) {
+            int paramIndex = state.getParametersProcessed();
+            if (paramIndex < parameters.size()) {
+                parameters.get(paramIndex).setName(name);
+                state.setParametersProcessed(paramIndex + 1);
+            } else if (paramIndex == parameters.size()) {
+                // parameter processing is finished // log.add(name + "-" + dataType + "-" + s2 +
+                // "-" +
+                // label + "-" + label1 + "-" + i);
+                state.setParametersProcessed(0);
+            }
+
+            super.visitLocalVariable(name, desc, signature, start, end, index);
+        }
     }
 
 
@@ -111,13 +117,13 @@ public class MyMethodVisitor extends MethodVisitor {
 
         Operation operation = new Operation(Operation.OperationType.FIELD);
         operation.setOwner(owner);
-        operation.setName(name);
+        operation.setFieldName(name);
         operation.setDesc(desc);
         operation.setOpcode(opcode);
         method.addOperation(operation);
 
-        System.out.println("Field-Instruction[" + "opcode=" + opcode + " name=" + name + " desc="
-                + desc + "]============START");
+        logger.debug("        Field-Instruction[" + "opcode=" + opcode + ", name=" + name
+                + ", desc=" + desc + "]");
         super.visitFieldInsn(opcode, owner, name, desc);
     }
 
@@ -153,7 +159,7 @@ public class MyMethodVisitor extends MethodVisitor {
 
         Operation operation = new Operation(opcode, Operation.OperationType.CALL);
         operation.setOwner(owner);
-        operation.setName(name);
+        operation.setFuncName(name);
         operation.setDesc(desc);
         /*
          * if (opcode == Opcodes.INVOKESTATIC) { }
@@ -177,8 +183,8 @@ public class MyMethodVisitor extends MethodVisitor {
 
 
 
-        System.out.println("Method-Instruction[" + "opcode=" + opcodeTransl + " owner=" + owner
-                + " name=" + name + " desc=" + desc);
+        logger.debug("        Method-Instruction[" + "opcode=" + opcodeTransl + ", owner=" + owner
+                + ", name=" + name + ", desc=" + desc + "]");
         super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 
@@ -229,9 +235,8 @@ public class MyMethodVisitor extends MethodVisitor {
         operation.setDescription("constant from pool: " + String.valueOf(o));
         method.addOperation(operation);
 
-        System.out.println("Constant-From-Pool[" + String.valueOf(o) + "]============START");
+        logger.debug("        Constant-From-Pool[" + String.valueOf(o) + "]");
         super.visitLdcInsn(o);
-        System.out.println("Constant-From-Pool[" + String.valueOf(o) + "]============END");
     }
 
 
@@ -258,6 +263,8 @@ public class MyMethodVisitor extends MethodVisitor {
         operation.setValue("" + operand);
         operation.setDescription("int: " + String.valueOf(operand));
         method.addOperation(operation);
+        logger.debug(
+                "        Visit-Int-Instruction[operand=" + operand + ", opcode=" + opcode + "]");
         super.visitIntInsn(opcode, operand);
     }
 
@@ -285,11 +292,9 @@ public class MyMethodVisitor extends MethodVisitor {
         if (opcode > 54 && opcode < 86) {
             type = "store";
         }
-        System.out.println("Local-Variable-Instruction[" + type + "=" + opcode + "var=" + var
-                + "]============START");
+        logger.debug(
+                "        Local-Variable-Instruction[" + type + "=" + opcode + ", var=" + var + "]");
         // MethodVisitor mv = new MyMethodVisitor(Opcodes.ASM9);
-        System.out.println("Local-Variable-Instruction[" + type + "=" + opcode + "var=" + var
-                + "]============END");
 
         Operation operation;
         if (opcode > 20 && opcode < 54) { // load
@@ -331,18 +336,14 @@ public class MyMethodVisitor extends MethodVisitor {
     public void visitJumpInsn(int opcode, Label label) {
         // log.add("jump(" + opcode + "): " + label);
 
-        /*
-         * System.out.println("Jump-Instruction[" + "opcode=" + opcode + " " + "label=" + label +
-         * "]============START");
-         */
+
+        logger.debug(
+                "        Jump-Instruction[" + "opcode=" + opcode + ", " + "label=" + label + "]");
+
         method.addOperation(new Operation(opcode, Operation.OperationType.JUMP));
 
         super.visitJumpInsn(opcode, label);
 
-        /*
-         * System.out.println("Jump-Instruction[" + "opcode=" + opcode + " " + "label=" + label +
-         * "]============START");
-         */
     }
 
     /*
@@ -355,29 +356,51 @@ public class MyMethodVisitor extends MethodVisitor {
     @Override
     public void visitInsn(int opcode) { // opcode 176 is return
         String type = "unknown";
-        if (opcode == 172) {
-            type = "ireturn";
+        OperationType operationType = null;
+        String value = null;
+        switch (opcode) {
+            case Opcodes.IRETURN:
+                type = "ireturn";
+                operationType = OperationType.RETURN;
+                break;
+            case Opcodes.ARETURN:
+                type = "areturn";
+                operationType = OperationType.RETURN;
+                break;
+            case Opcodes.RETURN:
+                type = "return";
+                operationType = OperationType.RETURN;
+            default:
+                if (opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) {
+                    operationType = OperationType.INT_CONSTANT;
+                    value = (opcode - Opcodes.ICONST_M1 + minICONST) + "";
+                } else if (opcode >= Opcodes.LCONST_0 && opcode <= Opcodes.LCONST_1) {
+                    operationType = OperationType.INT_CONSTANT;
+                    value = (opcode - Opcodes.LCONST_0) + "";
+                } else if (opcode >= Opcodes.FCONST_0 && opcode <= Opcodes.FCONST_2) {
+                    operationType = OperationType.INT_CONSTANT;
+                    value = (opcode - Opcodes.FCONST_0) + "";
+                } else if (opcode >= Opcodes.DCONST_0 && opcode <= Opcodes.DCONST_1) {
+                    operationType = OperationType.INT_CONSTANT;
+                    value = (opcode - Opcodes.DCONST_0) + "";
+                }
         }
-        if (opcode == 176) {
-            type = "areturn - return a reference from method";
+        if (operationType != null) {
+            Operation op = new Operation(opcode, operationType);
+            if (value != null) {
+                op.setValue(opcode - Opcodes.ICONST_M1 + minICONST);
+            }
+            method.addOperation(op);
         }
-        if (opcode == 177) {
-            type = "return - void";
-        }
-
-        if (type != "unknown") {
-            method.addOperation(new Operation(Operation.OperationType.RETURN));
-        }
-        /*
-         * if (opcode == 176) { log.add(opcode + "(return)"); method.addLog(log); log = new
-         * ArrayList<>(); method.addOperation(new Operation(Operation.OperationType.RETURN)); }
-         */
-        // System.out.println("Instruction[" + type + "=" + opcode + "]============START");
-        // method.addOperation(new Operation(opcode, Operation.OperationType.JUMP));
-
         super.visitInsn(opcode);
+        logger.debug("        Instruction[" + type + "=" + opcode + "]");
+    }
 
-        // System.out.println("Instruction[" + type + "=" + opcode + "]============END");
-
+    @Override
+    public void visitEnd() {
+        // TODO Auto-generated method stub
+        logger.debug("    ==========END-Method-Visitor[name=" + this.method.getName() + " CLINIT="
+                + (this.method.getName().equals("<clinit>") ? "TRUE" : "FALSE") + "]===\n");
+        super.visitEnd();
     }
 }
