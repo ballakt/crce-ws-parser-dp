@@ -1,7 +1,5 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
-import java.util.List;
-import java.util.Map;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
@@ -89,6 +87,11 @@ public class AssignmentProcessor {
         StringBuilder value = new StringBuilder();
         StringBuilder valueAggergated = new StringBuilder();
         Method methodStruct = method.getMethodStruct();
+
+
+        if (method.getMethodStruct().getName().equals("getEmployeeById")) {
+            System.out.println("BLA");
+        }
 
         for (Operation operation : methodStruct.getOperations()) {
             final OperationType type = operation.getType();

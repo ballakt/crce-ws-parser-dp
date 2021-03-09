@@ -1,0 +1,18 @@
+definitions:
+  - class: org.springframework.web.reactive.function.client.WebClient
+    methods:
+      - name: get
+      - name: post
+      - name: put
+  - class: org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec
+    methods:
+      - name: uri
+        args:
+          - - URL
+            - PARAM
+          - - URL
+  - class: org.springframework.web.reactive.function.client.WebClient.ResponseSpec
+    methods:
+      - name: bodyToMono
+        args:
+          - - RETRIEVE

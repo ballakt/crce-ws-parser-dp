@@ -15,7 +15,8 @@
             "redhat.vscode-xml",
             "aaron-bond.better-comments",
             "sohibe.java-generate-setters-getters",
-            "vscode-icons-team.vscode-icons"
+            "vscode-icons-team.vscode-icons",
+            "redhat.vscode-yaml"
         ]
     },
     "settings": {
