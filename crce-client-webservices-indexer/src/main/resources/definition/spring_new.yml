@@ -8,9 +8,9 @@ definitions:
     methods:
       - name: uri
         args:
-          - - URL
+          - - URI
             - PARAM
-          - - URL
+          - - URI
   - class: org.springframework.web.reactive.function.client.WebClient.ResponseSpec
     methods:
       - name: bodyToMono
