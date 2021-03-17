@@ -9,7 +9,10 @@ public class MethodDefinition {
     private String name;
 
     @JsonProperty("args")
-    private Set<ArrayList<String>> args;
+    private Set<ArrayList<ArgDefinitionType>> args;
+
+    @JsonProperty("type")
+    private Set<DefinitionType> type;
 
     /**
      * @return the name
@@ -28,16 +31,41 @@ public class MethodDefinition {
     /**
      * @return the args
      */
-    public Set<ArrayList<String>> getArgs() {
+    public Set<ArrayList<ArgDefinitionType>> getArgs() {
         return args;
     }
 
     /**
      * @param args the args to set
      */
-    public void setArgs(Set<ArrayList<String>> args) {
+    public void setArgs(Set<ArrayList<ArgDefinitionType>> args) {
         this.args = args;
     }
 
+    /**
+     * @return the type
+     */
+    public Set<DefinitionType> getType() {
+        return type;
+    }
 
+    /**
+     * @param type the type to set
+     */
+    public void setType(Set<DefinitionType> type) {
+        this.type = type;
+    }
+
+    /*
+     * private String argsToString() { String argsString = "";
+     * 
+     * this.args. }
+     */
+
+    @Override
+    public String toString() {
+        // TODO Auto-generated method stub
+        return "MethodDefinition{" + "name='" + name + '\'' + ", types='" + this.type.toString()
+                + '\'' + ", args=" + this.args.toString() + '}';
+    }
 }

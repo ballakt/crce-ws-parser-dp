@@ -2,17 +2,39 @@ definitions:
   - class: org.springframework.web.reactive.function.client.WebClient
     methods:
       - name: get
+        type:
+          - GET
       - name: post
+        type:
+          - POST
       - name: put
-  - class: org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec
+        type:
+          - PUT
+      - name: delete
+        type:
+          - DELETE
+  - class: org.springframework.web.reactive.function.client.WebClient$RequestBodyUriSpec
     methods:
       - name: uri
+        type:
+          - URI
         args:
           - - URI
             - PARAM
           - - URI
-  - class: org.springframework.web.reactive.function.client.WebClient.ResponseSpec
+  - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersUriSpec
+    methods:
+      - name: uri
+        type:
+          - URI
+        args:
+          - - URI
+            - PARAM
+          - - URI
+  - class: org.springframework.web.reactive.function.client.WebClient$ResponseSpec
     methods:
       - name: bodyToMono
+        type:
+          - RETRIEVE
         args:
           - - RETRIEVE

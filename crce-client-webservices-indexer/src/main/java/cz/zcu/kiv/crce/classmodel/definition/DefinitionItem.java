@@ -21,7 +21,8 @@ public class DefinitionItem {
      * @param className the className to set
      */
     public void setClassName(String className) {
-        this.className = className;
+        String processed = DefinitionValuesProcessor.processClassName(className);
+        this.className = processed;
     }
 
     /**

@@ -1,5 +1,7 @@
 package cz.zcu.kiv.crce.classmodel.structures;
 
+import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
+
 /**
  * Created by ghessova on 08.04.2018.
  */
@@ -87,17 +89,18 @@ public class Operation {
     }
 
     public void setDesc(String desc) {
-        /*
-         * if (type == OperationType.CALL) {
-         * this.setDataType(BytecodeDescriptorsProcessor.processMethodDescriptor(desc).getReturnType
-         * ().getBasicType()); }
-         */
+
+        if (type == OperationType.CALL) {
+            this.setDataType(BytecodeDescriptorsProcessor.processMethodDescriptor(desc)
+                    .getReturnType().getBasicType());
+        }
+
         this.desc = desc;
     }
 
     public enum OperationType {
 
-        STORE, LOAD, STRING_CONSTANT, INT_CONSTANT, JUMP, RETURN, CALL, OTHER, FIELD;
+        STORE, LOAD, STRING_CONSTANT, INT_CONSTANT, ANEWARRAY, JUMP, RETURN, CALL, OTHER, FIELD;
     }
 
     public String getDescription() {

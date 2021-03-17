@@ -1,30 +1,36 @@
 package cz.zcu.kiv.crce.classmodel.structures;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Endpoint {
 
 
-    private EndpointType type;
+    private Set<EndpointType> types = new HashSet<>();
     private String uri;
+
+    public Endpoint(String uri, Set<EndpointType> types) {
+        this.types = types;
+    }
 
     public Endpoint(String uri, EndpointType type) {
         this.uri = uri;
-        this.type = type;
+        this.types.add(type);
     }
 
     public Endpoint() {
-        this.uri = uri;
-        this.type = type;
     }
 
     public enum EndpointType {
-        PUT, GET, DELETE, POST;
+        POST, GET, PUT, PATCH, DELETE;
     }
 
-    /**
-     * @return the type
-     */
-    public EndpointType getType() {
-        return type;
+    public Set<EndpointType> getTypes() {
+        return this.types;
+    }
+
+    public void addType(EndpointType type) {
+        this.types.add(type);
     }
 
     /**
@@ -41,15 +47,8 @@ public class Endpoint {
         this.uri = uri;
     }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(EndpointType type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
-        return "Endpoint{" + "uri='" + uri + '\'' + ", type='" + this.type + '\'' + '}';
+        return "Endpoint{" + "uri='" + uri + '\'' + ", type='" + this.types.toString() + '\'' + '}';
     }
 }

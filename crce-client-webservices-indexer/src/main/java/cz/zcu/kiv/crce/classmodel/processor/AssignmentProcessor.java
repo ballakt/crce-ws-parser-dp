@@ -1,11 +1,14 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
+import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Operation.OperationType;
+import cz.zcu.kiv.crce.tools.NumTool;
+import cz.zcu.kiv.crce.tools.SBTool;
 
 public class AssignmentProcessor {
 
@@ -17,114 +20,99 @@ public class AssignmentProcessor {
         this.classes = classes;
     }
 
-    protected void setStringBuilderValue(StringBuilder sb, String val) {
-        sb.setLength(0); // clear the string
-        sb.append(val);
-    }
+    protected void processFIELD(Operation operation, Stack<StringBuilder> values) {
 
-    protected void processFIELD(Operation operation, StringBuilder sb) {
         ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
         switch (operation.getOpcode()) {
             case Opcodes.GETFIELD:
             case Opcodes.GETSTATIC:
-                // System.out.println("GETSTATIC=" + operation.getFieldName() + " VAL="+
-                // classPool.get(operation.getFieldName()));
-                setStringBuilderValue(sb, classPool.get(operation.getFieldName()));
+                if (!classPool.containsKey(operation.getFieldName())) {
+                    break;
+                }
+                values.add(new StringBuilder(classPool.get(operation.getFieldName())));
                 break;
             case Opcodes.PUTSTATIC:
             case Opcodes.PUTFIELD:
+                if (values.size() == 0) {
+                    break;
+                }
+                StringBuilder sb = values.pop();
                 classPool.put(operation.getFieldName(), sb.toString());
-                sb.setLength(0);
                 break;
         }
 
     }
 
-    protected void processCALL(Operation operation, StringBuilder value,
-            StringBuilder aggregationValue) {
+    protected void processCONSTANT(Operation operation, Stack<StringBuilder> values) {
+        StringBuilder newValue = new StringBuilder();
+        SBTool.set(newValue, operation.getValue());
+        values.add(newValue);
     }
 
-    protected void processRETURN(MethodWrapper methodWrapper, Operation operation,
-            StringBuilder value, StringBuilder appendedValue) {
-    }
-
-    protected void processCONSTANT(Operation operation, StringBuilder value) {
-        final Object rawValue = operation.getValue();
-        setStringBuilderValue(value, rawValue.toString());
-    }
-
-    protected void processSTORE(MethodWrapper method, Operation operation, StringBuilder sb,
-            StringBuilder sbAggregated) {
+    protected void processSTORE(MethodWrapper method, Operation operation,
+            Stack<StringBuilder> values) {
         ConstPool constPool = method.getConstPool();
-        final String index = operation.getIndex() + "";
-        // System.out.println("METHOD=" + method.getMethodStruct() + " STORE=" + sb + ", STORE="+
-        // sbAggregated + " INDEX=" + index);
-        if (sbAggregated.length() > 0) {
-            constPool.put(index, sbAggregated.toString());
-        } else {
-            constPool.put(index, sb.toString());
-        }
-        sb.setLength(0);
-        sbAggregated.setLength(0);
-    }
+        final String index = NumTool.numberToString(operation.getIndex());
 
-    protected void processLOAD(MethodWrapper method, Operation operation, StringBuilder sb) {
-        String value = "";
-        ConstPool constPool = method.getConstPool();
-        final String index = operation.getIndex() + "";
-
-        // System.out .println("METHOD=" + method.getMethodStruct() + " LOAD=" + sb + " INDEX=" +
-        // index);
-        if (!constPool.containsKey(index)) {
-            // System.err.println("Const pool does not contain a key=" + index);
+        /*
+         * if (sbAggregated.length() > 0) { constPool.put(index, sbAggregated.toString()); } else if
+         * (values.peek() != null) {
+         * 
+         * } else { return; }
+         */
+        StringBuilder sb = Helpers.StackF.pop(values);
+        if (sb == null) {
             return;
         }
-        value = constPool.get(index);
-        this.setStringBuilderValue(sb, value);
+        constPool.put(index, sb.toString());
+        // SBTool.clear(sbAggregated);
     }
 
-    public void process(MethodWrapper method) {
-        StringBuilder value = new StringBuilder();
-        StringBuilder valueAggergated = new StringBuilder();
-        Method methodStruct = method.getMethodStruct();
+    protected void processLOAD(MethodWrapper method, Operation operation,
+            Stack<StringBuilder> values) {
 
+        ConstPool constPool = method.getConstPool();
+        final String index = NumTool.numberToString(operation.getIndex());
 
-        if (method.getMethodStruct().getName().equals("getEmployeeById")) {
-            System.out.println("BLA");
+        if (!constPool.containsKey(index)) {
+            return;
         }
+        values.add(new StringBuilder(constPool.get(index)));
+    }
 
+    protected void processInner(MethodWrapper method, Stack<StringBuilder> values) {
+
+        Method methodStruct = method.getMethodStruct();
         for (Operation operation : methodStruct.getOperations()) {
-            final OperationType type = operation.getType();
-            // System.out.println("VALUE=" + valProcess.toString());
-            // System.out.println("AGGREGATED_VALUE=" + valProcessAggregated.toString());
-            switch (type) {
-                case FIELD:
-                    processFIELD(operation, value);
-                    break;
+            processOperation(method, operation, values);
+        }
+    }
 
-                case STRING_CONSTANT:
-                case INT_CONSTANT:
-                    processCONSTANT(operation, value);
-                    break;
+    protected void processOperation(MethodWrapper method, Operation operation,
+            Stack<StringBuilder> values) {
+        final OperationType type = operation.getType();
+        switch (type) {
+            case FIELD:
+                processFIELD(operation, values);
+                break;
 
-                case LOAD:
-                    processLOAD(method, operation, value);
-                    break;
+            case STRING_CONSTANT:
+            case INT_CONSTANT:
+                processCONSTANT(operation, values);
+                break;
 
-                case STORE:
-                    processSTORE(method, operation, value, valueAggergated);
+            case LOAD:
+                processLOAD(method, operation, values);
+                break;
 
-                case CALL:
-                    processCALL(operation, value, valueAggergated);
-                    break;
+            case STORE:
+                processSTORE(method, operation, values);
 
-                case RETURN:
-                    processRETURN(method, operation, value, valueAggergated);
-                    break;
+            case ANEWARRAY:
+                // values.poll();
+                Helpers.StackF.pop(values);
+            default:;
 
-                default:;
-
-            }
         }
     }
 }

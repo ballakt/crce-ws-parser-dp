@@ -1,14 +1,11 @@
 package cz.zcu.kiv.crce.classmodel;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
-import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
-import cz.zcu.kiv.crce.classmodel.processor.Processor;
 import cz.zcu.kiv.crce.classmodel.structures.ClassMap;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
 import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
@@ -96,13 +93,13 @@ public class Collector {
                     }
 
                     if (operation.getFuncName().equals("get")) {
-                        tmpEndpoint.setType(EndpointType.GET);
+                        tmpEndpoint.addType(EndpointType.GET);
                     } else if (operation.getFuncName().equals("put")) {
-                        tmpEndpoint.setType(EndpointType.PUT);
+                        tmpEndpoint.addType(EndpointType.PUT);
                     } else if (operation.getFuncName().equals("post")) {
-                        tmpEndpoint.setType(EndpointType.POST);
+                        tmpEndpoint.addType(EndpointType.POST);
                     } else if (operation.getFuncName().equals("delete")) {
-                        tmpEndpoint.setType(EndpointType.DELETE);
+                        tmpEndpoint.addType(EndpointType.DELETE);
                     } else if (operation.getFuncName().equals("uri")) {
                         tmpEndpoint.setUri(constValMethod);
                     } else {

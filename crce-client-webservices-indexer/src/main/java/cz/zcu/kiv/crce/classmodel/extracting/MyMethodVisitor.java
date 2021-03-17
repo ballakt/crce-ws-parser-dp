@@ -200,8 +200,12 @@ public class MyMethodVisitor extends MethodVisitor {
     @Override
     public void visitTypeInsn(int opcode, String type) {
         if (opcode == Opcodes.ANEWARRAY) {
-            log.add("new array of " + type);
+            Operation operation = new Operation(opcode, Operation.OperationType.ANEWARRAY);
+            operation.setValue("" + type);
+            method.addOperation(operation);
         }
+
+
     }
 
     @Override
