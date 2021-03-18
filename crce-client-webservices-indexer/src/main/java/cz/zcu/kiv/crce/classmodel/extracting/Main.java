@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -13,22 +12,12 @@ import java.util.stream.Stream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.Collector;
-import cz.zcu.kiv.crce.classmodel.definition.Definition;
-import cz.zcu.kiv.crce.classmodel.definition.MethodDefinitionMap;
 import cz.zcu.kiv.crce.classmodel.processor.Helpers;
 import cz.zcu.kiv.crce.classmodel.processor.Processor;
 import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
+import cz.zcu.kiv.crce.cli.CommandLineInterface;
 
 public class Main {
-    /*
-     * EClassVisitor visitor;
-     */
-    /*
-     * void parseClass(ClassReader classReader, EClassVisitor visitor) { classReader.accept(visitor,
-     * ClassReader.SKIP_DEBUG);
-     * 
-     * }
-     */
 
     static void loadClasses(File jarFile) throws IOException {
         // Map<String, ClassNode> classes = new HashMap<String, ClassNode>();
@@ -64,8 +53,16 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        File jarFile = new File(
-                "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/main/java/cz/zcu/kiv/crce/examples/asm/test_12.jar");
+
+        /*
+         * File jarFile = new File(
+         * "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/main/java/cz/zcu/kiv/crce/examples/asm/test_12.jar"
+         * );
+         */
+        File jarFile = CommandLineInterface.getFile(args);
+        if (jarFile == null) {
+            return;
+        }
         loadClasses(jarFile);
 
         // Collector.getInstance().process();
