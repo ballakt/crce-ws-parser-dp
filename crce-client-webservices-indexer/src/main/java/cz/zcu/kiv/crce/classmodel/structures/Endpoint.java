@@ -10,6 +10,7 @@ public class Endpoint {
     private String uri;
 
     public Endpoint(String uri, Set<EndpointType> types) {
+        this.uri = uri;
         this.types = types;
     }
 
@@ -45,6 +46,17 @@ public class Endpoint {
      */
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+
+    public boolean equals(Endpoint endpoint) {
+        if (!uri.equals(endpoint.getUri())) {
+            return false;
+        }
+        if (this.types.equals(endpoint.getTypes())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
