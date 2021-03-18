@@ -1,8 +1,6 @@
 package cz.zcu.kiv.crce.classmodel.extracting;
 
 import java.io.File;
-import cz.zcu.kiv.crce.classmodel.Collector;
-import cz.zcu.kiv.crce.classmodel.processor.Helpers;
 import cz.zcu.kiv.crce.classmodel.processor.Processor;
 import cz.zcu.kiv.crce.cli.CommandLineInterface;
 
@@ -19,8 +17,6 @@ public class Main {
         if (jarFile == null) {
             return;
         }
-        Loader.loadClasses(jarFile);
-
-        Processor.processMany(Helpers.convertStructMap(Collector.getInstance().getClasses()));
+        Processor.process(jarFile);
     }
 }

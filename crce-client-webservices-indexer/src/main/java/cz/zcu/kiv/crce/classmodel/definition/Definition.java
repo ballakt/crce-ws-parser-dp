@@ -18,6 +18,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Definition {
 
+    private static final String JAR_URI_SCHEME = "jar";
     private static MethodDefinitionMap definition = null;
     private static final String DEF_DIR_NAME = "definition";
     private static final String DEF_DIR_ABS = "/" + DEF_DIR_NAME;
@@ -27,28 +28,30 @@ public class Definition {
     /**
      * Preloads all filenames into list (JAR version)
      * 
-     * @param filesInDirectory List which will be filled by filenames in res. dir
-     * @param fullPath         Path to resource file
+     * @param path Path to resource file
      * @throws IOException
      */
-    private static void loadFilesFromJar(List<String> filesInDirectory, String fullPath)
-            throws IOException {
-        String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+    private static List<String> loadFilesFromJar(String path) throws IOException {
+        final String jarPath = path.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
         JarFile jarFile = new JarFile(jarPath);
         Enumeration<JarEntry> entries = jarFile.entries();
-        filesInDirectory = new LinkedList<String>();
+        List<String> filesInDirectory = new LinkedList<String>();
+
         while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
-            String entryName = entry.getName();
+            final JarEntry entry = entries.nextElement();
+            final String entryName = entry.getName();
+
             if (entryName.startsWith(DEF_DIR_REL) && !entryName.equals(DEF_DIR_REL)) {
-                filesInDirectory.add(entryName);
+                filesInDirectory.add("/" + entryName);
             }
         }
+
         jarFile.close();
+        return filesInDirectory;
     }
 
     /**
-     * Loads all definition .class version
+     * Wrappes loader for configuration file
      * 
      * @param defDirPath Directory of an configuration file
      * @param file       Filename of an configuration file
@@ -56,9 +59,19 @@ public class Definition {
      */
     private static void loadConfigurationFile(String defDirPath, String file) throws Exception {
         final String path = defDirPath + "/" + file;
+        loadConfigurationFile(path);
+    }
+
+    /**
+     * Loads configuration into private static field
+     * 
+     * @param path Path to configuration file
+     * @throws Exception
+     */
+    private static void loadConfigurationFile(String path) throws Exception {
         final InputStream inputStream = Definition.class.getResourceAsStream(path);
         if (inputStream == null)
-            throw new Exception("resource not found: " + path);
+            throw new Exception("Resource not found: " + path);
         RestApiDefinition restApiDefinition =
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .readValue(inputStream, RestApiDefinition.class);
@@ -81,34 +94,35 @@ public class Definition {
      * @throws Exception
      */
     private static void loadDefinitions() throws Exception {
-        String defDirPath = DEF_DIR_ABS;
+        final URL resource_url = Definition.class.getResource(DEF_DIR_ABS);
 
-        definition = new MethodDefinitionMap();
-        // Map<String, DefinitionItem> restApiDefinitions = new HashMap<>();
-        final URL resource_url = Definition.class.getResource(defDirPath);
         if (resource_url == null) {
-            throw new Exception("directory not found: " + defDirPath);
+            throw new Exception("Directory not found: " + DEF_DIR_ABS);
         }
 
         File directory = null;
-        String fullPath = resource_url.getFile();
         List<String> filesInDirectory = null;
+        definition = new MethodDefinitionMap();
+        String fullPath = resource_url.getFile();
 
-        try {
+        if (resource_url.toURI().getScheme().equals(JAR_URI_SCHEME)) { // inside JAR
+            filesInDirectory = loadFilesFromJar(fullPath);
+            for (final String path : filesInDirectory) {
+                loadConfigurationFile(path);
+            }
+        } else {
             directory = new File(resource_url.toURI());
-        } catch (IllegalArgumentException e) {
-            defDirPath = "";
-            loadFilesFromJar(filesInDirectory, fullPath);
-        }
-
-        if (directory != null) {
             filesInDirectory = Arrays.asList(directory.list());
-        }
-        for (final String file : filesInDirectory) {
-            loadConfigurationFile(defDirPath, file);
+            for (final String file : filesInDirectory) {
+                loadConfigurationFile(DEF_DIR_ABS, file);
+            }
         }
     }
 
+    /**
+     * 
+     * @return Definition of methods
+     */
     public static MethodDefinitionMap getDefinitions() {
         if (definition == null) {
             try {
