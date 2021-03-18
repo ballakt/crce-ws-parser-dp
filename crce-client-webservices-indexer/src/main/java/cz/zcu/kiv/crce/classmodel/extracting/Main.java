@@ -12,7 +12,7 @@ public class Main {
 
         /*
          * File jarFile = new File(
-         * "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/main/java/cz/zcu/kiv/crce/examples/asm/test_12.jar"
+         * "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/test/resources/spring_webclient.jar"
          * );
          */
         File jarFile = CommandLineInterface.getFile(args);

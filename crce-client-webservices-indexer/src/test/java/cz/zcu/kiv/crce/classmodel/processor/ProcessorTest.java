@@ -10,8 +10,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import cz.zcu.kiv.crce.classmodel.Collector;
 import cz.zcu.kiv.crce.classmodel.extracting.Loader;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint.EndpointType;
+import cz.zcu.kiv.crce.classmodel.processor.Endpoint.EndpointType;
 
 public class ProcessorTest {
 

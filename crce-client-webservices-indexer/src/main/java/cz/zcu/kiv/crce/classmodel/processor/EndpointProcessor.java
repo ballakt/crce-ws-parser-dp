@@ -9,12 +9,11 @@ import cz.zcu.kiv.crce.classmodel.definition.DefinitionType;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinitionMap;
 import cz.zcu.kiv.crce.classmodel.definition.tools.ArgTools;
+import cz.zcu.kiv.crce.classmodel.processor.Endpoint.EndpointType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint.EndpointType;
 
 class EndpointHandler extends MethodProcessor {
 
@@ -67,7 +66,7 @@ class EndpointHandler extends MethodProcessor {
         }
         super.processCALL(operation, values);
     }
-    
+
     @Override
     public void process(MethodWrapper method) {
         this.endpoint = null;

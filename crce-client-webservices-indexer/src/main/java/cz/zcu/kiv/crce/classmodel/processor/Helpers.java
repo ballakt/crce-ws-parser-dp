@@ -6,7 +6,6 @@ import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 
 public class Helpers {
 
