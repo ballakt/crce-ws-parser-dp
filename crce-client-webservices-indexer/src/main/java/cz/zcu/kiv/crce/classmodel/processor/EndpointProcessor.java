@@ -1,7 +1,6 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -17,16 +16,22 @@ import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Endpoint.EndpointType;
 
-class EndpointHandler extends NewMethodProcessor {
+class EndpointHandler extends MethodProcessor {
 
-    private Map<String, Endpoint> endpoints = new HashMap<>();
     private Endpoint endpoint = null;
+    private Map<String, Endpoint> endpoints = new HashMap<>();
     private MethodDefinitionMap md = Definition.getDefinitions();
 
     public EndpointHandler(ClassMap classes) {
         super(classes);
     }
 
+    /**
+     * Processes possible endpoints by detecting method CALL like .uri(), .put() etc.
+     * 
+     * @param operation Operation to be handled
+     * @param values    String values
+     */
     @Override
     protected void processCALL(Operation operation, Stack<StringBuilder> values) {
         if (md.containsKey(operation.getOwner())) {
@@ -62,13 +67,17 @@ class EndpointHandler extends NewMethodProcessor {
         }
         super.processCALL(operation, values);
     }
-
+    
     @Override
     public void process(MethodWrapper method) {
         this.endpoint = null;
         super.process(method);
     }
 
+    /**
+     * 
+     * @return Endpoints
+     */
     public Map<String, Endpoint> getEndpoints() {
         return this.endpoints;
     }
@@ -85,6 +94,11 @@ public class EndpointProcessor extends ClassProcessor {
         this.endpointHandler = new EndpointHandler(classes);
     }
 
+    /**
+     * Process class its methods and fields with endpoints handler
+     * 
+     * @param class_ Class to processing
+     */
     @Override
     public void process(ClassWrapper class_) {
         super.process(class_);
@@ -94,6 +108,10 @@ public class EndpointProcessor extends ClassProcessor {
         this.endpoints = endpointHandler.getEndpoints();
     }
 
+    /**
+     * 
+     * @return Endpoints
+     */
     public Map<String, Endpoint> getEndpoints() {
         return this.endpoints;
     }

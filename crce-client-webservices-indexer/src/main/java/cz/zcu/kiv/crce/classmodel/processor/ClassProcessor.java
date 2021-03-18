@@ -7,17 +7,22 @@ import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 public class ClassProcessor {
 
     ClassMap classes;
-    NewFieldProcessor fieldProcessor;
-    NewMethodProcessor methodProcessor;
+    FieldProcessor fieldProcessor;
+    MethodProcessor methodProcessor;
 
 
     public ClassProcessor(ClassMap classes) {
         this.classes = classes;
 
-        fieldProcessor = new NewFieldProcessor(classes);
-        methodProcessor = new NewMethodProcessor(classes);
+        fieldProcessor = new FieldProcessor(classes);
+        methodProcessor = new MethodProcessor(classes);
     }
 
+    /**
+     * Process class its methods and fields
+     * 
+     * @param class_ Class to processing
+     */
     public void process(ClassWrapper class_) {
         // first process fields
         this.fieldProcessor.process(class_);

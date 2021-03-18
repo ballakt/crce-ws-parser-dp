@@ -64,7 +64,6 @@ public class MethodDefinition {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return "MethodDefinition{" + "name='" + name + '\'' + ", types='" + this.type.toString()
                 + '\'' + ", args=" + this.args.toString() + '}';
     }

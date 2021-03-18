@@ -37,10 +37,21 @@ public class ClassWrapper {
         return classStruct;
     }
 
+    /**
+     * Gives method saved by its name
+     * 
+     * @param name Name of the method
+     * @return Method
+     */
     public MethodWrapper getMethod(String name) {
         return this.methods.get(name);
     }
 
+    /**
+     * Gives a whole list of methods stored in local map
+     * 
+     * @return List of methods
+     */
     public List<MethodWrapper> getMethods() {
         if (methodsList == null) {
             methodsList = new LinkedList<MethodWrapper>(methods.values());
@@ -48,6 +59,11 @@ public class ClassWrapper {
         return methodsList;
     }
 
+    /**
+     * Removes method from map
+     * 
+     * @param name Name of the method
+     */
     public void removeMethod(String name) {
         this.methods.remove(name);
         methodsList = new LinkedList<MethodWrapper>(methods.values());

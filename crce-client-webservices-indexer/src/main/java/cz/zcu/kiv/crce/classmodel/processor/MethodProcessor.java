@@ -1,121 +1,135 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
-import java.util.HashMap;
-import java.util.Map;
-import cz.zcu.kiv.crce.classmodel.structures.ClassMap;
-import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
+import java.util.Stack;
+import org.objectweb.asm.Opcodes;
+import cz.zcu.kiv.crce.classmodel.processor.Helpers.StringC;
+import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
+import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
+import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Operation.OperationType;
+import cz.zcu.kiv.crce.tools.SBTool;
 
-public class MethodProcessor {
+public class MethodProcessor extends AssignmentProcessor {
 
-    private ClassMap classes;
-    private Map<String, Method> methods;
-    private Map<String, ConstPool> constPools;
+    private Helpers.StringC.OperationType stringOP = null;
+
+    public MethodProcessor(ClassMap classes) {
+        super(classes);
+    }
 
     /**
+     * Process method its Strings and numbers
      * 
+     * @param method Method to process
      */
-    public MethodProcessor(ClassMap classes) {
-        this.methods = new HashMap<>();
-        this.classes = classes;
+    protected void process(MethodWrapper method) {
+        Stack<StringBuilder> values = new Stack<>();
+        this.processInner(method, values);
     }
 
-    public void process(Method method, ClassStruct classScope, Map<String, ConstPool> constPools) {
-        this.constPools = constPools;
-        setReturnValue(method, classScope);
-        methods.put(method.getName(), method);
-    }
 
-    private void setReturnValue(Method method, ClassStruct classScope) {
-        ConstPool constPoolClass;
-        String constValMethod = "";
-        String constAggregationValue = null;
-        final String className = classScope.getName();
+    /**
+     * Process CALL operation (toString, append - operation with Strings)
+     * 
+     * @param operation Operation to be handled
+     * @param values    String values
+     */
+    protected void processCALL(Operation operation, Stack<StringBuilder> values) {
+
+        StringBuilder sb = Helpers.StackF.peek(values);
+        final String fName = operation.getFuncName();
+        final String operationOwner = operation.getOwner();
+        final ClassWrapper classWrapper = this.classes.get(operationOwner);
 
 
-
-        if (!constPools.containsKey(className)) {
-            constPools.put(className, new ConstPool());
+        switch (operation.getOpcode()) {
+            case Opcodes.INVOKESTATIC:
+                if (classWrapper == null) {
+                    break;
+                }
+                MethodWrapper methodWrapper = classWrapper.getMethod(fName);
+                final Method method = methodWrapper.getMethodStruct();
+                if (method.getReturnType() == null) {
+                    return;
+                }
+                if (method.getReturnValue() == null) {
+                    this.process(methodWrapper);
+                }
+                SBTool.set(sb, method.getReturnValue());
+            case Opcodes.INVOKEINTERFACE:
+            case Opcodes.INVOKEVIRTUAL:
+                if (Helpers.StringC.isToString(fName)) {
+                    this.stringOP = StringC.OperationType.TOSTRING;
+                } else if (Helpers.StringC.isAppend(fName)) {
+                    if (stringOP == Helpers.StringC.OperationType.APPEND) {
+                        final StringBuilder lastVal = Helpers.StackF.pop(values);
+                        final StringBuilder befLastVal = Helpers.StackF.pop(values);
+                        StringBuilder merged = lastVal;
+                        if (befLastVal != null) {
+                            merged = SBTool.merge(befLastVal, lastVal);
+                        }
+                        values.add(merged);
+                    }
+                    this.stringOP = Helpers.StringC.OperationType.APPEND;
+                }
+                break;
         }
 
-        constPoolClass = constPools.get(className);
-        ConstPool constPoolMethod = new ConstPool();
-
-        for (Operation operation : method.getOperations()) {
-
-            final OperationType type = operation.getType();
-            final int opcode = operation.getOpcode();
-            final String index = operation.getIndex() + "";
-            String value = (String) operation.getValue();
-            final String name = operation.getFuncName();
-
-            switch (type) {
-                case STORE:
-                    constValMethod =
-                            constAggregationValue != null ? constAggregationValue : constValMethod;
-                    constPoolMethod.put(index, constValMethod);
-                    constValMethod = null;
-                    constAggregationValue = null;
-                    break;
-
-                case FIELD:
-                    if (Helpers.OpcodeC.isGetStatic(opcode)) {
-                        constValMethod = constPoolClass.get(operation.getFuncName());
-                    }
-                    break;
-                case STRING_CONSTANT:
-                    constValMethod = value;
-                case INT_CONSTANT:
-                    constValMethod = value;
-                    break;
-                case LOAD:
-                    if (!constPoolMethod.containsKey(index)) {
-                        // System.err.println("Const pool does not contain a key=" + index);
-                        constValMethod = "";
-                        continue;
-                    }
-                    constValMethod = constPoolMethod.get(index);
-                    break;
-
-                case CALL:
-                    if (Helpers.OpcodeC.isInvokeStatic(opcode)) {
-                        final String operationOwner = operation.getOwner();
-                        ClassStruct class_ = this.classes.get(operationOwner);
-                        if (class_ == null) {
-                            continue;
-                        }
-                        Method found = class_.getMethod(operation.getFuncName());
-                        if (found.getReturnValue() == null) {
-                            this.setReturnValue(found, class_);
-                        }
-                        constValMethod = found.getReturnValue();
-                    } else if (Helpers.OpcodeC.isInvokeVirtual(opcode)) {
-                        if (Helpers.StringC.isToString(name)) {
-                            constValMethod = constAggregationValue;
-                        } else if (Helpers.StringC.isAppend(name)) {
-                            if (constAggregationValue == null) {
-                                constAggregationValue = "";
-                            }
-                            constAggregationValue += constValMethod;
-                        }
-                    }
-                    break;
-
-                case RETURN:
-                    if (Helpers.OpcodeC.isReturnA(opcode)) {
-                        method.setReturnValue(constValMethod);
-                    }
-                    break;
-                default:;
-
-            }
-        }
     }
 
-    public String getReturnValue(Method method) {
-        return null;
+    /**
+     * Processes return values of each method and sets its return value
+     * 
+     * @param methodWrapper Method to be processed
+     * @param operation     Explicit operation
+     * @param values        String values
+     */
+    protected void processRETURN(MethodWrapper methodWrapper, Operation operation,
+            Stack<StringBuilder> values) {
+        Method method = methodWrapper.getMethodStruct();
+        if (method.getReturnType() == null) {
+            return;
+        }
+        StringBuilder sb = values.peek();
+
+        switch (operation.getOpcode()) {
+            case Opcodes.ARETURN:
+            case Opcodes.LRETURN:
+            case Opcodes.FRETURN:
+            case Opcodes.DRETURN:
+            case Opcodes.IRETURN:
+                method.setReturnValue(sb.toString());
+                break;
+            case Opcodes.RETURN:
+                method.setReturnValue("");
+                break;
+        }
+        values.removeAll(values);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void processOperation(MethodWrapper method, Operation operation,
+            Stack<StringBuilder> values) {
+        super.processOperation(method, operation, values);
+        final OperationType type = operation.getType();
+
+        switch (type) {
+            case RETURN:
+                processRETURN(method, operation, values);
+                values.removeAll(values);
+                break;
+            case CALL:
+                processCALL(operation, values);
+                break;
+
+            default:;
+        }
     }
 
 }

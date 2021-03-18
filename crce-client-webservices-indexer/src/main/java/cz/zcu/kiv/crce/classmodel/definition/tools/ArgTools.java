@@ -1,13 +1,10 @@
 package cz.zcu.kiv.crce.classmodel.definition.tools;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import cz.zcu.kiv.crce.classmodel.definition.ArgDefinitionType;
-import cz.zcu.kiv.crce.classmodel.definition.DefinitionType;
 
 public class ArgTools {
 
@@ -39,6 +36,13 @@ public class ArgTools {
         return uriPattern.matcher(uri).matches();
     }
 
+    /**
+     * Merges constants put into arguments of a predefined functions
+     * 
+     * @param values Constants put into arguments
+     * @param args   Definition of the methods arguments
+     * @return Either merged constants arguments or null
+     */
     public static StringBuilder merge(Stack<StringBuilder> values,
             Set<ArrayList<ArgDefinitionType>> args) {
         StringBuilder merged = new StringBuilder();

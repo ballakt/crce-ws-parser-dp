@@ -64,7 +64,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        // TODO move to resources
         File jarFile = new File(
                 "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/main/java/cz/zcu/kiv/crce/examples/asm/test_12.jar");
         loadClasses(jarFile);

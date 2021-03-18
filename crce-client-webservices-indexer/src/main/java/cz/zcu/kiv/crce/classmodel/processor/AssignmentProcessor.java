@@ -20,6 +20,12 @@ public class AssignmentProcessor {
         this.classes = classes;
     }
 
+    /**
+     * Processes operations with fields of concrete class
+     * 
+     * @param operation Operation performed on field
+     * @param values    String values
+     */
     protected void processFIELD(Operation operation, Stack<StringBuilder> values) {
 
         ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
@@ -43,31 +49,44 @@ public class AssignmentProcessor {
 
     }
 
+    /**
+     * Processes constants like String, Integer, Float...
+     * 
+     * @param operation Operation create constant
+     * @param values    String values
+     */
     protected void processCONSTANT(Operation operation, Stack<StringBuilder> values) {
         StringBuilder newValue = new StringBuilder();
         SBTool.set(newValue, operation.getValue());
         values.add(newValue);
     }
 
+    /**
+     * Stores values into local variables aka const pool
+     * 
+     * @param method    Method which includes concrete const pool
+     * @param operation Operation for storing into variable
+     * @param values    String values
+     */
     protected void processSTORE(MethodWrapper method, Operation operation,
             Stack<StringBuilder> values) {
         ConstPool constPool = method.getConstPool();
         final String index = NumTool.numberToString(operation.getIndex());
 
-        /*
-         * if (sbAggregated.length() > 0) { constPool.put(index, sbAggregated.toString()); } else if
-         * (values.peek() != null) {
-         * 
-         * } else { return; }
-         */
         StringBuilder sb = Helpers.StackF.pop(values);
         if (sb == null) {
             return;
         }
         constPool.put(index, sb.toString());
-        // SBTool.clear(sbAggregated);
     }
 
+    /**
+     * Loads value from constant pool into values stack
+     * 
+     * @param method    Method where is Load performed
+     * @param operation Loading operation
+     * @param values    String values
+     */
     protected void processLOAD(MethodWrapper method, Operation operation,
             Stack<StringBuilder> values) {
 
@@ -80,6 +99,12 @@ public class AssignmentProcessor {
         values.add(new StringBuilder(constPool.get(index)));
     }
 
+    /**
+     * Wrapper for processing all operations of a function
+     * 
+     * @param method Method which will be processed
+     * @param values String values
+     */
     protected void processInner(MethodWrapper method, Stack<StringBuilder> values) {
 
         Method methodStruct = method.getMethodStruct();
@@ -88,6 +113,13 @@ public class AssignmentProcessor {
         }
     }
 
+    /**
+     * Processes operation of given method and stores/modifies values holder
+     * 
+     * @param method    Method where is operation performed
+     * @param operation Concrete operation
+     * @param values    String values
+     */
     protected void processOperation(MethodWrapper method, Operation operation,
             Stack<StringBuilder> values) {
         final OperationType type = operation.getType();
@@ -109,7 +141,6 @@ public class AssignmentProcessor {
                 processSTORE(method, operation, values);
 
             case ANEWARRAY:
-                // values.poll();
                 Helpers.StackF.pop(values);
             default:;
 

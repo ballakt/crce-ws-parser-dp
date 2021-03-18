@@ -24,6 +24,13 @@ public class Definition {
     private static final String DEF_DIR_REL = DEF_DIR_NAME + "/";
     private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
+    /**
+     * Preloads all filenames into list (JAR version)
+     * 
+     * @param filesInDirectory List which will be filled by filenames in res. dir
+     * @param fullPath         Path to resource file
+     * @throws IOException
+     */
     private static void loadFilesFromJar(List<String> filesInDirectory, String fullPath)
             throws IOException {
         String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
@@ -40,6 +47,13 @@ public class Definition {
         jarFile.close();
     }
 
+    /**
+     * Loads all definition .class version
+     * 
+     * @param defDirPath Directory of an configuration file
+     * @param file       Filename of an configuration file
+     * @throws Exception
+     */
     private static void loadConfigurationFile(String defDirPath, String file) throws Exception {
         final String path = defDirPath + "/" + file;
         final InputStream inputStream = Definition.class.getResourceAsStream(path);
@@ -61,6 +75,11 @@ public class Definition {
         }
     }
 
+    /**
+     * Loads configuration file into definition map
+     * 
+     * @throws Exception
+     */
     private static void loadDefinitions() throws Exception {
         String defDirPath = DEF_DIR_ABS;
 

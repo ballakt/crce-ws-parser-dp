@@ -2,12 +2,18 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashMap;
 import java.util.Map;
+import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
-import cz.zcu.kiv.crce.classmodel.structures.Endpoint;
 
 public class Processor {
 
+    /**
+     * Retrieves endpoints from each class
+     * 
+     * @param classes Map of classes
+     * @return Endpoints maped by their URIs
+     */
     public static Map<String, Endpoint> processMany(ClassMap classes) {
         Map<String, Endpoint> endpoints = new HashMap<>();
         EndpointProcessor classProcessor = new EndpointProcessor(classes);
