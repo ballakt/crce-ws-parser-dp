@@ -24,7 +24,7 @@ class EndpointHandler extends MethodProcessor {
 
     private Endpoint endpoint = null;
     static Logger logger = LogManager.getLogger("extractor");
-    private final String methodSetGetPrefixRegExp = "^(get|set)";
+    private final String methodSetGetPrefixRegExp = "^(set)";
     private Map<String, Endpoint> endpoints = new HashMap<>();
     private MethodDefinitionMap md = Definition.getDefinitions();
 
@@ -49,7 +49,7 @@ class EndpointHandler extends MethodProcessor {
     }
 
     /**
-     * Converts fields of class into map structure
+     * Converts fields of class into map structure like "field_name: field_type"
      * 
      * @param class_ Input class
      * @return Map of fields
