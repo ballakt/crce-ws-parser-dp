@@ -1,12 +1,16 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import cz.zcu.kiv.crce.classmodel.processor.tools.MapTools;
 
 public class Endpoint {
 
 
     private Set<EndpointType> types = new HashSet<>();
+    private Map<String, Object> expectedResponse;
+    private String response = "None";
     private String uri;
 
     public Endpoint(String uri, Set<EndpointType> types) {
@@ -49,6 +53,7 @@ public class Endpoint {
     }
 
 
+
     public boolean equals(Endpoint endpoint) {
         if (!uri.equals(endpoint.getUri())) {
             return false;
@@ -59,8 +64,41 @@ public class Endpoint {
         return false;
     }
 
+    private String responseToString() {
+
+        final String RESPDELIMETER = ", ";
+
+        if (expectedResponse == null) {
+            return response;
+        }
+        response = "";
+        for (Map.Entry<String, Object> item : MapTools.mapToList(this.expectedResponse)) {
+            response += item.getKey() + "=" + item.getValue() + RESPDELIMETER;
+        }
+        return response.substring(0, response.length() - RESPDELIMETER.length());
+    }
+
     @Override
     public String toString() {
-        return "Endpoint{" + "uri='" + uri + '\'' + ", type='" + this.types.toString() + '\'' + '}';
+        return "Endpoint{" + "uri='" + uri + '\'' + ", type='" + this.types.toString() + '\''
+                + ", expectedResponse='" + responseToString() + "' }'";
+    }
+
+    /**
+     * @return the expectedResponse
+     */
+    public Map<String, Object> getExpectedResponse() {
+        return expectedResponse;
+    }
+
+    /**
+     * @param expectedResponse the expectedResponse to set
+     */
+    public void setExpectedResponse(Map<String, Object> expectedResponse) {
+        this.expectedResponse = expectedResponse;
+    }
+
+    public void setExpectedResponse(String response) {
+        this.response = response;
     }
 }

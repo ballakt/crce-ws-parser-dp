@@ -15,19 +15,27 @@ public class Processor {
 
     static Logger logger = LogManager.getLogger("endpoints");
 
+    /**
+     * Finds endpoints in JAR file
+     * 
+     * @param jar JAR file
+     * @return
+     * @throws IOException
+     */
     public static Map<String, Endpoint> process(File jar) throws IOException {
         Loader.loadClasses(jar);
         Map<String, Endpoint> endpoints = new HashMap<>();
         ClassMap classes = Helpers.convertStructMap(Collector.getInstance().getClasses());
-        EndpointProcessor classProcessor = new EndpointProcessor(classes);
+        EndpointProcessor endpointProcessor = new EndpointProcessor(classes);
 
         for (ClassWrapper class_ : classes.values()) {
-            classProcessor.process(class_);
-            Helpers.EndpointF.merge(endpoints, classProcessor.getEndpoints());
+            endpointProcessor.process(class_);
+            Helpers.EndpointF.merge(endpoints, endpointProcessor.getEndpoints());
         }
         for (final Endpoint endpoint : endpoints.values()) {
             logger.info(endpoint);
         }
+
         return endpoints;
     }
 }

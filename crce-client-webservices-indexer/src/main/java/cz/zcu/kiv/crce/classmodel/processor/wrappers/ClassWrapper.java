@@ -1,26 +1,50 @@
 package cz.zcu.kiv.crce.classmodel.processor.wrappers;
 
+import java.util.Set;
+import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.processor.ConstPool;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
-import cz.zcu.kiv.crce.classmodel.structures.Method;
+import cz.zcu.kiv.crce.classmodel.structures.Field;
 
 public class ClassWrapper {
     private ConstPool classPool;
     private List<MethodWrapper> methodsList;
     private ClassStruct classStruct;
     private Map<String, MethodWrapper> methods;
+    private Map<String, Field> fieldsContainer;
 
     public ClassWrapper(ClassStruct classStruct) {
         this.classStruct = classStruct;
         classPool = new ConstPool();
         methods = new HashMap<>();
+        fieldsContainer = new HashMap<>();
+
         for (Method method : classStruct.getMethods()) {
             methods.put(method.getName(), new MethodWrapper(method));
         }
+        for (Field field : classStruct.getFields()) {
+            fieldsContainer.put(field.getName(), field);
+        }
+    }
+
+    public Map<String, Field> getFieldsContainer() {
+        return this.fieldsContainer;
+    }
+
+    /**
+     * 
+     * @return keys of constant pool this class
+     */
+    public Set<String> getFieldNames() {
+        return classPool.keySet();
+    }
+
+    public void setFieldType(String fieldName, String type) {
+
     }
 
     /**

@@ -85,7 +85,6 @@ public class ClassStruct extends PathPart {
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return super.getName();
     }
 

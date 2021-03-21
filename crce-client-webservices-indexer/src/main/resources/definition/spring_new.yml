@@ -35,6 +35,6 @@ definitions:
     methods:
       - name: bodyToMono
         type:
-          - RETRIEVE
+          - RESPONSE
         args:
-          - - RETRIEVE
+          - - PARAM

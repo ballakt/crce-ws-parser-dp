@@ -3,6 +3,7 @@ package cz.zcu.kiv.crce.classmodel.processor;
 import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
+import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
@@ -32,14 +33,19 @@ public class AssignmentProcessor {
         switch (operation.getOpcode()) {
             case Opcodes.GETFIELD:
             case Opcodes.GETSTATIC:
-                if (!classPool.containsKey(operation.getFieldName())) {
+                if (!classPool.containsKey(operation.getFieldName())
+                        || classPool.get(operation.getFieldName()) == null) {
                     break;
                 }
                 values.add(new StringBuilder(classPool.get(operation.getFieldName())));
                 break;
             case Opcodes.PUTSTATIC:
             case Opcodes.PUTFIELD:
+                // TODO: handle webclient variables and store endpoint to its contant/var pool
                 if (values.size() == 0) {
+                    ClassWrapper class_ = this.classes.get(operation.getOwner());
+                    class_.getFieldNames();
+                    // classPool.put(operation.getFieldName(), operation.getDesc());
                     break;
                 }
                 StringBuilder sb = values.pop();

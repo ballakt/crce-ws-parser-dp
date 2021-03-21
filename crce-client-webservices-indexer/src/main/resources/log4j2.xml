@@ -43,6 +43,13 @@
                 </pattern>
             </PatternLayout>
         </RandomAccessFile>
+        <RandomAccessFile name="RandomAccessFileAppenderDebugProcessor" fileName="Logs/ProcessorError.log" immediateFlush="false" append="false">
+            <PatternLayout>
+                <pattern>
+                    %msg%n
+                </pattern>
+            </PatternLayout>
+        </RandomAccessFile>
         <TextPaneAppender name="VisualAppender">
             <PatternLayout>
                 <pattern>%msg%n</pattern>
@@ -58,6 +65,10 @@
         </Logger>
         <Logger name="extractor" level="debug" additivity="false">
             <AppenderRef ref="RandomAccessFileAppenderDebug" />
+            <AppenderRef ref="ConsoleAppender" level="debug" />
+        </Logger>
+        <Logger name="processor" level="error" additivity="false">
+            <AppenderRef ref="RandomAccessFileAppenderDebugProcessor" />
             <AppenderRef ref="ConsoleAppender" level="debug" />
         </Logger>
     </Loggers>

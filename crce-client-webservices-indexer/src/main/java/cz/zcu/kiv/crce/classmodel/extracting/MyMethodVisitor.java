@@ -402,7 +402,6 @@ public class MyMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitEnd() {
-        // TODO Auto-generated method stub
         logger.debug("    ==========END-Method-Visitor[name=" + this.method.getName() + " CLINIT="
                 + (this.method.getName().equals("<clinit>") ? "TRUE" : "FALSE") + "]===\n");
         super.visitEnd();

@@ -50,7 +50,7 @@ public class ProcessorTest {
 
         for (Endpoint endpoint : expectedEndpoints.values()) {
             if (!endpoints.containsKey(endpoint.getUri())) {
-                fail("Expected endpoint " + endpoint);
+                fail("Missing endpoint " + endpoint);
                 return;
             }
             Endpoint found = endpoints.get(endpoint.getUri());
@@ -58,6 +58,7 @@ public class ProcessorTest {
 
                 fail("Endpoint mismatch " + found + " != " + endpoint);
             }
+            System.out.println("ENDPOINT=" + found);
         }
 
     }

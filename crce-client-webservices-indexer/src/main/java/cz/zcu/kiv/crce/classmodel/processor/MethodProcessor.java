@@ -58,12 +58,13 @@ public class MethodProcessor extends AssignmentProcessor {
                     this.process(methodWrapper);
                 }
                 SBTool.set(sb, method.getReturnValue());
-            case Opcodes.INVOKEINTERFACE:
+                // case Opcodes.INVOKEINTERFACE:
             case Opcodes.INVOKEVIRTUAL:
                 if (Helpers.StringC.isToString(fName)) {
                     this.stringOP = StringC.OperationType.TOSTRING;
                 } else if (Helpers.StringC.isAppend(fName)) {
-                    if (stringOP == Helpers.StringC.OperationType.APPEND) {
+                    if (this.stringOP == Helpers.StringC.OperationType.APPEND) {
+                        // APPEND was a previous operation
                         final StringBuilder lastVal = Helpers.StackF.pop(values);
                         final StringBuilder befLastVal = Helpers.StackF.pop(values);
                         StringBuilder merged = lastVal;

@@ -32,9 +32,14 @@ public class ArgTools {
         return true;
     }
 
+    private static interface ArgValidator {
+        boolean isValid(String values);
+    }
+
     private static boolean isURI(String uri) {
         return uriPattern.matcher(uri).matches();
     }
+
 
     /**
      * Merges constants put into arguments of a predefined functions
@@ -43,15 +48,17 @@ public class ArgTools {
      * @param args   Definition of the methods arguments
      * @return Either merged constants arguments or null
      */
-    public static StringBuilder merge(Stack<StringBuilder> values,
-            Set<ArrayList<ArgDefinitionType>> args) {
+    private static StringBuilder extract(Stack<StringBuilder> values,
+            Set<ArrayList<ArgDefinitionType>> args, ArgValidator validator) {
         StringBuilder merged = new StringBuilder();
         for (final ArrayList<ArgDefinitionType> oneVersion : args) {
             if (oneVersion.size() == values.size()) {
                 for (int i = 0; i < oneVersion.size(); i++) {
                     final StringBuilder value = values.remove(0);
-                    if (oneVersion.get(i) == ArgDefinitionType.URI && isURI(value.toString())) {
-                        // TODO: handler int arguments if they are valid
+                    if (oneVersion.get(i) == ArgDefinitionType.URI
+                            && validator.isValid(value.toString())) {
+                        // TODO: check int arguments if they are valid
+                        // TODO: whatabout function with mutliple URIs as argument?
                         merged.append(value);
                         return merged;
                     }
@@ -64,5 +71,15 @@ public class ArgTools {
         }
 
         return null;
+    }
+
+    public static StringBuilder getURI(Stack<StringBuilder> values,
+            Set<ArrayList<ArgDefinitionType>> args) {
+        return extract(values, args, (String val) -> isURI(val));
+    }
+
+    public static StringBuilder getExpectedClass(Stack<StringBuilder> values,
+            Set<ArrayList<ArgDefinitionType>> args) {
+        return extract(values, args, (String val) -> isURI(val));
     }
 }
