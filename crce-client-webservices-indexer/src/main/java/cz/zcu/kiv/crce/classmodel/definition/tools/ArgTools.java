@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import cz.zcu.kiv.crce.classmodel.definition.ArgDefinitionType;
+import cz.zcu.kiv.crce.classmodel.processor.Variable;
 
 public class ArgTools {
 
@@ -48,18 +49,18 @@ public class ArgTools {
      * @param args   Definition of the methods arguments
      * @return Either merged constants arguments or null
      */
-    private static StringBuilder extract(Stack<StringBuilder> values,
-            Set<ArrayList<ArgDefinitionType>> args, ArgValidator validator) {
-        StringBuilder merged = new StringBuilder();
+    private static String extract(Stack<Variable> values, Set<ArrayList<ArgDefinitionType>> args,
+            ArgValidator validator) {
+        String merged = "";
         for (final ArrayList<ArgDefinitionType> oneVersion : args) {
             if (oneVersion.size() == values.size()) {
                 for (int i = 0; i < oneVersion.size(); i++) {
-                    final StringBuilder value = values.remove(0);
+                    final Variable value = values.remove(0);
                     if (oneVersion.get(i) == ArgDefinitionType.URI
-                            && validator.isValid(value.toString())) {
+                            && validator.isValid(value.getValue().toString())) {
                         // TODO: check int arguments if they are valid
                         // TODO: whatabout function with mutliple URIs as argument?
-                        merged.append(value);
+                        merged += value.getValue();
                         return merged;
                     }
                 }
@@ -73,13 +74,13 @@ public class ArgTools {
         return null;
     }
 
-    public static StringBuilder getURI(Stack<StringBuilder> values,
-            Set<ArrayList<ArgDefinitionType>> args) {
+    public static String getURI(Stack<Variable> values, Set<ArrayList<ArgDefinitionType>> args) {
         return extract(values, args, (String val) -> isURI(val));
     }
 
-    public static StringBuilder getExpectedClass(Stack<StringBuilder> values,
-            Set<ArrayList<ArgDefinitionType>> args) {
-        return extract(values, args, (String val) -> isURI(val));
-    }
+    /*
+     * public static StringBuilder getExpectedClass(Stack<StringBuilder> values,
+     * Set<ArrayList<ArgDefinitionType>> args) { return extract(values, args, (String val) ->
+     * isURI(val)); }
+     */
 }

@@ -7,12 +7,14 @@ import java.util.Set;
 import java.util.Stack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.definition.Definition;
 import cz.zcu.kiv.crce.classmodel.definition.DefinitionType;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinitionMap;
 import cz.zcu.kiv.crce.classmodel.definition.tools.ArgTools;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.EndpointType;
+import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
@@ -22,7 +24,8 @@ import cz.zcu.kiv.crce.classmodel.structures.Operation;
 
 class EndpointHandler extends MethodProcessor {
 
-    private Endpoint endpoint = null;
+    private Stack<Endpoint> endpointsInProgress = new Stack<>();
+    private Stack<Variable> variablesInProgress = new Stack<>();
     static Logger logger = LogManager.getLogger("extractor");
     private final String methodSetGetPrefixRegExp = "^(set)";
     private Map<String, Endpoint> endpoints = new HashMap<>();
@@ -82,6 +85,13 @@ class EndpointHandler extends MethodProcessor {
         return map;
     }
 
+
+    private void noEndpointToProcess(Operation operation) {
+        logger.error(
+                "Missing endpoint in the endpointsInProgress list (Unwanted state of parser): ["
+                        + operation.getFuncName() + "=" + operation.getDesc() + "]");
+    }
+
     /**
      * Processes possible endpoints by detecting method CALL like .uri(), .put() etc.
      * 
@@ -89,48 +99,98 @@ class EndpointHandler extends MethodProcessor {
      * @param values    String values
      */
     @Override
-    protected void processCALL(Operation operation, Stack<StringBuilder> values) {
+    protected void processCALL(Operation operation, Stack<Variable> values) {
+
         if (md.containsKey(operation.getOwner())) {
+
+
+            if (Opcodes.INVOKEINTERFACE == operation.getOpcode()) {
+                Variable valToPop = Helpers.StackF.peek(values);
+                if (valToPop != null && valToPop.getType() == VariableType.OTHER) {
+                    values.pop();
+                }
+                // TODO: remove params like
+            }
+
+
             HashMap<String, MethodDefinition> methodDefinitionMap = md.get(operation.getOwner());
             if (!methodDefinitionMap.containsKey(operation.getFuncName())) {
                 return;
             }
             MethodDefinition methodDefinition = methodDefinitionMap.get(operation.getFuncName());
-            if (endpoint == null) {
-                endpoint = new Endpoint();
-            }
+
             Set<DefinitionType> typeSet = methodDefinition.getType();
-            if (typeSet.contains(DefinitionType.RESPONSE)) {
-                final String className = this.getClassName(values.peek().toString());
-                if (this.classes.containsKey(className)) {
-                    // class exist int the processede JAR
-                    final ClassWrapper class_ = this.classes.get(className);
-                    final Map<String, Object> fieldsMap = fieldsToMap(class_);
-                    endpoint.setExpectedResponse(fieldsMap);
-                } else if (PrimitiveClassTester.isPrimitive(className)) {
-                    endpoint.setExpectedResponse(className);
-                } else {
-                    logger.error("Could not find type/class=" + className);
-                }
-                if (endpoint.getUri() == null) {
-                    endpoint = null;
+            // TODO: handle sync to body -> aka sending data to endpoint
+            if (typeSet.contains(DefinitionType.BASEURL)) {
+                Endpoint endpoint = Helpers.StackF.pop(this.endpointsInProgress);
+                if (typeSet.contains(DefinitionType.INIT)) {
+                    endpoint = new Endpoint();
+                    this.endpointsInProgress.push(endpoint);
+                } else if (endpoint == null) {
+                    noEndpointToProcess(operation);
                     return;
                 }
-                Helpers.EndpointF.merge(endpoints, endpoint);
-                endpoint = null;
-                return;
-            }
+            } else if (typeSet.contains(DefinitionType.INIT)) {
+                this.endpointsInProgress.push(new Endpoint());
+            } else {
+                // TODO: get endpoint from values!!!
 
-            if (typeSet.contains(DefinitionType.URI)) {
-                StringBuilder val = ArgTools.getURI(values, methodDefinition.getArgs());
-                endpoint.setUri(val != null ? val.toString() : null);
-                return;
-            }
-            DefinitionType[] types = new DefinitionType[typeSet.size()];
-            typeSet.toArray(types);
+                // endpoint = Helpers.StackF.peek(this.endpointsInProgress);
+                /*
+                 * if (endpoint == null) { endpoint = new Endpoint();
+                 * this.endpointsInProgress.push(endpoint); // noEndpointToProcess(operation);
+                 * return; }
+                 */
+                // TODO: make modules for each type and execute them in order
+                if (typeSet.contains(DefinitionType.EXECUTE)) {
+                    Endpoint endpoint = (Endpoint) Helpers.StackF.peek(values).getValue();
+                    Helpers.EndpointF.merge(endpoints, endpoint);
+                } else if (typeSet.contains(DefinitionType.RESPONSE)) {
+                    final String className = getClassName(values.pop().getValue().toString());
+                    Endpoint endpoint = (Endpoint) Helpers.StackF.pop(values).getValue();
+                    if (this.classes.containsKey(className)) {
+                        // class exists in the processede JAR
+                        endpoint.setExpectedResponse(fieldsToMap(this.classes.get(className)));
+                    } else if (PrimitiveClassTester.isPrimitive(className)) {
+                        endpoint.setExpectedResponse(className);
+                    } else {
+                        logger.error("Could not find type/class=" + className);
+                    }
+                    if (endpoint.getUri() == null) {
+                        return;
+                    }
+                    Helpers.EndpointF.merge(endpoints, endpoint);
+                } else if (typeSet.contains(DefinitionType.URI)) {
+                    Endpoint endpoint = (Endpoint) values.remove(0).getValue();
+                    String val = ArgTools.getURI(values, methodDefinition.getArgs());/*  */
+                    endpoint.setUri(val != null ? val : null);
+                    values.push(new Variable(endpoint));
+                } else {
+                    Variable lastVar = Helpers.StackF.pop(values);
+                    Endpoint endpoint;
+                    if (lastVar == null || lastVar.getType() != VariableType.ENDPOINT) {
+                        endpoint = new Endpoint();
+                        lastVar = new Variable(endpoint).setType(VariableType.ENDPOINT);
 
-            for (final DefinitionType type : types) {
-                endpoint.addType(EndpointType.values()[type.ordinal()]);
+                    } else {
+                        endpoint = (Endpoint) Helpers.StackF.peek(values).getValue();
+                    }
+
+                    // only REST types left, like GET, POST ...
+                    DefinitionType[] types = new DefinitionType[typeSet.size()];
+                    typeSet.toArray(types);
+
+                    for (final DefinitionType type : types) {
+                        endpoint.addType(EndpointType.values()[type.ordinal()]);
+                    }
+                    values.add(lastVar);
+                }
+                /*
+                 * StringBuilder baseURL = Helpers.StackF.pop(values);
+                 * 
+                 * if (baseURL != null) { endpoint.setBaseUrl(baseURL.toString()); // save base url
+                 * to certaion variable }
+                 */
             }
         } else {
             super.processCALL(operation, values);
@@ -141,8 +201,39 @@ class EndpointHandler extends MethodProcessor {
      * {@inheritDoc}
      */
     @Override
+    protected void processLOAD(MethodWrapper method, Operation operation, Stack<Variable> values) {
+
+        /*
+         * VariablesContainer variables = method.getVariables(); Variable var =
+         * variables.get(operation.getIndex());
+         */
+        // ConstPool constPool = method.getConstPool();
+        // final String index = NumTool.numberToString(operation.getIndex());
+
+        /*
+         * if (!constPool.containsKey(index)) { return; }
+         */
+
+        /*
+         * if (var == null) { // LOAD of variable which has not been initialized yet
+         * this.variablesInProgress.push(variables.init(operation.getIndex())); return; }
+         */
+
+        // Object val = constPool.get(index);
+
+        /*
+         * if (var.getValue() instanceof Endpoint) { this.endpointsInProgress.push((Endpoint)
+         * var.getValue()); return; }
+         */
+        super.processLOAD(method, operation, values);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void process(MethodWrapper method) {
-        this.endpoint = null;
+        // System.out.println("PARAMS=" + method.getMethodStruct().getParameters());
         super.process(method);
     }
 

@@ -22,12 +22,16 @@ public class ProcessorTest {
 
         expectedEndpoints = Map.of("/123", new Endpoint("/123", EndpointType.GET),
                 "/prvni/uri/trida", new Endpoint("/prvni/uri/trida", EndpointType.PUT),
-                "/employee/{id}",
-                new Endpoint("/employee/{id}",
+                "/employee/{id}/prvni/uri/tridaNONSTATICtest",
+                new Endpoint("/employee/{id}/prvni/uri/tridaNONSTATICtest",
                         (Set<EndpointType>) (Stream.of(EndpointType.PUT, EndpointType.DELETE)
                                 .collect(Collectors.toCollection(HashSet::new)))),
                 "/bla/uri/s/argumentem/{id}",
                 new Endpoint("/bla/uri/s/argumentem/{id}",
+                        (Set<EndpointType>) (Stream.of(EndpointType.PUT)
+                                .collect(Collectors.toCollection(HashSet::new)))),
+                "/prvni/uri/tridaNONSTATICtest",
+                new Endpoint("/prvni/uri/tridaNONSTATICtest",
                         (Set<EndpointType>) (Stream.of(EndpointType.PUT)
                                 .collect(Collectors.toCollection(HashSet::new)))),
                 "/test", new Endpoint("/test", EndpointType.PUT), "/employee",

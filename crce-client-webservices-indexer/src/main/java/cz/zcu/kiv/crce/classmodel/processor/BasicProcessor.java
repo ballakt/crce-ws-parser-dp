@@ -2,22 +2,23 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.Stack;
 import org.objectweb.asm.Opcodes;
+import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
+import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Operation.OperationType;
-import cz.zcu.kiv.crce.tools.NumTool;
 import cz.zcu.kiv.crce.tools.SBTool;
 
-public class AssignmentProcessor {
+public class BasicProcessor {
 
 
     protected ClassMap classes;
 
 
-    public AssignmentProcessor(ClassMap classes) {
+    public BasicProcessor(ClassMap classes) {
         this.classes = classes;
     }
 
@@ -27,7 +28,7 @@ public class AssignmentProcessor {
      * @param operation Operation performed on field
      * @param values    String values
      */
-    protected void processFIELD(Operation operation, Stack<StringBuilder> values) {
+    protected void processFIELD(Operation operation, Stack<Variable> values) {
 
         ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
         switch (operation.getOpcode()) {
@@ -37,10 +38,18 @@ public class AssignmentProcessor {
                         || classPool.get(operation.getFieldName()) == null) {
                     break;
                 }
-                values.add(new StringBuilder(classPool.get(operation.getFieldName())));
+                Variable lastVal = Helpers.StackF.peek(values);
+                if (lastVal != null) {
+                    if (lastVal.getType() == VariableType.OTHER) {
+                        values.pop();
+                    }
+                }
+                values.add(classPool.get(operation.getFieldName())
+                        .setDescription(ClassTools.descriptionToOwner(operation.getDesc())));
                 break;
             case Opcodes.PUTSTATIC:
             case Opcodes.PUTFIELD:
+                // System.out.println("PUTFIELD=" + operation + " index=" + operation.getIndex());
                 // TODO: handle webclient variables and store endpoint to its contant/var pool
                 if (values.size() == 0) {
                     ClassWrapper class_ = this.classes.get(operation.getOwner());
@@ -48,8 +57,12 @@ public class AssignmentProcessor {
                     // classPool.put(operation.getFieldName(), operation.getDesc());
                     break;
                 }
-                StringBuilder sb = values.pop();
-                classPool.put(operation.getFieldName(), sb.toString());
+                Variable var = values.pop();
+                if (var == null || var.getValue() == null) {
+                    break;
+                }
+                // String val = var.getValue().toString();
+                classPool.put(operation.getFieldName(), var);
                 break;
         }
 
@@ -61,10 +74,10 @@ public class AssignmentProcessor {
      * @param operation Operation create constant
      * @param values    String values
      */
-    protected void processCONSTANT(Operation operation, Stack<StringBuilder> values) {
+    protected void processCONSTANT(Operation operation, Stack<Variable> values) {
         StringBuilder newValue = new StringBuilder();
         SBTool.set(newValue, operation.getValue());
-        values.add(newValue);
+        values.add(new Variable(newValue).setType(VariableType.SIMPLE));
     }
 
     /**
@@ -74,16 +87,16 @@ public class AssignmentProcessor {
      * @param operation Operation for storing into variable
      * @param values    String values
      */
-    protected void processSTORE(MethodWrapper method, Operation operation,
-            Stack<StringBuilder> values) {
-        ConstPool constPool = method.getConstPool();
-        final String index = NumTool.numberToString(operation.getIndex());
+    protected void processSTORE(MethodWrapper method, Operation operation, Stack<Variable> values) {
+        // ConstPool constPool = method.getConstPool();
+        VariablesContainer variables = method.getVariables();
 
-        StringBuilder sb = Helpers.StackF.pop(values);
-        if (sb == null) {
+        Variable var = Helpers.StackF.pop(values);
+        if (var == null || var.getValue() == null) {
             return;
         }
-        constPool.put(index, sb.toString());
+        values.removeAll(values);
+        variables.set(operation.getIndex(), var);
     }
 
     /**
@@ -93,16 +106,21 @@ public class AssignmentProcessor {
      * @param operation Loading operation
      * @param values    String values
      */
-    protected void processLOAD(MethodWrapper method, Operation operation,
-            Stack<StringBuilder> values) {
+    protected void processLOAD(MethodWrapper method, Operation operation, Stack<Variable> values) {
+        // System.out.println("LOAD=" + operation + " index=" + operation.getIndex());
+        VariablesContainer variables = method.getVariables();
+        Variable var = variables.get(operation.getIndex());
+        // final String index = NumTool.numberToString(operation.getIndex());
 
-        ConstPool constPool = method.getConstPool();
-        final String index = NumTool.numberToString(operation.getIndex());
-
-        if (!constPool.containsKey(index)) {
+        if (var == null) {
+            variables.init(operation.getIndex());
             return;
         }
-        values.add(new StringBuilder(constPool.get(index)));
+        /*
+         * if (!constPool.containsKey(index)) { return; }
+         */
+        if (var.getType() != VariableType.OTHER)
+            values.add(var);
     }
 
     /**
@@ -111,7 +129,7 @@ public class AssignmentProcessor {
      * @param method Method which will be processed
      * @param values String values
      */
-    protected void processInner(MethodWrapper method, Stack<StringBuilder> values) {
+    protected void processInner(MethodWrapper method, Stack<Variable> values) {
 
         Method methodStruct = method.getMethodStruct();
         for (Operation operation : methodStruct.getOperations()) {
@@ -127,7 +145,7 @@ public class AssignmentProcessor {
      * @param values    String values
      */
     protected void processOperation(MethodWrapper method, Operation operation,
-            Stack<StringBuilder> values) {
+            Stack<Variable> values) {
         final OperationType type = operation.getType();
         switch (type) {
             case FIELD:

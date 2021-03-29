@@ -13,6 +13,16 @@ definitions:
       - name: delete
         type:
           - DELETE
+      - name: create
+        type:
+          - BASEURL
+          - INIT
+        args:
+          - - BASEURL
+      - name: build
+        type:
+          - INIT
+
   - class: org.springframework.web.reactive.function.client.WebClient$RequestBodyUriSpec
     methods:
       - name: uri
@@ -31,10 +41,15 @@ definitions:
           - - URI
             - PARAM
           - - URI
+  - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersSpec
+    methods:
+      - name: retrieve
+        type:
+          - EXECUTE
   - class: org.springframework.web.reactive.function.client.WebClient$ResponseSpec
     methods:
       - name: bodyToMono
         type:
           - RESPONSE
         args:
-          - - PARAM
+          - - RESPONSE

@@ -17,6 +17,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Variable;
@@ -51,7 +52,6 @@ public class MyMethodVisitor extends MethodVisitor {
         this.method = method;
     }
 
-
     /*
      * @Override public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
      * 
@@ -81,6 +81,8 @@ public class MyMethodVisitor extends MethodVisitor {
     public void visitLocalVariable(String name, String desc, String signature, Label start,
             Label end, int index) {
         // method parameters are first local variables (except for this) - the names can be get here
+        logger.debug("        Local-Variable[" + "name=" + name + ", desc=" + desc + ", signature=+"
+                + signature + "]");
         if ("this".equals(name)) {
             state.setParametersProcessed(0);
             return;
@@ -122,8 +124,8 @@ public class MyMethodVisitor extends MethodVisitor {
         operation.setOpcode(opcode);
         method.addOperation(operation);
 
-        logger.debug("        Field-Instruction[" + "opcode=" + opcode + ", name=" + name
-                + ", desc=" + desc + "]");
+        logger.debug("        Field-Instruction[" + "opcode=" + opcode + ", name=" + name + "owner="
+                + owner + ", desc=" + desc + "]");
         super.visitFieldInsn(opcode, owner, name, desc);
     }
 
@@ -144,6 +146,7 @@ public class MyMethodVisitor extends MethodVisitor {
      */
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+
         /*
          * log.add(owner + "." + name + "-" + desc + "-" + itf); Operation operation = new
          * Operation(opcode, Operation.OperationType.CALL); operation.setOwner(owner);
@@ -406,4 +409,5 @@ public class MyMethodVisitor extends MethodVisitor {
                 + (this.method.getName().equals("<clinit>") ? "TRUE" : "FALSE") + "]===\n");
         super.visitEnd();
     }
+
 }

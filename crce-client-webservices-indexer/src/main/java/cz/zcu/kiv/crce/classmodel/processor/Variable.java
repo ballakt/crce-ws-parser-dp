@@ -1,0 +1,71 @@
+package cz.zcu.kiv.crce.classmodel.processor;
+
+
+public class Variable {
+
+    enum VariableType {
+        SIMPLE, OTHER, ENDPOINT
+    }
+
+    private Object value = "";
+    private String description = "";
+    private VariableType vType = null;
+
+    /**
+     * @return the value
+     */
+    public Object getValue() {
+        return value;
+    }
+
+    public Variable setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public Variable setType(VariableType vType) {
+        this.vType = vType;
+        return this;
+    }
+
+    public VariableType getType() {
+        return this.vType;
+    }
+
+    /**
+     * @param value the value to set
+     */
+    public Variable setValue(Object value) {
+        this.value = value;
+        return this;
+    }
+
+    /**
+     * @param value
+     */
+    public Variable(Object value) {
+        this.value = value;
+    }
+
+    public Variable() {
+        this.value = "";
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
+
+    public void add(String newString) {
+        this.value = value.toString() + newString;
+    }
+
+    public void add(Variable var) {
+        this.value = value.toString() + var.toString();
+    }
+
+}

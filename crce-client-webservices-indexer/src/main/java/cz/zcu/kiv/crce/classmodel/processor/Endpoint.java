@@ -12,6 +12,7 @@ public class Endpoint {
     private Map<String, Object> expectedResponse;
     private String response = "None";
     private String uri;
+    private String baseUrl = "";
 
     public Endpoint(String uri, Set<EndpointType> types) {
         this.uri = uri;
@@ -34,8 +35,9 @@ public class Endpoint {
         return this.types;
     }
 
-    public void addType(EndpointType type) {
+    public Endpoint addType(EndpointType type) {
         this.types.add(type);
+        return this;
     }
 
     /**
@@ -52,7 +54,13 @@ public class Endpoint {
         this.uri = uri;
     }
 
-
+    /**
+     * 
+     * @param baseUrl
+     */
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     public boolean equals(Endpoint endpoint) {
         if (!uri.equals(endpoint.getUri())) {
@@ -80,8 +88,9 @@ public class Endpoint {
 
     @Override
     public String toString() {
-        return "Endpoint{" + "uri='" + uri + '\'' + ", type='" + this.types.toString() + '\''
-                + ", expectedResponse='" + responseToString() + "' }'";
+        return "Endpoint{" + "baseUrl=" + baseUrl + ", uri='" + uri + '\'' + ", type='"
+                + this.types.toString() + '\'' + ", expectedResponse='" + responseToString()
+                + "' }'";
     }
 
     /**

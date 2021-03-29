@@ -2,7 +2,7 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashMap;
 
-public class ConstPool extends HashMap<String, String> {
+public class ConstPool extends HashMap<String, Variable> {
 
     /**
      *
