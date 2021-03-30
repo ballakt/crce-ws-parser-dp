@@ -162,7 +162,7 @@ public class MyMethodVisitor extends MethodVisitor {
 
         Operation operation = new Operation(opcode, Operation.OperationType.CALL);
         operation.setOwner(owner);
-        operation.setFuncName(name);
+        operation.setMethodName(name);
         operation.setDesc(desc);
         /*
          * if (opcode == Opcodes.INVOKESTATIC) { }

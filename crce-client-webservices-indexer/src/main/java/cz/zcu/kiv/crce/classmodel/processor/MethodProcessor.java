@@ -40,7 +40,7 @@ public class MethodProcessor extends BasicProcessor {
      */
     protected void processCALL(Operation operation, Stack<Variable> values) {
 
-        final String fName = operation.getFuncName();
+        final String fName = operation.getMethodName();
         final String operationOwner = operation.getOwner();
         final ClassWrapper classWrapper = this.classes.get(operationOwner);
 
@@ -68,8 +68,6 @@ public class MethodProcessor extends BasicProcessor {
                 newVar.setValue(method.getReturnValue());
                 values.push(newVar);
                 break;
-            // SBTool.set(sb, method.getReturnValue());
-            // case Opcodes.INVOKEINTERFACE:
             case Opcodes.INVOKEVIRTUAL:
                 if (Helpers.StringC.isToString(fName)) {
                     this.stringOP = StringC.OperationType.TOSTRING;
@@ -88,20 +86,6 @@ public class MethodProcessor extends BasicProcessor {
                             }
                         }
 
-                        /*
-                         * for (Variable test : values) { System.out.println(test.getValue()); }
-                         */
-
-                        // APPEND was a previous operation
-                        // final StringBuilder lastVal = Helpers.StackF.pop(values);
-                        // final Variable lastVal = Helpers.StackF.pop(values);
-                        // final Variable befLastVal = Helpers.StackF.pop(values);
-                        // final StringBuilder befLastVal = Helpers.StackF.pop(values);
-                        // StringBuilder merged = lastVal;
-                        /*
-                         * Variable merged = befLastVal; if (merged != null && merged.getValue() !=
-                         * null) { merged.add(lastVal); }
-                         */
                         values.removeAll(values);
                         values.add(merged);
                     }
@@ -111,7 +95,7 @@ public class MethodProcessor extends BasicProcessor {
                         break;
                     }
                     ClassWrapper cw = this.classes.get(operation.getOwner());
-                    MethodWrapper mw = cw.getMethod(operation.getFuncName());
+                    MethodWrapper mw = cw.getMethod(operation.getMethodName());
                     if (mw == null) {
                         break;
                     }
@@ -136,9 +120,6 @@ public class MethodProcessor extends BasicProcessor {
                 if (variable.getType() != VariableType.SIMPLE) {
                     variable.setValue(operation.getDescription());
                 }
-                // TODO: save new instances to variable -> if not implemented may lead to missread
-                // of endpoints
-                // System.out.println("INVOKE_SPECIAL=" + operation);
 
         }
 

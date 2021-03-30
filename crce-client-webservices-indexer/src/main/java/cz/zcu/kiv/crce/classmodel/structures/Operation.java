@@ -68,11 +68,11 @@ public class Operation {
         this.owner = owner;
     }
 
-    public String getFuncName() {
+    public String getMethodName() {
         return fName;
     }
 
-    public void setFuncName(String name) {
+    public void setMethodName(String name) {
         this.fName = name;
     }
 
@@ -114,7 +114,7 @@ public class Operation {
 
     @Override
     public String toString() {
-        return description + ": " + type + "(opcode=" + opcode + ", name=" + this.getFuncName()
+        return description + ": " + type + "(opcode=" + opcode + ", name=" + this.getMethodName()
                 + ", value=" + value + "), " + (desc == null ? "" : desc);
     }
 
