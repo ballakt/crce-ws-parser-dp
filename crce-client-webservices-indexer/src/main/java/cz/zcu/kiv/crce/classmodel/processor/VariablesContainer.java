@@ -50,7 +50,6 @@ public class VariablesContainer {
      */
     public VariablesContainer() {
         vars = new ArrayList<>();
-        // TODO: dont do this -> need for detection of static or nonstatic class
         vars.add(new Variable("").setType(VariableType.OTHER));
     }
 }

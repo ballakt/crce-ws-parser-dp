@@ -2,7 +2,6 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +11,7 @@ import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinitionMap;
 import cz.zcu.kiv.crce.classmodel.definition.tools.ArgTools;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.EndpointType;
+import cz.zcu.kiv.crce.classmodel.processor.Helpers.StackF;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
@@ -22,7 +22,6 @@ import cz.zcu.kiv.crce.classmodel.structures.Operation;
 
 class EndpointHandler extends MethodProcessor {
 
-    private Stack<Endpoint> endpointsInProgress = new Stack<>();
     static Logger logger = LogManager.getLogger("extractor");
     private Map<String, Endpoint> endpoints = new HashMap<>();
     private MethodDefinitionMap md = Definition.getDefinitions();
@@ -33,14 +32,6 @@ class EndpointHandler extends MethodProcessor {
 
     private String getClassName(String name) {
         return name.substring(1).replace(";", "");
-    }
-
-
-
-    private void noEndpointToProcess(Operation operation) {
-        logger.error(
-                "Missing endpoint in the endpointsInProgress list (Unwanted state of parser): ["
-                        + operation.getMethodName() + "=" + operation.getDesc() + "]");
     }
 
     /**
@@ -59,30 +50,36 @@ class EndpointHandler extends MethodProcessor {
                 return;
             }
             MethodDefinition methodDefinition = methodDefinitionMap.get(operation.getMethodName());
+            DefinitionType type = methodDefinition.getType();
 
-            Set<DefinitionType> typeSet = methodDefinition.getType();
-            // TODO: handle sync to body -> aka sending data to endpoint
-            if (typeSet.contains(DefinitionType.BASEURL)) {
-                Endpoint endpoint = Helpers.StackF.pop(this.endpointsInProgress);
-                if (typeSet.contains(DefinitionType.INIT)) {
-                    endpoint = new Endpoint();
-                    this.endpointsInProgress.push(endpoint);
-                } else if (endpoint == null) {
-                    noEndpointToProcess(operation);
-                    return;
+
+            switch (type) {
+                case INIT:
+                    values.push(new Variable().setType(VariableType.ENDPOINT));
+                    break;
+                case BASEURL: {
+                    Variable var = values.remove(0);
+                    Endpoint endpoint;
+                    if (var == null || var.getType() != VariableType.ENDPOINT) {
+                        var = new Variable(new Endpoint());
+                        values.push(var.setType(VariableType.ENDPOINT));
+                    }
+                    endpoint = StackF.popEndpoint(values);
+                    Variable urlVar = StackF.pop(values);
+                    if (urlVar != null) {
+                        endpoint.setBaseUrl(urlVar.getValue().toString());
+                    }
                 }
-            } else if (typeSet.contains(DefinitionType.INIT)) {
-                this.endpointsInProgress.push(new Endpoint());
-            } else {
-                // TODO: make modules for each type and execute them in order
-                if (typeSet.contains(DefinitionType.EXECUTE)) {
-                    Endpoint endpoint = (Endpoint) Helpers.StackF.peek(values).getValue();
+                    break;
+                case EXECUTE: {
+                    Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
                     Helpers.EndpointF.merge(endpoints, endpoint);
-                } else if (typeSet.contains(DefinitionType.RESPONSE)) {
-                    System.out.println("RESPONSE=" + values.peek().getValue());
+
+                }
+                    break;
+                case EXPECT: {
                     final String className = getClassName(values.pop().getValue().toString());
-                    System.out.println("CLASSNAME=" + className);
-                    Endpoint endpoint = (Endpoint) Helpers.StackF.pop(values).getValue();
+                    Endpoint endpoint = Helpers.StackF.popEndpoint(values);
                     if (this.classes.containsKey(className)) {
                         // class exists in the processede JAR
                         endpoint.setExpectedResponse(ClassTools.fieldsToMap(logger, this.classes,
@@ -96,31 +93,25 @@ class EndpointHandler extends MethodProcessor {
                         return;
                     }
                     Helpers.EndpointF.merge(endpoints, endpoint);
-                } else if (typeSet.contains(DefinitionType.URI)) {
-                    Endpoint endpoint = (Endpoint) values.remove(0).getValue();
-                    String val = ArgTools.getURI(values, methodDefinition.getArgs());/*  */
-                    endpoint.setUri(val != null ? val : null);
-                    values.push(new Variable(endpoint));
-                } else {
-                    Variable lastVar = Helpers.StackF.pop(values);
-                    Endpoint endpoint;
-                    if (lastVar == null || lastVar.getType() != VariableType.ENDPOINT) {
-                        endpoint = new Endpoint();
-                        lastVar = new Variable(endpoint).setType(VariableType.ENDPOINT);
 
-                    } else {
-                        endpoint = (Endpoint) Helpers.StackF.peek(values).getValue();
-                    }
-
-                    // only REST types left, like GET, POST ...
-                    DefinitionType[] types = new DefinitionType[typeSet.size()];
-                    typeSet.toArray(types);
-
-                    for (final DefinitionType type : types) {
-                        endpoint.addType(EndpointType.values()[type.ordinal()]);
-                    }
-                    values.add(lastVar);
                 }
+                    break;
+                case URI: {
+                    Endpoint endpoint = (Endpoint) values.remove(0).getValue();
+                    String val = ArgTools.getURI(values, methodDefinition.getArgs());
+                    endpoint.setUri(val != null ? val : null);
+                    values.push(new Variable(endpoint).setType(VariableType.ENDPOINT));
+                }
+                    break;
+                default:
+                    Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
+                    EndpointType eType = EndpointType.values()[type.ordinal()];
+                    if (endpoint == null) {
+                        endpoint = new Endpoint();
+                        values.add(new Variable(endpoint).setType(VariableType.ENDPOINT));
+
+                    }
+                    endpoint.addType(eType);
             }
         } else {
             super.processCALL(operation, values);

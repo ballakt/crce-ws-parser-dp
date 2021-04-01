@@ -3,6 +3,7 @@ package cz.zcu.kiv.crce.classmodel.processor;
 import java.util.Map;
 import java.util.Stack;
 import org.objectweb.asm.Opcodes;
+import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
@@ -133,6 +134,14 @@ public class Helpers {
             return null;
         }
 
+        public static Endpoint popEndpoint(Stack<Variable> stack) {
+            Variable var = pop(stack);
+            if (var != null && var.getType() == VariableType.ENDPOINT) {
+                return (Endpoint) var.getValue();
+            }
+            return null;
+        }
+
         /**
          * Handles peek of an empty stack
          * 
@@ -143,6 +152,14 @@ public class Helpers {
         public static <E> E peek(Stack<E> stack) {
             if (stack.size() > 0) {
                 return stack.peek();
+            }
+            return null;
+        }
+
+        public static Endpoint peekEndpoint(Stack<Variable> stack) {
+            Variable var = peek(stack);
+            if (var != null && var.getType() == VariableType.ENDPOINT) {
+                return (Endpoint) var.getValue();
             }
             return null;
         }

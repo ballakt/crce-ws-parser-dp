@@ -12,7 +12,7 @@ public class MethodDefinition {
     private Set<ArrayList<ArgDefinitionType>> args;
 
     @JsonProperty("type")
-    private Set<DefinitionType> type;
+    private DefinitionType type;
 
     /**
      * @return the name
@@ -45,14 +45,14 @@ public class MethodDefinition {
     /**
      * @return the type
      */
-    public Set<DefinitionType> getType() {
+    public DefinitionType getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(Set<DefinitionType> type) {
+    public void setType(DefinitionType type) {
         this.type = type;
     }
 

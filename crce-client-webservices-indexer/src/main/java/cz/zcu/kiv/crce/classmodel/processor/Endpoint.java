@@ -28,7 +28,7 @@ public class Endpoint {
     }
 
     public enum EndpointType {
-        POST, GET, PUT, PATCH, DELETE;
+        POST, GET, PUT, PATCH, DELETE, HEAD, OPTIONS;
     }
 
     public Set<EndpointType> getTypes() {

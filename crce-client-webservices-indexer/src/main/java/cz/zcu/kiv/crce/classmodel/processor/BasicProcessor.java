@@ -4,13 +4,13 @@ import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
 import cz.zcu.kiv.crce.classmodel.processor.tools.VariableTools;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Operation.OperationType;
-import cz.zcu.kiv.crce.tools.SBTool;
 
 public class BasicProcessor {
 
@@ -41,9 +41,15 @@ public class BasicProcessor {
                 if (field == null) {
                     break;
                 }
-                values.add(
-                        field.setDescription(ClassTools.descriptionToOwner(operation.getDesc())));
-                break;
+                field.setDescription(ClassTools.descriptionToOwner(operation.getDesc()));
+
+                if (PrimitiveClassTester.isPrimitive(field.getDescription())) {
+                    values.add(field);
+                }
+                /*
+                 * values.add(
+                 * field.setDescription(ClassTools.descriptionToOwner(operation.getDesc())));
+                 */ break;
             case Opcodes.PUTSTATIC:
             case Opcodes.PUTFIELD:
                 Variable var = Helpers.StackF.pop(values);
@@ -63,8 +69,7 @@ public class BasicProcessor {
      * @param values    String values
      */
     protected void processCONSTANT(Operation operation, Stack<Variable> values) {
-        StringBuilder newValue = new StringBuilder();
-        SBTool.set(newValue, operation.getValue());
+        String newValue = operation.getValue().toString();
         values.add(new Variable(newValue).setType(VariableType.SIMPLE));
     }
 

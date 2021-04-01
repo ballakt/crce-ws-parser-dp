@@ -10,7 +10,7 @@ import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Field;
 
 public class ClassTools {
-    private static final String descrOwnerRegexp = "(\\((\\w|\\/|;)*\\)[A-Z])|;";
+    private static final String descrOwnerRegexp = "((\\((\\w|\\/|;)*\\)\\[?)?[A-Z])";
     private static final String methodSetGetPrefixRegExp = "^(set)";
 
     private static String methodNameIntoFieldName(String methodName) {
@@ -20,7 +20,7 @@ public class ClassTools {
     }
 
     public static String descriptionToOwner(String description) {
-        String output = description.replaceAll(descrOwnerRegexp, "");
+        String output = description.replaceFirst(descrOwnerRegexp, "").replaceAll(";", "");
         return output;
     }
 
