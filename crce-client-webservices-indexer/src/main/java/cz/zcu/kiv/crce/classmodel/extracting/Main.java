@@ -10,14 +10,17 @@ public class Main {
 
 
 
-        File jarFile = new File(
-                "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/test/resources/spring_webclient.jar");
-
         /*
-         * File jarFile = CommandLineInterface.getFile(args);
-         * 
-         * if (jarFile == null) { return; }
+         * File jarFile = new File(
+         * "/home/anonym/projects/crce-ws-parser-dp/crce-client-webservices-indexer/src/test/resources/spring_webclient.jar"
+         * );
          */
+        File jarFile = CommandLineInterface.getFile(args);
+
+        if (jarFile == null) {
+            return;
+        }
+
         Processor.process(jarFile);
     }
 }
