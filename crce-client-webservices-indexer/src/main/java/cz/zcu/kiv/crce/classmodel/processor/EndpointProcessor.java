@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Stack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import cz.zcu.kiv.crce.classmodel.definition.ArgDefinitionType;
 import cz.zcu.kiv.crce.classmodel.definition.Definition;
 import cz.zcu.kiv.crce.classmodel.definition.DefinitionType;
 import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
@@ -101,17 +102,22 @@ class EndpointHandler extends MethodProcessor {
                     String val = ArgTools.getURI(values, methodDefinition.getArgs());
                     endpoint.setUri(val != null ? val : null);
                     values.push(new Variable(endpoint).setType(VariableType.ENDPOINT));
+                    Helpers.EndpointF.merge(endpoints, endpoint);
                 }
                     break;
                 default:
-                    Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
+                    Endpoint endpoint = Helpers.StackF.removeEndpoint(values, 0);
+
                     EndpointType eType = EndpointType.values()[type.ordinal()];
                     if (endpoint == null) {
                         endpoint = new Endpoint();
-                        values.add(new Variable(endpoint).setType(VariableType.ENDPOINT));
-
+                    }
+                    if (values.size() > 0) {
+                        ArgTools.setDataFromArgs(endpoint, values, methodDefinition.getArgs());
                     }
                     endpoint.addType(eType);
+                    values.add(new Variable(endpoint).setType(VariableType.ENDPOINT));
+                    Helpers.EndpointF.merge(endpoints, endpoint);
             }
         } else {
             super.processCALL(operation, values);

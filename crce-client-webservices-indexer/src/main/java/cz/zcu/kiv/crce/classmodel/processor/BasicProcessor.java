@@ -7,6 +7,7 @@ import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
 import cz.zcu.kiv.crce.classmodel.processor.tools.VariableTools;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
+import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
@@ -29,12 +30,16 @@ public class BasicProcessor {
      * @param values    String values
      */
     protected void processFIELD(Operation operation, Stack<Variable> values) {
-
+        // TODO: handle FIELD NAMES like GET,POST from HttpMethod
+        if (!classes.containsKey(operation.getOwner())) {
+            return;
+        }
         ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
         switch (operation.getOpcode()) {
             case Opcodes.GETFIELD:
             case Opcodes.GETSTATIC:
                 if (!classPool.containsKey(operation.getFieldName())) {
+                    // TODO: detect GET, POST, etc.
                     break;
                 }
                 Variable field = classPool.get(operation.getFieldName());

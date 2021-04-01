@@ -1,9 +1,13 @@
 package cz.zcu.kiv.crce.classmodel.definition.tools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import cz.zcu.kiv.crce.classmodel.definition.ArgDefinitionType;
+import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
+import cz.zcu.kiv.crce.classmodel.processor.Endpoint;
 import cz.zcu.kiv.crce.classmodel.processor.Variable;
 
 public class ArgTools {
@@ -37,6 +41,35 @@ public class ArgTools {
         }
 
         return null;
+    }
+    private static Map<String, String> getParams(Stack<Variable> values,
+            Set<ArrayList<ArgDefinitionType>> args) {
+        Map<String, String> output = new HashMap<>();
+        for (final ArrayList<ArgDefinitionType> versionOfArgs : args) {
+            if (versionOfArgs.size() == values.size()) {
+                for (ArgDefinitionType definition : versionOfArgs) {
+                    final Object val = values.remove(0).getValue();
+                    if (output.containsKey(definition.name())) {
+                        output.put(definition.name(),
+                                output.get(definition.name()) + val.toString());
+                    } else {
+                        output.put(definition.name(), val.toString());
+                    }
+
+                }
+            }
+        }
+        return output;
+    }
+
+    public static void setDataFromArgs(Endpoint endpoint, Stack<Variable> values,
+            Set<ArrayList<ArgDefinitionType>> args) {
+        Map<String, String> params = getParams(values, args);
+        final String uri = params.getOrDefault(ArgDefinitionType.URI.name(), null);
+        final String baseURL = params.getOrDefault(ArgDefinitionType.BASEURL.name(), null);
+        // final String param = params.getOrDefault(ArgDefinitionType.PARAM.name(), null);
+        endpoint.setUri(uri);
+        endpoint.setBaseUrl(baseURL);
     }
 
     public static String getURI(Stack<Variable> values, Set<ArrayList<ArgDefinitionType>> args) {

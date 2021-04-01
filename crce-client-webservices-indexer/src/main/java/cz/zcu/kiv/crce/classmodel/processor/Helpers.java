@@ -163,6 +163,17 @@ public class Helpers {
             }
             return null;
         }
+
+        public static Endpoint removeEndpoint(Stack<Variable> stack, int position) {
+            Variable var = null;
+            if (stack.size() < position) {
+                var = stack.get(position);
+            }
+            if (var != null && var.getType() == VariableType.ENDPOINT) {
+                return (Endpoint) stack.remove(position).getValue();
+            }
+            return null;
+        }
     }
     static class EndpointF {
         /**
@@ -172,7 +183,9 @@ public class Helpers {
          * @param endpoint  New endpoint
          */
         public static void merge(Map<String, Endpoint> endpoints, Endpoint endpoint) {
-
+            if (endpoint.getUri() == null) {
+                return;
+            }
             if (endpoints.containsKey(endpoint.getUri())) {
                 final Endpoint oldEndpoint = endpoints.get(endpoint.getUri());
                 oldEndpoint.getTypes().addAll(endpoint.getTypes());

@@ -149,7 +149,7 @@ public class MethodProcessor extends BasicProcessor {
             case Opcodes.FRETURN:
             case Opcodes.DRETURN:
             case Opcodes.IRETURN:
-                method.setReturnValue(var.getValue().toString());
+                method.setReturnValue(var.getValue() == null ? "" : var.getValue().toString());
                 break;
             case Opcodes.RETURN:
                 method.setReturnValue("");

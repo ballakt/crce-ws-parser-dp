@@ -1,0 +1,89 @@
+definitions:
+  - class: org.springframework.web.client.RestTemplate
+    methods:
+      - name: delete
+        type: DELETE
+        args:
+         - - URI
+           - PARAM
+         - - URI
+      - name: put
+        type: PUT
+        args:
+         - - URI
+           - PARAM
+         - - URI
+      - name: getForEntity
+        type: GET
+        args:
+          - - URI
+            - EXPECT
+            - PARAM
+          - - URI
+            - EXPECT
+      - name: getForObject
+        type: GET
+        args:
+          - - URI
+            - EXPECT
+            - PARAM
+          - - URI
+            - EXPECT
+      - name: headForHeaders
+        type: HEAD
+        args:
+          - - URI
+            - PARAM
+          - - URI
+      - name: optionsForAllow
+        type: OPTIONS
+        args:
+          - - URI
+            - PARAM
+          - - URI
+      - name: patchForObject
+        type: PATCH
+        args:
+          - - URI
+            - SKIP
+            - EXPECT
+            - PARAM
+          - - URI
+            - SKIP
+            - EXPECT
+      - name: patchForEntity
+        type: PATCH
+        args:
+          - - URI
+            - SKIP
+            - EXPECT
+            - PARAM
+      - name: postForObject
+        type: POST
+        args:
+          - - URI
+            - SKIP
+            - EXPECT
+            - PARAM
+          - - URI
+            - SKIP
+            - EXPECT
+      - name: postForEntity
+        type: POST
+        args:
+          - - URI
+            - SKIP
+            - EXPECT
+            - PARAM
+          - - URI
+            - SKIP
+            - EXPECT
+
+      - name: postForLocation
+        type: POST
+        args:
+          - - URI
+            - SKIP
+            - PARAM
+          - - URI
+            - SKIP
