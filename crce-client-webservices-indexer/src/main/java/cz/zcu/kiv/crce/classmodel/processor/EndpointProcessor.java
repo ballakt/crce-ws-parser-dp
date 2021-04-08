@@ -154,7 +154,6 @@ class EndpointHandler extends MethodProcessor {
      */
     @Override
     public void process(MethodWrapper method) {
-        // System.out.println("PARAMS=" + method.getMethodStruct().getParameters());
         super.process(method);
     }
 

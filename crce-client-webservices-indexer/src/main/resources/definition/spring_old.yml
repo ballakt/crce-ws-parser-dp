@@ -64,45 +64,45 @@ methods:
         type: PATCH
         args:
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
             - PARAM
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
       - name: patchForEntity
         type: PATCH
         args:
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
             - PARAM
       - name: postForObject
         type: POST
         args:
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
             - PARAM
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
       - name: postForEntity
         type: POST
         args:
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
             - PARAM
           - - PATH
-            - SKIP
+            - SEND
             - EXPECT
 
       - name: postForLocation
         type: POST
         args:
           - - PATH
-            - SKIP
+            - SEND
             - PARAM
           - - PATH
             - SKIP

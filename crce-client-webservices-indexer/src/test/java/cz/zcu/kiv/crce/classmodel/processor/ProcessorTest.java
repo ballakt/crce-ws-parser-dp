@@ -13,11 +13,14 @@ import cz.zcu.kiv.crce.rest.EndpointParameter;
 
 public class ProcessorTest {
 
-        private static Map<String, Endpoint> endpoints;
-        private static Map<String, Endpoint> expectedEndpoints;
+        private static Map<String, Endpoint> springWebClientEndpoints;
+        private static Map<String, Endpoint> springWebClientExpectedEndpoints;
+
+        private static Map<String, Endpoint> springResttemplateEndpoints;
+        private static Map<String, Endpoint> springResttemplateExpectedEndpoints;
 
         @BeforeAll
-        public static void init() {
+        public static void initWebClient() {
                 final Endpoint endpoint1 = new Endpoint("/123", Set.of(HttpMethod.GET),
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody(
@@ -55,8 +58,8 @@ public class ProcessorTest {
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)));
 
-                expectedEndpoints = Map.of("/123", endpoint1, "/prvni/uri/trida", endpoint2,
-                                "/employee/{id}/prvni/uri/tridaNONSTATICtest", endpoint3,
+                springWebClientExpectedEndpoints = Map.of("/123", endpoint1, "/prvni/uri/trida",
+                                endpoint2, "/employee/{id}/prvni/uri/tridaNONSTATICtest", endpoint3,
                                 "/bla/uri/s/argumentem/{id}", endpoint4,
                                 "/prvni/uri/tridaNONSTATICtest", endpoint5, "/test",
                                 new Endpoint("/test", HttpMethod.PUT), "/employee", endpoint7,
@@ -66,22 +69,74 @@ public class ProcessorTest {
                 ClassLoader classLoader = ProcessorTest.class.getClassLoader();
                 File file = new File(classLoader.getResource("spring_webclient.jar").getFile());
                 try {
-                        endpoints = Processor.process(file);
+                        springWebClientEndpoints = Processor.process(file);
                 } catch (IOException e) {
                         fail(e.getMessage());
                 }
 
         }
 
-        @Test
-        public void testNewSpring() {
+        @BeforeAll
+        public static void initResttemplate() {
+                final Endpoint endpoint1 = new Endpoint("http://localhost:8090/api/user/users",
+                                Set.of(HttpMethod.GET), new HashSet<>(),
+                                Set.of(new EndpointRequestBody("com/app/demo/service/ApiService",
+                                                false)),
+                                new HashSet<>());
+                final Endpoint endpoint2 = new Endpoint("http://localhost:8090/api/user/addUser",
+                                Set.of(HttpMethod.POST),
+                                Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
+                                Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
+                                new HashSet<>());
+                final Endpoint endpoint3 = new Endpoint("http://localhost:8090/api/user/patchUser/",
+                                Set.of(HttpMethod.PATCH),
+                                Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
+                                Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
+                                new HashSet<>());
+                final Endpoint endpoint4 =
+                                new Endpoint("http://localhost:8090/api/user/deleteUser/",
+                                                Set.of(HttpMethod.DELETE), new HashSet<>(),
+                                                new HashSet<>(), new HashSet<>());
+                springResttemplateExpectedEndpoints = Map.of("http://localhost:8090/api/user/users",
+                                endpoint1, "http://localhost:8090/api/user/addUser", endpoint2,
+                                "http://localhost:8090/api/user/patchUser/", endpoint3,
+                                "http://localhost:8090/api/user/deleteUser/", endpoint4
 
-                for (Endpoint endpoint : expectedEndpoints.values()) {
-                        if (!endpoints.containsKey(endpoint.getPath())) {
+                );
+                ClassLoader classLoader = ProcessorTest.class.getClassLoader();
+                File file = new File(classLoader.getResource("spring_resttemplate.jar").getFile());
+                try {
+                        springResttemplateEndpoints = Processor.process(file);
+                } catch (IOException e) {
+                        fail(e.getMessage());
+                }
+        }
+
+        @Test
+        public void testWebClientSpring() {
+
+                for (Endpoint endpoint : springWebClientExpectedEndpoints.values()) {
+                        if (!springWebClientEndpoints.containsKey(endpoint.getPath())) {
                                 fail("Missing endpoint " + endpoint);
                                 return;
                         }
-                        Endpoint found = endpoints.get(endpoint.getPath());
+                        Endpoint found = springWebClientEndpoints.get(endpoint.getPath());
+                        if (!found.equals(endpoint)) {
+                                fail("Expected " + endpoint + " but got " + found);
+                        }
+                }
+
+        }
+
+        @Test
+        public void testResttemplateSpring() {
+
+                for (Endpoint endpoint : springResttemplateExpectedEndpoints.values()) {
+                        if (!springResttemplateEndpoints.containsKey(endpoint.getPath())) {
+                                fail("Missing endpoint " + endpoint);
+                                return;
+                        }
+                        Endpoint found = springResttemplateEndpoints.get(endpoint.getPath());
                         if (!found.equals(endpoint)) {
                                 fail("Expected " + endpoint + " but got " + found);
                         }
