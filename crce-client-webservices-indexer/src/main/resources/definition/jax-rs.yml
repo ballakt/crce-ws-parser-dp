@@ -1,0 +1,53 @@
+methods:
+  - class: javax.ws.rs.client.Client
+    methods:
+      - name: target
+        type: BASEURL
+        args:
+          - - BASEURL
+  - class: javax.ws.rs.client.WebTarget
+    methods:
+      - name: path
+        type: PATH
+        args:
+          - - PATH
+      - name: matrixParam
+        type: PATH
+        args:
+          - - PARAM
+      - name: queryParam
+        type: PATH
+        args:
+          - - PARAM
+  - class: javax.ws.rs.client.Invocation$Builder
+    methods:
+      - name: get
+        type: GET
+        args:
+          - - EXPECT
+      - name: put
+        type: PUT
+        args:
+          - - SEND
+          - - SEND
+            - EXPECT
+      - name: post
+        type: POST
+        args:
+          - - SEND
+          - - SEND
+            - EXPECT
+      - name: delete
+        type: DELETE
+        args:
+          - - EXPECT
+      - name: head
+        type: HEAD
+      - name: options
+        type: OPTIONS
+        args:
+          - - EXPECT
+      - name: trace
+        type: TRACE
+        args:
+          - - EXPECT

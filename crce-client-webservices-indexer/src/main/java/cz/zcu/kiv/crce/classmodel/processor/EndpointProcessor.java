@@ -36,9 +36,12 @@ class EndpointHandler extends MethodProcessor {
         return name.substring(1).replace(";", "");
     }
 
-    private void processEXCHANGE(Stack<Variable> values, MethodDefinition methodDefinition) {
-        Stack<Variable> args = Helpers.StackF.removeUntil(VariableType.ENDPOINT, values);
+    private void processBASEURL(Stack<Variable> values, MethodDefinition methodDefinition) {
+        processURI(values, methodDefinition);
+    }
 
+    private void processEXCHANGE(Stack<Variable> values, MethodDefinition methodDefinition) {
+        processURI(values, methodDefinition);
     }
 
     private void processSEND(Stack<Variable> values, MethodDefinition methodDefinition) {
@@ -109,19 +112,8 @@ class EndpointHandler extends MethodProcessor {
                 case INIT:
                     values.push(new Variable().setType(VariableType.ENDPOINT));
                     break;
-                case BASEURL: {
-                    Variable var = values.remove(0);
-                    Endpoint endpoint;
-                    if (var == null || var.getType() != VariableType.ENDPOINT) {
-                        var = new Variable(new Endpoint());
-                        values.push(var.setType(VariableType.ENDPOINT));
-                    }
-                    endpoint = StackF.popEndpoint(values);
-                    Variable urlVar = StackF.pop(values);
-                    if (urlVar != null) {
-                        endpoint.setBaseUrl(urlVar.getValue().toString());
-                    }
-                }
+                case BASEURL:
+                    processBASEURL(values, methodDefinition);
                     break;
                 case EXECUTE: {
                     Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
@@ -139,7 +131,7 @@ class EndpointHandler extends MethodProcessor {
                     processURI(values, methodDefinition);
                     break;
                 case EXCHANGE:
-                    processURI(values, methodDefinition);
+                    processEXCHANGE(values, methodDefinition);
                     break;
                 default:
                     processHTTPMetod(values, methodDefinition, type);
