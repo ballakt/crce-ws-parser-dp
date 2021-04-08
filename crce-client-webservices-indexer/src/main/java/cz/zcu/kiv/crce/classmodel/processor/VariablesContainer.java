@@ -1,6 +1,7 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.ArrayList;
+import java.util.List;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 
 
@@ -51,5 +52,30 @@ public class VariablesContainer {
     public VariablesContainer() {
         vars = new ArrayList<>();
         vars.add(new Variable("").setType(VariableType.OTHER));
+    }
+
+    /*
+     * public VariablesContainer(boolean includeSelf,
+     * List<cz.zcu.kiv.crce.classmodel.structures.Variable> varStructures) { vars = new
+     * ArrayList<>(); if (includeSelf) { vars.add(new Variable("").setType(VariableType.OTHER)); }
+     * for (cz.zcu.kiv.crce.classmodel.structures.Variable varStruct : varStructures) { vars.add(new
+     * Variable().setDescription(varStruct.getDataType().getBasicType())
+     * .setType(VariableType.OTHER)); } }
+     */
+
+    public VariablesContainer(List<cz.zcu.kiv.crce.classmodel.structures.Variable> varStructures,
+            String owner) {
+        vars = new ArrayList<>();
+        if (owner != null) {
+            vars.add(new Variable("").setType(VariableType.OTHER).setOwner(owner));
+        }
+        for (cz.zcu.kiv.crce.classmodel.structures.Variable varStruct : varStructures) {
+            vars.add(new Variable().setDescription(varStruct.getDataType().getBasicType())
+                    .setType(VariableType.OTHER));
+        }
+    }
+
+    public VariablesContainer(List<cz.zcu.kiv.crce.classmodel.structures.Variable> varStructures) {
+        this(varStructures, null);
     }
 }

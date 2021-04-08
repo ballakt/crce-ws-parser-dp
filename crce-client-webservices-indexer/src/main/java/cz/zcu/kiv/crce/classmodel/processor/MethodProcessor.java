@@ -5,7 +5,7 @@ import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.Helpers.StringC;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
-import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
+import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
@@ -31,6 +31,13 @@ public class MethodProcessor extends BasicProcessor {
         this.processInner(method, values);
     }
 
+    private void processINVOKEINTERFACE(Stack<Variable> values, Operation operation) {
+        Variable var = Helpers.StackF.peek(values);
+        if (var.getDescription().equals(operation.getDescription())) {
+            return;
+        }
+        return;
+    }
 
     /**
      * Process CALL operation (toString, append - operation with Strings)
@@ -60,7 +67,7 @@ public class MethodProcessor extends BasicProcessor {
                 }
                 Variable newVar = new Variable();
                 // TODO: check if var is simple
-                if (PrimitiveClassTester.isPrimitive(methodWrapper.getDescription())) {
+                if (ClassTools.isPrimitive(methodWrapper.getDescription())) {
                     newVar.setType(VariableType.SIMPLE);
                 } else {
                     newVar.setType(VariableType.OTHER);
@@ -73,8 +80,7 @@ public class MethodProcessor extends BasicProcessor {
                     this.stringOP = StringC.OperationType.TOSTRING;
                 } else if (Helpers.StringC.isAppend(fName)) {
                     if (this.stringOP == Helpers.StringC.OperationType.APPEND) {
-
-                        Iterator valuesIterator = values.iterator();
+                        Iterator<Variable> valuesIterator = values.iterator();
                         Variable merged = new Variable().setType(VariableType.SIMPLE);
                         while (valuesIterator.hasNext()) {
                             Variable nextVar = (Variable) valuesIterator.next();
@@ -102,7 +108,7 @@ public class MethodProcessor extends BasicProcessor {
                     Variable variable = new Variable(mw.getMethodStruct().getReturnValue())
                             .setType(VariableType.OTHER).setDescription(mw.getDescription());
 
-                    if (PrimitiveClassTester.isPrimitive(mw.getDescription())) {
+                    if (ClassTools.isPrimitive(mw.getDescription())) {
                         variable.setType(VariableType.SIMPLE);
                     }
                     values.add(variable);
@@ -113,13 +119,19 @@ public class MethodProcessor extends BasicProcessor {
 
                 if (variable == null) {
                     variable = new Variable().setType(VariableType.OTHER)
-                            .setValue(operation.getDescription());
+                            .setDescription(operation.getDescription())
+                            .setOwner(operation.getOwner());
                     values.add(variable);
                     return;
                 }
                 if (variable.getType() != VariableType.SIMPLE) {
                     variable.setValue(operation.getDescription());
                 }
+                break;
+            case Opcodes.INVOKEINTERFACE:
+                processINVOKEINTERFACE(values, operation);
+                break;
+
 
         }
 

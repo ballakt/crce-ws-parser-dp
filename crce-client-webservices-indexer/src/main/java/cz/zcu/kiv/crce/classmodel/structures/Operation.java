@@ -100,7 +100,7 @@ public class Operation {
 
     public enum OperationType {
 
-        STORE, LOAD, STRING_CONSTANT, INT_CONSTANT, ANEWARRAY, JUMP, RETURN, CALL, OTHER, FIELD;
+        STORE, LOAD, STRING_CONSTANT, INT_CONSTANT, ANEWARRAY, JUMP, RETURN, CALL, OTHER, FIELD, DUP;
     }
 
     public String getDescription() {

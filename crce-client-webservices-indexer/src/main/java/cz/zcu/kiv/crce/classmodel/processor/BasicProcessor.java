@@ -4,10 +4,9 @@ import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
-import cz.zcu.kiv.crce.classmodel.processor.tools.PrimitiveClassTester;
+import cz.zcu.kiv.crce.classmodel.processor.tools.NumTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.VariableTools;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
-import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
@@ -23,6 +22,35 @@ public class BasicProcessor {
         this.classes = classes;
     }
 
+    protected void processGETFIELD(Stack<Variable> values, Operation operation) {
+        Variable var = Helpers.StackF.peek(values);
+        if (var != null && var.getType() == VariableType.OTHER
+                && var.getOwner().equals(operation.getOwner())) {
+            values.pop();
+        }
+    }
+
+    protected void processGETSTATICFIELD(Stack<Variable> values, Operation operation) {
+        if (!classes.containsKey(operation.getOwner())) {
+            return;
+        }
+        ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
+        Variable value = Helpers.StackF.peek(values);
+        /*
+         * if (value != null && value.getType() == VariableType.OTHER) { values.pop(); }
+         */
+        if (!classPool.containsKey(operation.getFieldName())) {
+            // TODO: detect GET, POST, etc.
+            return;
+        }
+        Variable field = classPool.get(operation.getFieldName());
+        if (field == null) {
+            return;
+        }
+        field.setDescription(ClassTools.descriptionToOwner(operation.getDesc()));
+        values.add(field);
+    }
+
     /**
      * Processes operations with fields of concrete class
      * 
@@ -31,37 +59,24 @@ public class BasicProcessor {
      */
     protected void processFIELD(Operation operation, Stack<Variable> values) {
         // TODO: handle FIELD NAMES like GET,POST from HttpMethod
-        if (!classes.containsKey(operation.getOwner())) {
-            return;
-        }
-        ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
         switch (operation.getOpcode()) {
             case Opcodes.GETFIELD:
+                processGETFIELD(values, operation);
             case Opcodes.GETSTATIC:
-                if (!classPool.containsKey(operation.getFieldName())) {
-                    // TODO: detect GET, POST, etc.
-                    break;
-                }
-                Variable field = classPool.get(operation.getFieldName());
-                if (field == null) {
-                    break;
-                }
-                field.setDescription(ClassTools.descriptionToOwner(operation.getDesc()));
-
-                if (PrimitiveClassTester.isPrimitive(field.getDescription())) {
-                    values.add(field);
-                }
-                /*
-                 * values.add(
-                 * field.setDescription(ClassTools.descriptionToOwner(operation.getDesc())));
-                 */ break;
+                processGETSTATICFIELD(values, operation);
+                break;
             case Opcodes.PUTSTATIC:
-            case Opcodes.PUTFIELD:
+            case Opcodes.PUTFIELD: {
+                if (!classes.containsKey(operation.getOwner())) {
+                    return;
+                }
+                ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
                 Variable var = Helpers.StackF.pop(values);
                 if (VariableTools.isEmpty(var)) {
                     break;
                 }
                 classPool.put(operation.getFieldName(), var);
+            }
                 break;
         }
 
@@ -74,7 +89,14 @@ public class BasicProcessor {
      * @param values    String values
      */
     protected void processCONSTANT(Operation operation, Stack<Variable> values) {
-        String newValue = operation.getValue().toString();
+        String newValue = operation.getValue() != null ? operation.getValue().toString() : null;
+        Variable last = Helpers.StackF.peek(values);
+        if (newValue != null && NumTools.isNumeric(newValue) && last != null
+                && last.getType() == VariableType.ARRAY) {
+            VarArray array = (VarArray) last.getValue();
+            array.setPosition(Integer.valueOf(newValue));
+            return;
+        }
         values.add(new Variable(newValue).setType(VariableType.SIMPLE));
     }
 
@@ -87,6 +109,12 @@ public class BasicProcessor {
      */
     protected void processSTORE(MethodWrapper method, Operation operation, Stack<Variable> values) {
         // ConstPool constPool = method.getConstPool();
+
+        if (operation.getOpcode() == Opcodes.AASTORE) {
+            processAASTORE(method, operation, values);
+            return;
+        }
+
         VariablesContainer variables = method.getVariables();
 
         Variable var = Helpers.StackF.pop(values);
@@ -95,6 +123,19 @@ public class BasicProcessor {
         }
         values.removeAll(values);
         variables.set(operation.getIndex(), var);
+    }
+
+    protected void processAASTORE(MethodWrapper method, Operation operation,
+            Stack<Variable> values) {
+        Variable arrayItem = Helpers.StackF.pop(values);
+        Variable array = Helpers.StackF.pop(values);
+        if (arrayItem == null || VariableTools.isEmpty(array)
+                || array.getType() != VariableType.ARRAY) {
+            return;
+        }
+        VarArray varArray = (VarArray) array.getValue();
+        varArray.set(arrayItem.getDescription());
+        values.push(array);
     }
 
     /**
@@ -109,12 +150,12 @@ public class BasicProcessor {
         Variable var = variables.get(operation.getIndex());
 
         if (var == null) {
-            variables.init(operation.getIndex());
-            return;
+            var = variables.init(operation.getIndex());
         }
-        if (var.getType() != VariableType.OTHER) {
-            values.add(var);
-        }
+        values.push(var);
+        /*
+         * if (var.getType() != VariableType.OTHER) { values.add(var); }
+         */
     }
 
     /**
@@ -128,6 +169,24 @@ public class BasicProcessor {
         Method methodStruct = method.getMethodStruct();
         for (Operation operation : methodStruct.getOperations()) {
             processOperation(method, operation, values);
+        }
+    }
+
+    protected void processANEWARRAY(Operation operation, Stack<Variable> values) {
+        Variable possibleNum = Helpers.StackF.pop(values);
+        Variable arr =
+                new Variable().setType(VariableType.ARRAY).setDescription(operation.getDesc());
+        if (!VariableTools.isEmpty(possibleNum)
+                && NumTools.isNumeric(possibleNum.getValue().toString())) {
+            arr.setValue(new VarArray(Integer.valueOf(possibleNum.getValue().toString())));
+        }
+        values.push(arr);
+    }
+
+    protected void processDUP(Stack<Variable> values) {
+        Variable last = Helpers.StackF.pop(values);
+        if (!VariableTools.isEmpty(last) && last.getType() == VariableType.ARRAY) {
+
         }
     }
 
@@ -157,9 +216,18 @@ public class BasicProcessor {
 
             case STORE:
                 processSTORE(method, operation, values);
-
+                break;
             case ANEWARRAY:
-                Helpers.StackF.pop(values);
+                processANEWARRAY(operation, values);
+                break;
+            case DUP:
+                /*
+                 * Variable last = Helpers.StackF.pop(values); if (!VariableTools.isEmpty(last) &&
+                 * last.getType() == VariableType.ARRAY) {
+                 * 
+                 * }
+                 */
+                break;
             default:;
 
         }

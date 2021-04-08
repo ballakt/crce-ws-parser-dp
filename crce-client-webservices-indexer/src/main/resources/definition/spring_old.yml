@@ -1,89 +1,116 @@
-definitions:
+enums:
+  - class: org.springframework.http.HttpMethod
+    fields:
+      - name: DELETE
+        httpMethod: DELETE
+      - name: GET
+        httpMethod: GET
+      - name: HEAD
+        httpMethod: HEAD
+      - name: OPTIONS
+        httpMethod: OPTIONS
+      - name: PATCH
+        httpMethod: PATCH
+      - name: POST
+        httpMethod: POST
+      - name: PUT
+        httpMethod: PUT
+      - name: TRACE
+        httpMethod: TRACE
+methods:
   - class: org.springframework.web.client.RestTemplate
     methods:
       - name: delete
         type: DELETE
         args:
-         - - URI
-           - PARAM
-         - - URI
+          - - PATH
+            - PARAM
+          - - PATH
       - name: put
         type: PUT
         args:
-         - - URI
-           - PARAM
-         - - URI
+          - - PATH
+            - PARAM
+          - - PATH
       - name: getForEntity
         type: GET
         args:
-          - - URI
+          - - PATH
             - EXPECT
             - PARAM
-          - - URI
+          - - PATH
             - EXPECT
       - name: getForObject
         type: GET
         args:
-          - - URI
+          - - PATH
             - EXPECT
             - PARAM
-          - - URI
+          - - PATH
             - EXPECT
       - name: headForHeaders
         type: HEAD
         args:
-          - - URI
+          - - PATH
             - PARAM
-          - - URI
+          - - PATH
       - name: optionsForAllow
         type: OPTIONS
         args:
-          - - URI
+          - - PATH
             - PARAM
-          - - URI
+          - - PATH
       - name: patchForObject
         type: PATCH
         args:
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
             - PARAM
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
       - name: patchForEntity
         type: PATCH
         args:
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
             - PARAM
       - name: postForObject
         type: POST
         args:
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
             - PARAM
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
       - name: postForEntity
         type: POST
         args:
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
             - PARAM
-          - - URI
+          - - PATH
             - SKIP
             - EXPECT
 
       - name: postForLocation
         type: POST
         args:
-          - - URI
+          - - PATH
             - SKIP
             - PARAM
-          - - URI
+          - - PATH
             - SKIP
+      - name: exchange
+        type: EXCHANGE
+        args:
+          - - PATH
+            - HTTPMETHOD
+            - SEND
+            - EXPECT
+            - PARAM

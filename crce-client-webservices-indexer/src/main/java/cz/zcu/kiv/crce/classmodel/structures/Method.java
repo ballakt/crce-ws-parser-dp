@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import org.objectweb.asm.Opcodes;
+import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
 
 /**
  * Created by ghessova on 05.03.2018.
@@ -24,6 +25,7 @@ public class Method extends PathPart {
         this.access = access;
         this.name = name;
         this.desc = desc;
+        BytecodeDescriptorsProcessor.processMethodDescriptor(desc, this);
     }
 
     public String getName() {

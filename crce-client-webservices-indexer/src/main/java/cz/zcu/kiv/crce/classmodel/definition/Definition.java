@@ -19,7 +19,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 public class Definition {
 
     private static final String JAR_URI_SCHEME = "jar";
-    private static MethodDefinitionMap definition = null;
+    private static MethodDefinitionMap methodDefinitionsMap = null;
+    private static EnumDefinitionMap enumDefinitionsMap = null;
     private static final String DEF_DIR_NAME = "definition";
     private static final String DEF_DIR_ABS = "/" + DEF_DIR_NAME;
     private static final String DEF_DIR_REL = DEF_DIR_NAME + "/";
@@ -75,15 +76,28 @@ public class Definition {
         RestApiDefinition restApiDefinition =
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .readValue(inputStream, RestApiDefinition.class);
-        Set<DefinitionItem> definitions = restApiDefinition.getDefinitions();
-
-        for (DefinitionItem one : definitions) {
-            final String methodDefKey = one.getClassName();
-            if (!definition.containsKey(methodDefKey)) {
-                definition.put(methodDefKey, new HashMap<>());
+        Set<DefinitionItem> methodDefinitions = restApiDefinition.getMethods();
+        Set<EnumDefinitionItem> enumDefinitions = restApiDefinition.getEnums();
+        if (methodDefinitions != null) {
+            for (DefinitionItem one : methodDefinitions) {
+                final String methodDefKey = one.getClassName();
+                if (!methodDefinitionsMap.containsKey(methodDefKey)) {
+                    methodDefinitionsMap.put(methodDefKey, new HashMap<>());
+                }
+                for (MethodDefinition md : one.getMethods()) {
+                    methodDefinitionsMap.get(methodDefKey).put(md.getName(), md);
+                }
             }
-            for (MethodDefinition md : one.getMethods()) {
-                definition.get(methodDefKey).put(md.getName(), md);
+        }
+        if (enumDefinitions != null) {
+            for (EnumDefinitionItem one : enumDefinitions) {
+                final String enumDefKey = one.getClassName();
+                if (!enumDefinitionsMap.containsKey(enumDefKey)) {
+                    enumDefinitionsMap.put(enumDefKey, new HashMap<>());
+                }
+                for (EnumFieldOrMethod field : one.getFields()) {
+                    enumDefinitionsMap.get(enumDefKey).put(field.getName(), field);
+                }
             }
         }
     }
@@ -102,7 +116,7 @@ public class Definition {
 
         File directory = null;
         List<String> filesInDirectory = null;
-        definition = new MethodDefinitionMap();
+        methodDefinitionsMap = new MethodDefinitionMap();
         String fullPath = resource_url.getFile();
 
         if (resource_url.toURI().getScheme().equals(JAR_URI_SCHEME)) { // inside JAR
@@ -123,14 +137,33 @@ public class Definition {
      * 
      * @return Definition of methods
      */
-    public static MethodDefinitionMap getDefinitions() {
-        if (definition == null) {
+    public static MethodDefinitionMap getMethodDefinitions() {
+        if (methodDefinitionsMap == null) {
+            methodDefinitionsMap = new MethodDefinitionMap();
+            enumDefinitionsMap = new EnumDefinitionMap();
             try {
                 loadDefinitions();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return definition;
+        return methodDefinitionsMap;
+    }
+
+    /**
+     * 
+     * @return Definition of enums
+     */
+    public static EnumDefinitionMap getEnumDefinitions() {
+        if (enumDefinitionsMap == null) {
+            enumDefinitionsMap = new EnumDefinitionMap();
+            methodDefinitionsMap = new MethodDefinitionMap();
+            try {
+                loadDefinitions();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return enumDefinitionsMap;
     }
 }

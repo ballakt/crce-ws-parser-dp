@@ -1,6 +1,9 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
@@ -156,6 +159,24 @@ public class Helpers {
             return null;
         }
 
+        // public static <E> constains(Stack<>)
+
+        /*
+         * private static boolean isType(Object object, Class<?> type) { return (object != null &&
+         * object.getClass() == type); }
+         */
+
+        public static boolean contains(Stack<Variable> stack, VariableType vType) {
+            for (Variable var : stack) {
+                System.out.println("VAR=" + var.getType());
+                System.out.println("VTYPE=" + vType);
+                if (var.getType() == vType) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static Endpoint peekEndpoint(Stack<Variable> stack) {
             Variable var = peek(stack);
             if (var != null && var.getType() == VariableType.ENDPOINT) {
@@ -174,6 +195,19 @@ public class Helpers {
             }
             return null;
         }
+
+        public static Stack<Variable> removeUntil(VariableType type, Stack<Variable> stack) {
+            Stack<Variable> vars = new Stack<>();
+            /*
+             * if (!contains(stack, type)) { return vars; }
+             */
+            Variable it = peek(stack);
+            for (; it != null && it.getType() != VariableType.ENDPOINT; it = peek(stack)) {
+                vars.push(it);
+                pop(stack);
+            }
+            return vars;
+        }
     }
     static class EndpointF {
         /**
@@ -183,14 +217,14 @@ public class Helpers {
          * @param endpoint  New endpoint
          */
         public static void merge(Map<String, Endpoint> endpoints, Endpoint endpoint) {
-            if (endpoint.getUri() == null) {
+            if (endpoint.getPath() == null) {
                 return;
             }
-            if (endpoints.containsKey(endpoint.getUri())) {
-                final Endpoint oldEndpoint = endpoints.get(endpoint.getUri());
-                oldEndpoint.getTypes().addAll(endpoint.getTypes());
+            if (endpoints.containsKey(endpoint.getPath())) {
+                final Endpoint oldEndpoint = endpoints.get(endpoint.getPath());
+                oldEndpoint.merge(endpoint);
             } else {
-                endpoints.put(endpoint.getUri(), endpoint);
+                endpoints.put(endpoint.getPath(), endpoint);
             }
         }
 
@@ -212,4 +246,10 @@ public class Helpers {
             }
         }
     }
+    /*
+     * static class SetF { public static <E> boolean equals(Set<E> first, Set<E> second) { if
+     * (first.size() != second.size()) { return false; }
+     * 
+     * return false; } }
+     */
 }

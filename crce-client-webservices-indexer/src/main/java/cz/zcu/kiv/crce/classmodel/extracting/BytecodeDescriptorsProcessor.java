@@ -172,6 +172,32 @@ public class BytecodeDescriptorsProcessor {
         return processFieldDescriptor(desc, 0).dataType;
     }
 
+
+    private static void processSignature(String type) {
+        Matcher matcher = baseTypePattern.matcher(type);
+        String dateType;
+
+        if (matcher.find() && matcher.start() == 0) {
+            dateType = type.substring(0, matcher.end());
+            // return new DateTypeWrapper(start + matcher.end(), new DataType(datetype));
+        }
+        matcher = objectTypePattern.matcher(type);
+        if (matcher.find() && matcher.start() == 0) {
+            type = type.substring(0, matcher.end());
+            DataType outType;
+            if (!type.contains("<")) {
+                outType = new DataType(getFullClassName(type));
+            } else {
+                outType = new DataType(BytecodeDescriptorsProcessor.getOuterGenericType(type));
+                DataType innerType =
+                        new DataType(BytecodeDescriptorsProcessor.getInnerGenericType(type));
+                outType.setInnerType(innerType);
+
+            }
+        }
+    }
+
+
     /**
      * Processes parameters descriptor and extracts one a data type for field on current position.
      * 

@@ -7,6 +7,7 @@ public class Field extends Variable {
 
     private int access;
     private String val;
+    private String signature;
 
     public Field(DataType dataType) {
         super(dataType);
@@ -28,8 +29,24 @@ public class Field extends Variable {
         return val;
     }
 
+    // public void setDataTypeChain()
+
     @Override
     public String toString() {
         return super.toString() + ", Field{" + "access=" + access + '}';
+    }
+
+    /**
+     * @return the signature
+     */
+    public String getSignature() {
+        return signature;
+    }
+
+    /**
+     * @param signature the signature to set
+     */
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

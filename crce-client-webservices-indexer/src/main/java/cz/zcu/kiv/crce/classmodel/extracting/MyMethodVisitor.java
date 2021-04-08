@@ -17,7 +17,6 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
 import cz.zcu.kiv.crce.classmodel.structures.Method;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.structures.Variable;
@@ -104,7 +103,6 @@ public class MyMethodVisitor extends MethodVisitor {
             super.visitLocalVariable(name, desc, signature, start, end, index);
         }
     }
-
 
 
     @Override
@@ -202,9 +200,10 @@ public class MyMethodVisitor extends MethodVisitor {
      */
     @Override
     public void visitTypeInsn(int opcode, String type) {
+
         if (opcode == Opcodes.ANEWARRAY) {
             Operation operation = new Operation(opcode, Operation.OperationType.ANEWARRAY);
-            operation.setValue("" + type);
+            operation.setDesc(type);
             method.addOperation(operation);
         }
 
@@ -293,50 +292,32 @@ public class MyMethodVisitor extends MethodVisitor {
     @Override
     public void visitVarInsn(int opcode, int var) {
         String type = "unknown";
-        if (opcode > 21 && opcode < 53) {
-            type = "load";
-        }
-        if (opcode > 54 && opcode < 86) {
-            type = "store";
-        }
-        logger.debug(
-                "        Local-Variable-Instruction[" + type + "=" + opcode + ", var=" + var + "]");
-        // MethodVisitor mv = new MyMethodVisitor(Opcodes.ASM9);
-
         Operation operation;
-        if (opcode > 20 && opcode < 54) { // load
+        if (opcode >= Opcodes.ILOAD && opcode <= Opcodes.SALOAD) { // load
+            type = "load";
             log.add("load(" + opcode + "): " + var);
             operation = new Operation(opcode, Operation.OperationType.LOAD);
             operation.setDescription("load(" + opcode + "): " + var);
 
             operation.setIndex(var);
-        } else if (opcode > 53 && opcode < 87) { // store
+        } else if (Opcodes.ISTORE >= 54 && opcode <= Opcodes.SASTORE) { // store
+            type = "store";
             operation = new Operation(opcode, Operation.OperationType.STORE);
             operation.setIndex(var);
             operation.setDescription("store(" + opcode + "): " + var);
 
             log.add("store(" + opcode + "): " + var);
         } else {
+            type = "unknown";
             operation = new Operation(opcode, Operation.OperationType.OTHER);
             operation.setIndex(var);
             operation.setDescription("operation(" + opcode + "): " + var);
             log.add("operation(" + opcode + "): " + var);
         }
+        logger.debug(
+                "        Local-Variable-Instruction[" + type + "=" + opcode + ", var=" + var + "]");
+
         method.addOperation(operation);
-        /*
-         * Operation operation; if (opcode > 20 && opcode < 54) { // load log.add("load(" + opcode +
-         * "): " + var); operation = new Operation(opcode, Operation.OperationType.LOAD);
-         * operation.setDescription("load(" + opcode + "): " + var);
-         * 
-         * operation.setIndex(var); } else if (opcode > 53 && opcode < 87) { // store operation =
-         * new Operation(opcode, Operation.OperationType.STORE); operation.setIndex(var);
-         * operation.setDescription("store(" + opcode + "): " + var);
-         * 
-         * log.add("store(" + opcode + "): " + var); } else { operation = new Operation(opcode,
-         * Operation.OperationType.OTHER); operation.setIndex(var);
-         * operation.setDescription("operation(" + opcode + "): " + var); log.add("operation(" +
-         * opcode + "): " + var); } method.addOperation(operation);
-         */
     }
 
     @Override
@@ -377,6 +358,17 @@ public class MyMethodVisitor extends MethodVisitor {
             case Opcodes.RETURN:
                 type = "return";
                 operationType = OperationType.RETURN;
+            case Opcodes.DUP:
+                type = "dup";
+                operationType = OperationType.DUP;
+                break;
+            case Opcodes.AASTORE:
+                type = "aastore";
+                operationType = OperationType.STORE;
+                break;
+            case Opcodes.ACONST_NULL:
+                operationType = OperationType.STRING_CONSTANT;
+                break;
             default:
                 if (opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) {
                     operationType = OperationType.INT_CONSTANT;

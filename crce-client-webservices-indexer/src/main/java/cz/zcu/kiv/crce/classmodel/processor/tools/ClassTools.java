@@ -1,8 +1,14 @@
 package cz.zcu.kiv.crce.classmodel.processor.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
@@ -10,8 +16,28 @@ import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.Field;
 
 public class ClassTools {
-    private static final String descrOwnerRegexp = "((\\((\\w|\\/|;)*\\)\\[?)?[A-Z])";
+    private static final String descrOwnerRegexp = "^((\\((\\w|\\/|;)*\\)\\[?)?[A-Z])";
+    private static final String descrOwnerRegexpEnd = "(\\$.*)";
     private static final String methodSetGetPrefixRegExp = "^(set)";
+    private static final String baseTypeRegex = "[BCDFIJSZ]";
+    private static final Pattern baseTypePattern = Pattern.compile(baseTypeRegex);
+    private static final String objectTypeRegex = "^L[^;<>]+(<.*>)*;";
+    private static final Pattern objectTypePattern = Pattern.compile(objectTypeRegex);
+
+    private static Set<String> primitiveClassNames = Set.of("java/lang/String", "java/lang/Integer",
+            "java/lang/Float", "java/lang/Double", "java/lang/Long", "java/lang/Short",
+            "java/lang/Character", "java/lang/Byte", "java/lang/Boolean");
+
+    /**
+     * Checks if classname is one of the primitive classes like java/lang/String, java/lang/Integer
+     * etc.
+     * 
+     * @param className Classname
+     * @return Is class primitive
+     */
+    public static boolean isPrimitive(String className) {
+        return primitiveClassNames.contains(className);
+    }
 
     private static String methodNameIntoFieldName(String methodName) {
         String newMethodName = methodName.replaceFirst(methodSetGetPrefixRegExp, "");
@@ -20,9 +46,55 @@ public class ClassTools {
     }
 
     public static String descriptionToOwner(String description) {
-        String output = description.replaceFirst(descrOwnerRegexp, "").replaceAll(";", "");
+        String output = description.replaceFirst(descrOwnerRegexp, "")
+                .replaceAll(descrOwnerRegexpEnd, "").replaceAll(";", "");
         return output;
     }
+
+
+    private static List<Object> getTypes(String signature) {
+        Stack<Object> typesStack = new Stack<>();
+        processTypes(signature, typesStack);
+        List<Object> types = new LinkedList<>(typesStack);
+        Collections.reverse(types);
+        return types;
+    }
+
+    private static void processTypes(String signature, Stack<Object> types) {
+
+
+
+        Matcher matcher = baseTypePattern.matcher(signature);
+        String dateType;
+
+        if (matcher.find() && matcher.start() == 0) {
+            dateType = signature.substring(0, matcher.end());
+            types.push(dateType);
+            return;
+        }
+
+        matcher = objectTypePattern.matcher(signature);
+
+        if (matcher.find() && matcher.start() == 0) {
+            signature = signature.substring(0, matcher.end());
+            if (!signature.contains("<")) {
+                types.push(signature.replaceFirst("L", "").replace(";", ""));
+            } else {
+                String innerType = signature.replaceFirst(".*<(.*?)>.*", "$1");
+                if (innerType != null) {
+                    String[] params = innerType.split(";");
+                    if (params.length > 1) {
+                        types.push(params);
+                    } else {
+                        types.push(innerType.replaceFirst("L", ""));
+                    }
+                    String outerType = signature.replaceFirst("<" + innerType + ">", "");
+                    processTypes(outerType, types);
+                }
+            }
+        }
+    }
+
 
     /**
      * Converts fields of class into map structure like "field_name: field_type"
@@ -42,9 +114,14 @@ public class ClassTools {
                 // checks the field has getter and setter function
                 final Field field = fields.get(expFieldName);
                 final String fieldName = field.getName();
+
+                if (field.getSignature() != null) {
+                    List<Object> types = getTypes(field.getSignature());
+                }
+
                 final String fieldType = field.getDataType().getBasicType();
 
-                if (PrimitiveClassTester.isPrimitive(fieldType)) {
+                if (ClassTools.isPrimitive(fieldType)) {
                     map.put(fieldName, field.getDataType().getBasicType());
                 } else if (classes.containsKey(fieldType)) {
                     ClassWrapper classWrapper = classes.get(fieldType);

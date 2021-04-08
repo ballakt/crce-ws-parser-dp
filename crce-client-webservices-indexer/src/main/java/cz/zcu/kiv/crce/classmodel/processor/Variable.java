@@ -1,13 +1,13 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
-
 public class Variable {
 
     enum VariableType {
-        SIMPLE, OTHER, ENDPOINT
+        SIMPLE, OTHER, ENDPOINT, ARRAY
     }
 
     private Object value = "";
+    private String owner = "";
     private String description = "";
     private VariableType vType = null;
 
@@ -53,6 +53,15 @@ public class Variable {
 
     public Variable() {
         this.value = "";
+    }
+
+    public Variable setOwner(String owner) {
+        this.owner = owner;
+        return this;
+    }
+
+    public String getOwner() {
+        return this.owner;
     }
 
     @Override

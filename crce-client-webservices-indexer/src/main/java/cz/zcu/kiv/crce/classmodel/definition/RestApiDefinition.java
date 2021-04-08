@@ -8,7 +8,10 @@ public class RestApiDefinition {
     private String name;
 
     @JsonProperty
-    private Set<DefinitionItem> definitions;
+    private Set<DefinitionItem> methods;
+
+    @JsonProperty
+    private Set<EnumDefinitionItem> enums;
 
     /**
      * @return the name
@@ -25,16 +28,32 @@ public class RestApiDefinition {
     }
 
     /**
-     * @return the definitions
+     * @return the methods
      */
-    public Set<DefinitionItem> getDefinitions() {
-        return definitions;
+    public Set<DefinitionItem> getMethods() {
+        return methods;
     }
 
     /**
-     * @param definitions the definitions to set
+     * @param methods the methods to set
      */
-    public void setDefinitions(Set<DefinitionItem> definitions) {
-        this.definitions = definitions;
+    public void setMethods(Set<DefinitionItem> methods) {
+        this.methods = methods;
     }
+
+    /**
+     * @return the enums
+     */
+    public Set<EnumDefinitionItem> getEnums() {
+        return enums;
+    }
+
+    /**
+     * @param enums the enums to set
+     */
+    public void setEnums(Set<EnumDefinitionItem> enums) {
+        this.enums = enums;
+    }
+
+
 }

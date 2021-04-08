@@ -22,4 +22,15 @@ public class MapTools {
     public static List<Map.Entry<String, Object>> mapToList(Map<String, Object> map) {
         return map.entrySet().stream().flatMap(MapTools::flatten).collect(Collectors.toList());
     }
+
+    public static String mapToString(Map<String, Object> map) {
+        final String delimeter = ", ";
+
+        String responseStringified = "{ ";
+        for (Map.Entry<String, Object> item : MapTools.mapToList(map)) {
+            responseStringified += item.getKey() + "=" + item.getValue() + delimeter;
+        }
+        return responseStringified.substring(0, responseStringified.length() - delimeter.length())
+                + " }";
+    }
 }

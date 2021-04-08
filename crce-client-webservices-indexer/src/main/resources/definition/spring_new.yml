@@ -1,4 +1,4 @@
-definitions:
+methods:
   - class: org.springframework.web.reactive.function.client.WebClient
     methods:
       - name: get
@@ -18,19 +18,28 @@ definitions:
   - class: org.springframework.web.reactive.function.client.WebClient$RequestBodyUriSpec
     methods:
       - name: uri
-        type: URI
+        type: PATH
         args:
-          - - URI
+          - - PATH
             - PARAM
-          - - URI
+          - - PATH
+  - class: org.springframework.web.reactive.function.client.WebClient$RequestBodySpec
+    methods:
+      - name: syncBody
+        args:
+          - - SEND
+        type: SEND
+      - name: bodyValue
+        args:
+          - - SEND
   - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersUriSpec
     methods:
       - name: uri
-        type: URI
+        type: PATH
         args:
-          - - URI
+          - - PATH
             - PARAM
-          - - URI
+          - - PATH
   - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersSpec
     methods:
       - name: retrieve

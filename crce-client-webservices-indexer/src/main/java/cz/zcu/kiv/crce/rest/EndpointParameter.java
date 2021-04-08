@@ -11,6 +11,16 @@ public class EndpointParameter {
 
     private ParameterCategory category;
 
+    public EndpointParameter(String name, String datatype, boolean isArray) {
+        this.name = name;
+        this.dataType = datatype;
+        this.isArray = isArray;
+    }
+
+    public EndpointParameter() {
+
+    }
+
     public ParameterCategory getCategory() {
         return category;
     }
@@ -41,6 +51,31 @@ public class EndpointParameter {
 
     public void setArray(boolean array) {
         isArray = array;
+    }
+
+    /*
+     * @Override public boolean equals(Object obj) { // TODO Auto-generated method stub return
+     * super.equals(obj); }
+     */
+
+    @Override
+    public int hashCode() {
+        // TODO: add more params
+        return dataType.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof EndpointParameter) {
+            EndpointParameter eParam = (EndpointParameter) obj;
+            final boolean nameEq = name == eParam.getName() || name.equals(eParam.getName());
+            final boolean dataTypeEq =
+                    dataType == eParam.getDataType() || dataType.equals(eParam.getDataType());
+            final boolean isArrayEq = isArray == eParam.isArray();
+            final boolean categoryEq = category == eParam.getCategory();
+            return nameEq && dataTypeEq && isArrayEq && categoryEq;
+        }
+        return false;
     }
 
     @Override

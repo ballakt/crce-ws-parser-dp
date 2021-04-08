@@ -53,15 +53,19 @@ public class EClassVisitor extends ClassVisitor {
         // FieldVisitor data = super.visitField(access, name, desc, signature, value);
 
         DataType dataType = BytecodeDescriptorsProcessor.processFieldDescriptor(desc);
+        // TODO: be able to process List<Object> and List<List<Object>> ??
         Field field = new Field(dataType);
         field.setName(name);
         field.setAccess(access);
+        field.setSignature(signature);
         return new MyFieldVisitor(field);
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
             String[] exceptions) {
+        // @source
+        // https://stackoverflow.com/questions/47000699/how-to-extract-access-flags-of-a-field-in-asm-visitfield-method
         log.debug("\n    ==========Method-Visitor[name=" + name + " CLINIT="
                 + (name.equals("<clinit>") ? "TRUE" : "FALSE") + "]===");
         Method newMethod = new Method(access, name, descriptor);
