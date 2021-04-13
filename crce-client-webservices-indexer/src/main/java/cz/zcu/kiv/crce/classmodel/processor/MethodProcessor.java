@@ -49,7 +49,11 @@ public class MethodProcessor extends BasicProcessor {
 
     private boolean isNumberVar(Variable var) {
         return (var.getDescription().equals("I") || var.getDescription().equals("D")
-                || var.getDescription().equals("F"));
+                || var.getDescription().equals("F") || var.getDescription().equals("L")
+                || var.getDescription().equals("java/lang/Integer")
+                || var.getDescription().equals("java/lang/Double")
+                || var.getDescription().equals("java/lang/Long")
+                || var.getDescription().equals("java/lang/Float"));
     }
 
     private void processAppendString(Stack<Variable> values) {
