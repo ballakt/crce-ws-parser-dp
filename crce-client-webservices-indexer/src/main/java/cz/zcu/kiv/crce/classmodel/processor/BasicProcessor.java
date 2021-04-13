@@ -17,12 +17,7 @@ public class BasicProcessor {
 
     protected ClassMap classes;
 
-
-    public BasicProcessor(ClassMap classes) {
-        this.classes = classes;
-    }
-
-    protected void processGETFIELD(Stack<Variable> values, Operation operation) {
+    protected void handleAccessingObject(Stack<Variable> values, Operation operation) {
         Variable var = Helpers.StackF.peek(values);
         if (var != null && var.getType() == VariableType.OTHER
                 && var.getOwner().equals(operation.getOwner())) {
@@ -30,17 +25,24 @@ public class BasicProcessor {
         }
     }
 
+    public BasicProcessor(ClassMap classes) {
+        this.classes = classes;
+    }
+
+    protected void processGETFIELD(Stack<Variable> values, Operation operation) {
+        handleAccessingObject(values, operation);
+    }
+
     protected void processGETSTATICFIELD(Stack<Variable> values, Operation operation) {
         if (!classes.containsKey(operation.getOwner())) {
             return;
         }
         ConstPool classPool = this.classes.get(operation.getOwner()).getClassPool();
-        Variable value = Helpers.StackF.peek(values);
+        // Variable value = Helpers.StackF.peek(values);
         /*
          * if (value != null && value.getType() == VariableType.OTHER) { values.pop(); }
          */
         if (!classPool.containsKey(operation.getFieldName())) {
-            // TODO: detect GET, POST, etc.
             return;
         }
         Variable field = classPool.get(operation.getFieldName());

@@ -3,15 +3,15 @@ package cz.zcu.kiv.crce.classmodel.definition;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EnumDefinitionItem {
+public class EnumConfigItem {
     @JsonProperty("class")
     private String className;
 
     @JsonProperty
-    private Set<EnumFieldOrMethod> methods;
+    private Set<EnumFieldOrMethodConfig> methods;
 
     @JsonProperty
-    private Set<EnumFieldOrMethod> fields;
+    private Set<EnumFieldOrMethodConfig> fields;
 
     /**
      * @return the className
@@ -31,28 +31,28 @@ public class EnumDefinitionItem {
     /**
      * @return the methods
      */
-    public Set<EnumFieldOrMethod> getMethods() {
+    public Set<EnumFieldOrMethodConfig> getMethods() {
         return methods;
     }
 
     /**
      * @param methods the methods to set
      */
-    public void setMethods(Set<EnumFieldOrMethod> methods) {
+    public void setMethods(Set<EnumFieldOrMethodConfig> methods) {
         this.methods = methods;
     }
 
     /**
      * @return the fields
      */
-    public Set<EnumFieldOrMethod> getFields() {
+    public Set<EnumFieldOrMethodConfig> getFields() {
         return fields;
     }
 
     /**
      * @param fields the fields to set
      */
-    public void setFields(Set<EnumFieldOrMethod> fields) {
+    public void setFields(Set<EnumFieldOrMethodConfig> fields) {
         this.fields = fields;
     }
 

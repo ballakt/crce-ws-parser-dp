@@ -2,78 +2,120 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import cz.zcu.kiv.crce.classmodel.definition.Definition;
-import cz.zcu.kiv.crce.classmodel.definition.DefinitionType;
-import cz.zcu.kiv.crce.classmodel.definition.EnumDefinitionMap;
-import cz.zcu.kiv.crce.classmodel.definition.EnumFieldOrMethod;
-import cz.zcu.kiv.crce.classmodel.definition.MethodDefinition;
-import cz.zcu.kiv.crce.classmodel.definition.MethodDefinitionMap;
+import org.apache.logging.log4j.LogManager;
+import cz.zcu.kiv.crce.classmodel.structures.Operation;
+import cz.zcu.kiv.crce.classmodel.definition.ConfigTools;
+import cz.zcu.kiv.crce.classmodel.definition.EDataContainerConfigMap;
+import cz.zcu.kiv.crce.classmodel.definition.ApiCallMethodType;
+import cz.zcu.kiv.crce.classmodel.definition.EnumConfigMap;
+import cz.zcu.kiv.crce.classmodel.definition.EnumFieldOrMethodConfig;
+import cz.zcu.kiv.crce.classmodel.definition.ApiCallMethodConfig;
+import cz.zcu.kiv.crce.classmodel.definition.MethodConfigMap;
 import cz.zcu.kiv.crce.classmodel.definition.tools.ArgTools;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
-import cz.zcu.kiv.crce.classmodel.processor.Helpers.StackF;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools.MethodType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
-import cz.zcu.kiv.crce.classmodel.structures.Operation;
 
 class EndpointHandler extends MethodProcessor {
 
     static Logger logger = LogManager.getLogger("extractor");
     private Map<String, Endpoint> endpoints = new HashMap<>();
-    private MethodDefinitionMap md = Definition.getMethodDefinitions();
-    private EnumDefinitionMap ed = Definition.getEnumDefinitions();
+    private Set<String> typeHolders = ConfigTools.getTypeHolders();
+    private EnumConfigMap ed = ConfigTools.getEnumDefinitions();
+    private MethodConfigMap md = ConfigTools.getMethodDefinitions();
+    private EDataContainerConfigMap eDataConfig = ConfigTools.getEDataContainerConfigMap();
 
     public EndpointHandler(ClassMap classes) {
         super(classes);
     }
 
-    private String getClassName(String name) {
-        return name.substring(1).replace(";", "");
-    }
-
-    private void processBASEURL(Stack<Variable> values, MethodDefinition methodDefinition) {
-        processURI(values, methodDefinition);
-    }
-
-    private void processEXCHANGE(Stack<Variable> values, MethodDefinition methodDefinition) {
-        processURI(values, methodDefinition);
-    }
-
-    private void processSEND(Stack<Variable> values, MethodDefinition methodDefinition) {
-        processURI(values, methodDefinition);
-    }
-
-    private void processEXPECT(Stack<Variable> values, MethodDefinition methodDefinition) {
-        processURI(values, methodDefinition);
-    }
-
-    private void processURI(Stack<Variable> values, MethodDefinition methodDefinition) {
-        Stack<Variable> args = Helpers.StackF.removeUntil(VariableType.ENDPOINT, values);
-        Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
-        if (endpoint == null) {
-            endpoint = new Endpoint();
-            values.push(new Variable(endpoint).setType(VariableType.ENDPOINT));
+    @Override
+    protected void processINVOKESTATIC(Stack<Variable> values, Operation operation) {
+        if (eDataConfig.containsKey(operation.getOwner())) {
+            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            values.push(newEndointData);
+            return;
         }
-        ArgTools.setDataFromArgs(endpoint, args, methodDefinition.getArgs());
-        Helpers.EndpointF.merge(endpoints, endpoint);
+        super.processINVOKESTATIC(values, operation);
     }
 
-    private void processHTTPMetod(Stack<Variable> values, MethodDefinition methodDefinition,
-            DefinitionType type) {
-        processURI(values, methodDefinition);
+    @Override
+    protected void processINVOKESPECIAL(Stack<Variable> values, Operation operation) {
+        // TODO Auto-generated method stub
+
+        removeMethodArgsFromStack(values, operation);
+        handleAccessingObject(values, operation);
+
+        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
+            ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
+            if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())
+                    && class_.getClassStruct().getSignature() != null) {
+                Stack<Object> types = new Stack<>();
+                ClassTools.processTypes(class_.getClassStruct().getSignature(), types);
+                types.pop(); // remove wraping type
+                String type = (String) Helpers.StackF.pop(types);
+                // TODO: in future transform to json recursive way
+                values.push(new Variable().setDescription(type).setType(VariableType.OTHER));
+                return;
+            }
+        }
+        super.processINVOKESPECIAL(values, operation);
+    }
+
+    @Override
+    protected void processINVOKEINTERFACE(Stack<Variable> values, Operation operation) {
+        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
+            ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
+            if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())) {
+                System.out.println("test");
+            }
+        }
+        super.processINVOKEINTERFACE(values, operation);
+    }
+
+    @Override
+    protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
+        /*
+         * removeMethodArgsFromStack(values, operation); handleAccessingObject(values, operation);
+         */
+        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
+            ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
+            if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())) {
+                System.out.println("test");
+            }
+        }
+        super.processINVOKEVIRTUAL(values, operation);
+    }
+
+    private void processGENERIC(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
+            Operation operation) {
+        Variable varEndpoint =
+                ArgTools.setDataFromArgs(values, methodDefinition.getArgs(), operation);
+        if (varEndpoint != null) {
+            Helpers.EndpointF.merge(endpoints, (Endpoint) varEndpoint.getValue());
+        }
+
+    }
+
+    private void processHTTPMetod(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
+            ApiCallMethodType type, Operation operation) {
+        processGENERIC(values, methodDefinition, operation);
         HttpMethod eType = HttpMethod.values()[type.ordinal()];
-        Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
+        Endpoint endpoint = (Endpoint) Helpers.StackF.peekEndpoint(values).getValue();
         endpoint.addHttpMethod(eType);
     }
 
     private void processGETFIELDLibEnum(Stack<Variable> values, Operation operation) {
         if (ed.containsKey(operation.getOwner())) {
-            HashMap<String, EnumFieldOrMethod> enumClass = ed.get(operation.getOwner());
+            HashMap<String, EnumFieldOrMethodConfig> enumClass = ed.get(operation.getOwner());
             if (enumClass.containsKey(operation.getFieldName())) {
                 values.push(new Variable(enumClass.get(operation.getFieldName()).getHttpMethod())
                         .setType(VariableType.SIMPLE));
@@ -99,12 +141,13 @@ class EndpointHandler extends MethodProcessor {
 
         if (md.containsKey(operation.getOwner())) {
 
-            HashMap<String, MethodDefinition> methodDefinitionMap = md.get(operation.getOwner());
+            HashMap<String, ApiCallMethodConfig> methodDefinitionMap = md.get(operation.getOwner());
             if (!methodDefinitionMap.containsKey(operation.getMethodName())) {
                 return;
             }
-            MethodDefinition methodDefinition = methodDefinitionMap.get(operation.getMethodName());
-            DefinitionType type = methodDefinition.getType();
+            ApiCallMethodConfig methodDefinition =
+                    methodDefinitionMap.get(operation.getMethodName());
+            ApiCallMethodType type = methodDefinition.getType();
 
             // TODO: handle acceptt
 
@@ -113,28 +156,15 @@ class EndpointHandler extends MethodProcessor {
                     values.push(new Variable().setType(VariableType.ENDPOINT));
                     break;
                 case BASEURL:
-                    processBASEURL(values, methodDefinition);
-                    break;
-                case EXECUTE: {
-                    Endpoint endpoint = Helpers.StackF.peekEndpoint(values);
-                    Helpers.EndpointF.merge(endpoints, endpoint);
-
-                }
-                    break;
+                case EXECUTE:
                 case SEND:
-                    processSEND(values, methodDefinition);
-                    break;
                 case EXPECT:
-                    processEXPECT(values, methodDefinition);
-                    break;
                 case PATH:
-                    processURI(values, methodDefinition);
-                    break;
                 case EXCHANGE:
-                    processEXCHANGE(values, methodDefinition);
+                    processGENERIC(values, methodDefinition, operation);
                     break;
                 default:
-                    processHTTPMetod(values, methodDefinition, type);
+                    processHTTPMetod(values, methodDefinition, type, operation);
             }
         } else {
             super.processCALL(operation, values);

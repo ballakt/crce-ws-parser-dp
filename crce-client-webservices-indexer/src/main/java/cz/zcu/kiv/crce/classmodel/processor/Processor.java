@@ -23,6 +23,7 @@ public class Processor {
      * @throws IOException
      */
     public static Map<String, Endpoint> process(File jar) throws IOException {
+        Collector.init();
         Loader.loadClasses(jar);
         Map<String, Endpoint> endpoints = new HashMap<>();
         ClassMap classes = Helpers.convertStructMap(Collector.getInstance().getClasses());
@@ -34,6 +35,8 @@ public class Processor {
         }
         for (final Endpoint endpoint : endpoints.values()) {
             logger.info(endpoint);
+            // TODO: predelat do yml
+            // TODO: vyjmout tisk do mainu
         }
 
         return endpoints;

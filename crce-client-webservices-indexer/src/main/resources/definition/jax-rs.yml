@@ -1,4 +1,13 @@
-methods:
+endpointDataContainers:
+  - class: javax.ws.rs.client.Entity
+    methods:
+      - name: entity
+        args:
+          - - SEND
+            - CONTENTTYPE
+genericWrappers:
+  - javax.ws.rs.core.GenericType
+apiCall:
   - class: javax.ws.rs.client.Client
     methods:
       - name: target

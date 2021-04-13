@@ -13,6 +13,7 @@ import java.util.Set;
 public class ClassStruct extends PathPart {
 
     private String parent;
+    private String signature;
     private Map<String, Method> methodsMap = new HashMap<>();
     private List<Method> methods = null;
     private Set<Field> fields = new HashSet<>();
@@ -34,6 +35,11 @@ public class ClassStruct extends PathPart {
      */
     public void setClnitMethod(Method cinitMethod) {
         this.clnitMethod = cinitMethod;
+    }
+
+    public ClassStruct(String name, String parent, String signature) {
+        this(name, parent);
+        this.signature = signature;
     }
 
     public ClassStruct(String name, String parent) {
@@ -92,5 +98,19 @@ public class ClassStruct extends PathPart {
     public String toString() {
         return "ClassStruct{" + "name=" + name + ", methods=" + methodsMap.values() + ", fields="
                 + fields + ", parent=" + parent + ", interfaces=" + interfaces + '}';
+    }
+
+    /**
+     * @return the signature
+     */
+    public String getSignature() {
+        return signature;
+    }
+
+    /**
+     * @param signature the signature to set
+     */
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

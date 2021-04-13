@@ -2,8 +2,6 @@ package cz.zcu.kiv.crce.classmodel.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
 
 /**
@@ -13,6 +11,7 @@ public class Method extends PathPart {
 
     private int access;
     private String desc;
+    private String signature;
     private DataType returnType;
     private String[] exceptions;
     private List<Variable> parameters;
@@ -106,5 +105,19 @@ public class Method extends PathPart {
      */
     public void setReturnValue(String returnValue) {
         this.returnValue = returnValue;
+    }
+
+    /**
+     * @return the signature
+     */
+    public String getSignature() {
+        return signature;
+    }
+
+    /**
+     * @param signature the signature to set
+     */
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

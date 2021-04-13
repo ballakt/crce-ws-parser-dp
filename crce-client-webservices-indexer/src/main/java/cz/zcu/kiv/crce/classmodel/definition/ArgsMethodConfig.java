@@ -3,21 +3,21 @@ package cz.zcu.kiv.crce.classmodel.definition;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ArgsMethodDefinition {
+public class ArgsMethodConfig {
     @JsonProperty
-    private Set<ArgsTypeMethodDefinition> args;
+    private Set<ArgsTypeMethodConfig> args;
 
     /**
      * @return the args
      */
-    public Set<ArgsTypeMethodDefinition> getArgs() {
+    public Set<ArgsTypeMethodConfig> getArgs() {
         return args;
     }
 
     /**
      * @param args the args to set
      */
-    public void setArgs(Set<ArgsTypeMethodDefinition> args) {
+    public void setArgs(Set<ArgsTypeMethodConfig> args) {
         this.args = args;
     }
 

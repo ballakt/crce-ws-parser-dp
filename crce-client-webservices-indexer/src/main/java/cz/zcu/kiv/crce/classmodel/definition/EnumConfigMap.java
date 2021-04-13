@@ -2,7 +2,7 @@ package cz.zcu.kiv.crce.classmodel.definition;
 
 import java.util.HashMap;
 
-public class EnumDefinitionMap extends HashMap<String, HashMap<String, EnumFieldOrMethod>> {
+public class EnumConfigMap extends HashMap<String, HashMap<String, EnumFieldOrMethodConfig>> {
 
     /**
      *

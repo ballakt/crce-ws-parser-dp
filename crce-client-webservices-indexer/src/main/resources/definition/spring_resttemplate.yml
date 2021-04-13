@@ -1,3 +1,5 @@
+typeHolders:
+  - org.springframework.core.ParameterizedTypeReference
 enums:
   - class: org.springframework.http.HttpMethod
     fields:
@@ -17,7 +19,7 @@ enums:
         httpMethod: PUT
       - name: TRACE
         httpMethod: TRACE
-methods:
+apiCall:
   - class: org.springframework.web.client.RestTemplate
     methods:
       - name: delete

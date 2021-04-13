@@ -3,21 +3,21 @@ package cz.zcu.kiv.crce.classmodel.definition;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ArgsTypeMethodDefinition {
+public class ArgsTypeMethodConfig {
     @JsonProperty
-    private ArrayList<String> arg;
+    private ArrayList<ArgConfigType> arg;
 
     /**
      * @return the arg
      */
-    public ArrayList<String> getArg() {
+    public ArrayList<ArgConfigType> getArg() {
         return arg;
     }
 
     /**
      * @param arg the arg to set
      */
-    public void setArg(ArrayList<String> arg) {
+    public void setArg(ArrayList<ArgConfigType> arg) {
         this.arg = arg;
     }
 }

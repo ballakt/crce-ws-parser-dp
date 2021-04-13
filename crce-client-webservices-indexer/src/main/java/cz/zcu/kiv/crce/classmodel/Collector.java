@@ -9,7 +9,11 @@ public class Collector {
     private ClassMap resources;
     static Logger logger = LogManager.getLogger("endpoints");
 
-    private static Collector ourInstance = new Collector();
+    private static Collector ourInstance;
+
+    public static void init() {
+        ourInstance = new Collector();
+    }
 
     public static Collector getInstance() {
         return ourInstance;

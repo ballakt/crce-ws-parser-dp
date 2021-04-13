@@ -1,15 +1,14 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
+
+// TODO move to folder tools and create seperated classes StringC, OpcodeC......
 
 public class Helpers {
 
@@ -122,7 +121,7 @@ public class Helpers {
         return converted;
     }
 
-    static class StackF {
+    public static class StackF {
         /**
          * Handles poping of an empty stack
          * 
@@ -137,10 +136,11 @@ public class Helpers {
             return null;
         }
 
-        public static Endpoint popEndpoint(Stack<Variable> stack) {
-            Variable var = pop(stack);
+        public static Variable popEndpoint(Stack<Variable> stack) {
+            Variable var = peek(stack);
             if (var != null && var.getType() == VariableType.ENDPOINT) {
-                return (Endpoint) var.getValue();
+                pop(stack);
+                return var;
             }
             return null;
         }
@@ -168,8 +168,6 @@ public class Helpers {
 
         public static boolean contains(Stack<Variable> stack, VariableType vType) {
             for (Variable var : stack) {
-                System.out.println("VAR=" + var.getType());
-                System.out.println("VTYPE=" + vType);
                 if (var.getType() == vType) {
                     return true;
                 }
@@ -177,10 +175,10 @@ public class Helpers {
             return false;
         }
 
-        public static Endpoint peekEndpoint(Stack<Variable> stack) {
+        public static Variable peekEndpoint(Stack<Variable> stack) {
             Variable var = peek(stack);
             if (var != null && var.getType() == VariableType.ENDPOINT) {
-                return (Endpoint) var.getValue();
+                return var;
             }
             return null;
         }
@@ -208,6 +206,21 @@ public class Helpers {
             }
             return vars;
         }
+
+        public static Stack<Variable> removeUntil(VariableType type, int num,
+                Stack<Variable> stack) {
+            Stack<Variable> vars = new Stack<>();
+            /*
+             * if (!contains(stack, type)) { return vars; }
+             */
+            Variable it = peek(stack);
+            for (int counter = 0; it != null && it.getType() != VariableType.ENDPOINT
+                    && counter < num; it = peek(stack), counter++) {
+                vars.push(it);
+                pop(stack);
+            }
+            return vars;
+        }
     }
     static class EndpointF {
         /**
@@ -217,15 +230,36 @@ public class Helpers {
          * @param endpoint  New endpoint
          */
         public static void merge(Map<String, Endpoint> endpoints, Endpoint endpoint) {
-            if (endpoint.getPath() == null) {
+            if (endpoint.getUrl() == null) {
                 return;
             }
-            if (endpoints.containsKey(endpoint.getPath())) {
-                final Endpoint oldEndpoint = endpoints.get(endpoint.getPath());
-                oldEndpoint.merge(endpoint);
+
+            Endpoint updatedEndpoint = null;
+
+            if (endpoints.containsKey(endpoint.getUrl())) {
+                final Endpoint oldEndpoint = endpoints.remove(endpoint.getUrl());
+                updatedEndpoint = oldEndpoint;
+
+            } else if (endpoints.containsKey(endpoint.getPath())) {
+                final Endpoint oldEndpoint = endpoints.remove(endpoint.getPath());
+                updatedEndpoint = oldEndpoint;
+
+            } else if (endpoints.containsKey(endpoint.getBaseUrl())) {
+                final Endpoint oldEndpoint = endpoints.remove(endpoint.getBaseUrl());
+                updatedEndpoint = oldEndpoint;
+
             } else {
-                endpoints.put(endpoint.getPath(), endpoint);
+                endpoints.put(endpoint.getUrl(), endpoint);
+                return;
             }
+
+            if (updatedEndpoint.sEquals(endpoint)) {
+                // same instance, data are already changed
+            } else {
+                updatedEndpoint.merge(endpoint);
+            }
+
+            endpoints.put(updatedEndpoint.getUrl(), updatedEndpoint);
         }
 
         /**

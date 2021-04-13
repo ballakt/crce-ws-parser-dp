@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class MethodDefinition {
+public class ApiCallMethodConfig {
     @JsonProperty("name")
     private String name;
 
     @JsonProperty("args")
-    private Set<ArrayList<ArgDefinitionType>> args;
+    private Set<ArrayList<ArgConfigType>> args;
 
     @JsonProperty("type")
-    private DefinitionType type;
+    private ApiCallMethodType type;
 
     /**
      * @return the name
@@ -31,28 +31,28 @@ public class MethodDefinition {
     /**
      * @return the args
      */
-    public Set<ArrayList<ArgDefinitionType>> getArgs() {
+    public Set<ArrayList<ArgConfigType>> getArgs() {
         return args;
     }
 
     /**
      * @param args the args to set
      */
-    public void setArgs(Set<ArrayList<ArgDefinitionType>> args) {
+    public void setArgs(Set<ArrayList<ArgConfigType>> args) {
         this.args = args;
     }
 
     /**
      * @return the type
      */
-    public DefinitionType getType() {
+    public ApiCallMethodType getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(DefinitionType type) {
+    public void setType(ApiCallMethodType type) {
         this.type = type;
     }
 

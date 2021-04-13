@@ -2,7 +2,7 @@ package cz.zcu.kiv.crce.classmodel.definition;
 
 import java.util.HashMap;
 
-public class MethodDefinitionMap extends HashMap<String, HashMap<String, MethodDefinition>> {
+public class MethodConfigMap extends HashMap<String, HashMap<String, ApiCallMethodConfig>> {
 
     /**
      *

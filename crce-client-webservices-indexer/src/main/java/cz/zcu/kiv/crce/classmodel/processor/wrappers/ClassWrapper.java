@@ -12,8 +12,8 @@ import cz.zcu.kiv.crce.classmodel.structures.Field;
 
 public class ClassWrapper {
     private ConstPool classPool;
-    private List<MethodWrapper> methodsList;
     private ClassStruct classStruct;
+    private List<MethodWrapper> methodsList;
     private Map<String, MethodWrapper> methods;
     private Map<String, Field> fieldsContainer;
 

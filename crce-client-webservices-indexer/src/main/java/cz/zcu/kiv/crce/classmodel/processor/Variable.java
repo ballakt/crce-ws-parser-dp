@@ -2,8 +2,8 @@ package cz.zcu.kiv.crce.classmodel.processor;
 
 public class Variable {
 
-    enum VariableType {
-        SIMPLE, OTHER, ENDPOINT, ARRAY
+    public enum VariableType {
+        SIMPLE, OTHER, ENDPOINT, ARRAY, ENDPOINTDATA
     }
 
     private Object value = "";

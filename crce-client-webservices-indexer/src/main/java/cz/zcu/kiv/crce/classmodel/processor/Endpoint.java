@@ -6,44 +6,41 @@ import cz.zcu.kiv.crce.rest.EndpointParameter;
 
 public class Endpoint {
 
-    private String path;
-    private Set<HttpMethod> httpMethods;
-    private Set<EndpointRequestBody> requestBodies;
-    private Set<EndpointRequestBody> expectedResponses;
-    private Set<EndpointParameter> parameters;
+    protected String path;
+    protected String baseUrl;
+    protected Set<HttpMethod> httpMethods;
+    protected Set<EndpointParameter> parameters;
+    protected Set<EndpointRequestBody> requestBodies;
+    protected Set<EndpointRequestBody> expectedResponses;
+    protected Set<String> produces;
 
-
-    /*
-     * private Map<String, Object> responseObject; private Object[] responseArray; private String
-     * responseSimple = "None";
-     * 
-     * private Map<String, Object> paramObject; private Object[] paramArray; private String
-     * paramSimple = "None";
-     */
-
-    private String baseUrl = "";
 
     public Endpoint(String path, Set<HttpMethod> httpMethods) {
         this.path = path;
         this.httpMethods = httpMethods;
     }
 
+    public Endpoint(String baseUrl, String path, Set<HttpMethod> httpMethods,
+            Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
+            Set<EndpointParameter> parameters, Set<String> produces) {
+        this(path, httpMethods, requestBodies, expectedResponses, parameters, produces);
+        this.baseUrl = baseUrl;
+    }
+
     public Endpoint(String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
-            Set<EndpointParameter> parameters) {
-        this.path = path;
+            Set<EndpointParameter> parameters, Set<String> produces) {
+        this.setPath(path);
         this.httpMethods = httpMethods;
         this.requestBodies = requestBodies;
         this.expectedResponses = expectedResponses;
         this.parameters = parameters;
+        this.produces = produces;
     }
 
     public Endpoint(String path, HttpMethod type) {
-        this.httpMethods = new HashSet<>();
-        this.requestBodies = new HashSet<>();
-        this.expectedResponses = new HashSet<>();
-        this.parameters = new HashSet<>();
-        this.path = path;
+        this();
+        this.setPath(path);
         httpMethods.add(type);
     }
 
@@ -52,6 +49,7 @@ public class Endpoint {
         this.requestBodies = new HashSet<>();
         this.expectedResponses = new HashSet<>();
         this.parameters = new HashSet<>();
+        this.produces = new HashSet<>();
     }
 
     public enum HttpMethod {
@@ -71,52 +69,63 @@ public class Endpoint {
         return this;
     }
 
-    public void addParameter(EndpointParameter param) {
+    public Endpoint addParameter(EndpointParameter param) {
         parameters.add(param);
+        return this;
     }
 
     public Set<EndpointParameter> getParameters() {
         return this.parameters;
     }
 
-    public void addRequestBody(EndpointRequestBody body) {
+    public Endpoint addRequestBody(EndpointRequestBody body) {
         this.requestBodies.add(body);
+        return this;
     }
 
-    public void addExpectedResponse(EndpointRequestBody response) {
+    public Endpoint addExpectedResponse(EndpointRequestBody response) {
         this.expectedResponses.add(response);
+        return this;
     }
 
     public Set<EndpointRequestBody> getExpectedResponses() {
-        return this.requestBodies;
+        return this.expectedResponses;
     }
-    /*
-     * public void addBody(EndpointRequestBody body) { this.bodies.add(body); }
-     */
 
     /**
      * 
      * @param baseUrl
      */
-    public void setBaseUrl(String baseUrl) {
+    public Endpoint setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
+        return this;
     }
 
     public void merge(Endpoint endpoint) {
+        String newPath = endpoint.getPath() != null ? endpoint.getPath() : this.path;
+        String newBaseUrl = endpoint.getBaseUrl() != null ? endpoint.getBaseUrl() : this.baseUrl;
+        this.setPath(newPath);
+        this.setBaseUrl(newBaseUrl);
         this.httpMethods.addAll(endpoint.getHttpMethods());
         this.requestBodies.addAll(endpoint.getRequestBodies());
         this.expectedResponses.addAll(endpoint.getExpectedResponses());
         this.parameters.addAll(endpoint.getParameters());
     }
 
-    public boolean equals(Endpoint obj) {
-        final boolean httpMethodEq = httpMethods.equals(obj.getHttpMethods());
-        final boolean reqBodiesEq = requestBodies.containsAll(obj.getRequestBodies());
+    public boolean sEquals(Endpoint endpoint) {
+        return super.equals(endpoint);
+    }
+
+
+    public boolean equals(Endpoint endpoint) {
+        final boolean httpMethodEq = httpMethods.equals(endpoint.getHttpMethods());
+        final boolean reqBodiesEq = requestBodies.containsAll(endpoint.getRequestBodies());
         final boolean expectedResponsesEq =
-                expectedResponses.containsAll(obj.getExpectedResponses());
-        final boolean parametersEq = parameters.containsAll(obj.getParameters());
+                expectedResponses.containsAll(endpoint.getExpectedResponses());
+        final boolean parametersEq = parameters.containsAll(endpoint.getParameters());
         return httpMethodEq && reqBodiesEq && expectedResponsesEq && parametersEq;
     }
+
 
     @Override
     public String toString() {
@@ -132,11 +141,54 @@ public class Endpoint {
         return path;
     }
 
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getUrl() {
+        if (path == null && baseUrl == null) {
+            return null;
+        }
+
+        if (path == null) {
+            return baseUrl;
+        }
+
+        if (baseUrl == null) {
+            return path;
+        }
+
+        return baseUrl + path;
+    }
+
     /**
      * @param path the path to set
      */
-    public void setPath(String path) {
-        this.path = path;
+    public Endpoint setPath(String path) {
+
+        if (path != null) {
+            this.path = path.replace("//", "");
+            if (this.path.endsWith("/")) {
+                this.path = this.path.substring(0, this.path.length() - 1);
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * @return the produces
+     */
+    public Set<String> getProduces() {
+        return produces;
+    }
+
+    /**
+     * @param produces the produces to set
+     */
+    public Endpoint addProduces(String produces) {
+        this.produces.add(produces);
+        return this;
     }
 
 }

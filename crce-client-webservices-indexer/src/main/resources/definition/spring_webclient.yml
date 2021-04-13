@@ -1,4 +1,4 @@
-methods:
+apiCall:
   - class: org.springframework.web.reactive.function.client.WebClient
     methods:
       - name: get

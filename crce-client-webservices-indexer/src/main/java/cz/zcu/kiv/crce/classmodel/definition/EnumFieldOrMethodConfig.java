@@ -3,7 +3,7 @@ package cz.zcu.kiv.crce.classmodel.definition;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 
-public class EnumFieldOrMethod {
+public class EnumFieldOrMethodConfig {
     @JsonProperty("name")
     private String name;
 

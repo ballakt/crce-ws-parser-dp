@@ -3,12 +3,12 @@ package cz.zcu.kiv.crce.classmodel.definition;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DefinitionItem {
+public class ApiCallConfig {
     @JsonProperty("class")
     private String className;
 
     @JsonProperty("methods")
-    private Set<MethodDefinition> methods;
+    private Set<ApiCallMethodConfig> methods;
 
     /**
      * @return the className
@@ -21,21 +21,23 @@ public class DefinitionItem {
      * @param className the className to set
      */
     public void setClassName(String className) {
-        String processed = DefinitionValuesProcessor.processClassName(className);
+        final String processed = DefinitionValuesProcessor.processClassName(className);
         this.className = processed;
     }
 
     /**
-     * @return the methods
+     * @return the constructors
      */
-    public Set<MethodDefinition> getMethods() {
+    public Set<ApiCallMethodConfig> getMethods() {
         return methods;
     }
 
     /**
-     * @param methods the methods to set
+     * @param constructors the constructors to set
      */
-    public void setMethods(Set<MethodDefinition> methods) {
+    public void setMethods(Set<ApiCallMethodConfig> methods) {
         this.methods = methods;
     }
+
+
 }

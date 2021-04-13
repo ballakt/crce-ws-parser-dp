@@ -2,7 +2,6 @@ package cz.zcu.kiv.crce.classmodel.extracting;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-// import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -25,8 +24,9 @@ public class EClassVisitor extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature, String superName,
             String[] interfaces) {
-        log.debug("============Class-Visitor[name=" + name + " extends=" + superName + "]===");
-        ClassStruct class_ = new ClassStruct(name, superName);
+        log.debug("============Class-Visitor[name=" + name + " extends=" + superName + " signature="
+                + signature + "]===");
+        ClassStruct class_ = new ClassStruct(name, superName, signature);
         state.setClassType(class_);
         super.visit(version, access, name, signature, superName, interfaces);
 
