@@ -18,7 +18,7 @@ public class Method extends PathPart {
     private List<List<String>> responsesLog = new ArrayList<>();
     private List<Operation> bodyLog = new ArrayList<>();
 
-    private String returnValue = null;
+    private String returnValue = "";
 
     public Method(int access, String name, String desc) {
         this.access = access;

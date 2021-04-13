@@ -72,6 +72,8 @@ public class MethodProcessor extends BasicProcessor {
     }
 
     protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
+        // removeMethodArgsFromStack(values, operation);
+        handleAccessingObject(values, operation);
         // TODO: add owner and method
         final String methodName = operation.getMethodName();
         if (Helpers.StringC.isToString(methodName)) {
@@ -80,8 +82,9 @@ public class MethodProcessor extends BasicProcessor {
             processAppendString(values);
             this.stringOP = Helpers.StringC.OperationType.APPEND;
         } else {
-            //removeMethodArgsFromStack(values, operation);
-            //handleAccessingObject(values, operation);
+            // removeMethodArgsFromStack(values, operation);
+            // handleAccessingObject(values, operation);
+            handleAccessingObject(values, operation);
             if (!this.classes.containsKey(operation.getOwner())) {
                 return;
             }
