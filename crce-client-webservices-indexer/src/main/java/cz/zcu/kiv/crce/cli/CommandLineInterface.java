@@ -59,7 +59,7 @@ public class CommandLineInterface {
                         System.out.println(
                                         "Relative or absolute path to JAR which will be processed: "
                                                         + fileShort + " | " + fileLong
-                                                        + " = <RelativePathToJAR> | <AbsolutePathToJAR>");
+                                                        + " = path to example.jar or example.war");
                         System.out.println("Manual: " + helpShort + " | " + helpLong + "");
                         System.err.println(additionalMSG);
                         return null;
