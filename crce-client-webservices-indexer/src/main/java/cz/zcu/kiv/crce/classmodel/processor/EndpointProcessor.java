@@ -26,7 +26,6 @@ import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 
 class EndpointHandler extends MethodProcessor {
 
-    static Logger logger = LogManager.getLogger("extractor");
     private Map<String, Endpoint> endpoints = new HashMap<>();
     private Set<String> typeHolders = ConfigTools.getTypeHolders();
     private EnumConfigMap ed = ConfigTools.getEnumDefinitions();

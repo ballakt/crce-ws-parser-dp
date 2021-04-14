@@ -1,9 +1,17 @@
 package cz.zcu.kiv.crce.rest;
 
+import java.io.Serializable;
+import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
+
 /**
  * Created by ghessova on 10.03.2018.
  */
-public class EndpointParameter {
+public class EndpointParameter implements Serializable {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6837202021942397888L;
 
     private String name;
     private String dataType; // T
@@ -80,7 +88,8 @@ public class EndpointParameter {
 
     @Override
     public String toString() {
-        return "EndpointParameter{" + "name='" + getName() + '\'' + ", category='" + getCategory()
-                + '\'' + ", dataType='" + getDataType() + '\'' + ", isArray=" + isArray() + '}';
+        return "{" + "\"name\": " + ToStringTools.objToString(getName()) + ", \"category\": "
+                + ToStringTools.objToString(getCategory()) + ", \"dataType\": "
+                + ToStringTools.objToString(getDataType()) + ", \"isArray\": " + isArray() + "}";
     }
 }

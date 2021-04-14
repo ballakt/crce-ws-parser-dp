@@ -1,10 +1,18 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
 
-public class Endpoint {
+public class Endpoint implements Serializable {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5099598028525455821L;
+
 
     protected String path;
     protected String baseUrl;
@@ -129,10 +137,15 @@ public class Endpoint {
 
     @Override
     public String toString() {
-        return "Endpoint{baseUrl=" + baseUrl + ", path=" + path + ", httpMethods='" + httpMethods
-                + '\'' + ", requestBodies=" + requestBodies + ", expectedResponses="
-                + expectedResponses + ", parameters=" + parameters + "'}'";
+        return "{ \"baseUrl\": " + ToStringTools.stringToString(baseUrl) + ", \"path\": "
+                + ToStringTools.stringToString(path) + ", \"httpMethods\": "
+                + ToStringTools.setToString(httpMethods) + ", \"requestBodies\": "
+                + ToStringTools.setToString(requestBodies) + ", \"responses\": "
+                + ToStringTools.setToString(expectedResponses) + ", \"parameters\": "
+                + ToStringTools.setToString(parameters) + " }";
     }
+
+
 
     /**
      * @return the path

@@ -75,7 +75,6 @@ public class ProcessorTest {
                                 endpoint8.getUrl(), endpoint8
 
                 );
-
         }
 
         public static void initResttemplate() {

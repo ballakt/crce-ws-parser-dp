@@ -1,6 +1,14 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
-public class EndpointRequestBody {
+import java.io.Serializable;
+import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
+
+public class EndpointRequestBody implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1178419129599203262L;
+
     private String structure;
     private boolean isArray;
 
@@ -32,7 +40,9 @@ public class EndpointRequestBody {
 
     @Override
     public String toString() {
-        return "RequestBody{structure=" + structure + ", isArray='" + isArray + '\'' + "'}'";
+        return "{ \"structure\": " + ToStringTools.stringToString(structure) + ", \"isArray\" : "
+                + isArray + " }";
+
     }
 
     @Override

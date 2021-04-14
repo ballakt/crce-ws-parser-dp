@@ -1,13 +1,10 @@
 package cz.zcu.kiv.crce.classmodel;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import cz.zcu.kiv.crce.classmodel.structures.ClassMap;
 import cz.zcu.kiv.crce.classmodel.structures.ClassStruct;
 
 public class Collector {
     private ClassMap resources;
-    static Logger logger = LogManager.getLogger("endpoints");
 
     private static Collector ourInstance;
 

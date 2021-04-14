@@ -22,7 +22,6 @@ import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
-import cz.zcu.kiv.crce.rest.ParameterCategory;
 
 public class ArgTools {
 

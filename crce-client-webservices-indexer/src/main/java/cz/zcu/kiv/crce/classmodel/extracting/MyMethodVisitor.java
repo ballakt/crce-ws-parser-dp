@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 /*
  * package cz.zcu.kiv.crce.restimpl.indexer.classmodel.extracting;
  * 
@@ -39,7 +38,7 @@ public class MyMethodVisitor extends MethodVisitor {
     private State state = State.getInstance();
     private Method method;
     private List<String> log = new ArrayList<>();
-    static Logger logger = LogManager.getLogger("extractor");
+    private static Logger logger = LogManager.getLogger("extractor");
 
 
     // private static final Logger logger = LoggerFactory.getLogger(MyMethodVisitor.class);
@@ -47,6 +46,7 @@ public class MyMethodVisitor extends MethodVisitor {
 
 
     MyMethodVisitor(Method method) {
+
         super(Opcodes.ASM5);
         this.method = method;
     }
