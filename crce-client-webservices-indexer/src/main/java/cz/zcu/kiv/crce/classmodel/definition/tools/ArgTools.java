@@ -47,8 +47,6 @@ public class ArgTools {
                 for (int i = 0; i < oneVersion.size(); i++) {
                     final Object value = values.remove(0).getValue();
                     if (oneVersion.get(i) == ArgConfigType.PATH && isURI(value)) {
-                        // TODO: check int arguments if they are valid
-                        // TODO: whatabout function with mutliple URIs as argument?
                         merged += value;
                         return merged;
                     }

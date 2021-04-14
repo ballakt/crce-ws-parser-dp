@@ -6,6 +6,7 @@ import cz.zcu.kiv.crce.classmodel.processor.Helpers.StringC;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.VariableTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools.MethodType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
@@ -41,28 +42,13 @@ public class MethodProcessor extends BasicProcessor {
         this.processInner(method, values);
     }
 
-    private boolean isStringVar(Variable var) {
-        return (var.getType() == VariableType.SIMPLE
-                || var.getDescription().equals("java/lang/String")
-                || var.getOwner().equals("java/lang/StringBuilder"));
-    }
-
-    private boolean isNumberVar(Variable var) {
-        return (var.getDescription().equals("I") || var.getDescription().equals("D")
-                || var.getDescription().equals("F") || var.getDescription().equals("L")
-                || var.getDescription().equals("java/lang/Integer")
-                || var.getDescription().equals("java/lang/Double")
-                || var.getDescription().equals("java/lang/Long")
-                || var.getDescription().equals("java/lang/Float"));
-    }
-
     private void processAppendString(Stack<Variable> values) {
         if (this.stringOP == Helpers.StringC.OperationType.APPEND) {
             Variable merged = new Variable().setType(VariableType.SIMPLE);
             String mergedS = "";
             while (Helpers.StackF.peek(values) != null) {
                 Variable last = Helpers.StackF.peek(values);
-                if (!isStringVar(last) && !isNumberVar(last)) {
+                if (!VariableTools.isStringVar(last) && !VariableTools.isNumberVar(last)) {
                     break;
                 }
                 values.pop();
@@ -76,18 +62,15 @@ public class MethodProcessor extends BasicProcessor {
     }
 
     protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
-        // removeMethodArgsFromStack(values, operation);
         handleAccessingObject(values, operation);
-        // TODO: add owner and method
         final String methodName = operation.getMethodName();
+
         if (Helpers.StringC.isToString(methodName)) {
             this.stringOP = StringC.OperationType.TOSTRING;
         } else if (Helpers.StringC.isAppend(methodName)) {
             processAppendString(values);
             this.stringOP = Helpers.StringC.OperationType.APPEND;
         } else {
-            // removeMethodArgsFromStack(values, operation);
-            // handleAccessingObject(values, operation);
             handleAccessingObject(values, operation);
             if (!this.classes.containsKey(operation.getOwner())) {
                 return;
@@ -115,9 +98,6 @@ public class MethodProcessor extends BasicProcessor {
             values.add(variable);
             return;
         }
-        if (variable.getType() != VariableType.SIMPLE) {
-            variable.setValue(operation.getDescription());
-        }
     }
 
     protected void processINVOKEINTERFACE(Stack<Variable> values, Operation operation) {
@@ -128,7 +108,7 @@ public class MethodProcessor extends BasicProcessor {
     protected void processINVOKESTATIC(Stack<Variable> values, Operation operation) {
         final String methodName = operation.getMethodName();
         final String operationOwner = operation.getOwner();
-        final ClassWrapper classWrapper = this.classes.get(operationOwner);
+        final ClassWrapper classWrapper = this.classes.getOrDefault(operationOwner, null);
 
         if (classWrapper == null) {
             return;

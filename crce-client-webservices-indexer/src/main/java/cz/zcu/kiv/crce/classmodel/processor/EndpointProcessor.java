@@ -49,10 +49,7 @@ class EndpointHandler extends MethodProcessor {
 
     @Override
     protected void processINVOKESPECIAL(Stack<Variable> values, Operation operation) {
-        // TODO Auto-generated method stub
-
         removeMethodArgsFromStack(values, operation);
-        handleAccessingObject(values, operation);
 
         if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
             ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
@@ -66,32 +63,19 @@ class EndpointHandler extends MethodProcessor {
                 values.push(new Variable().setDescription(type).setType(VariableType.OTHER));
                 return;
             }
+        } else {
+            handleAccessingObject(values, operation);
         }
         super.processINVOKESPECIAL(values, operation);
     }
 
     @Override
     protected void processINVOKEINTERFACE(Stack<Variable> values, Operation operation) {
-        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
-            ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
-            if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())) {
-                System.out.println("test");
-            }
-        }
         super.processINVOKEINTERFACE(values, operation);
     }
 
     @Override
     protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
-        /*
-         * removeMethodArgsFromStack(values, operation); handleAccessingObject(values, operation);
-         */
-        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
-            ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
-            if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())) {
-                System.out.println("test");
-            }
-        }
         super.processINVOKEVIRTUAL(values, operation);
     }
 
