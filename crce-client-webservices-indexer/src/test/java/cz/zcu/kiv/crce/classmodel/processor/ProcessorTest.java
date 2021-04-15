@@ -31,11 +31,11 @@ public class ProcessorTest {
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
-                                new HashSet<>());
+                                new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint2 = new Endpoint("/prvni/uri/trida", Set.of(HttpMethod.PUT),
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint3 = new Endpoint(
                                 "/employee/{id}/prvni/uri/tridaNONSTATICtest",
                                 Set.of(HttpMethod.PUT, HttpMethod.DELETE),
@@ -45,34 +45,36 @@ public class ProcessorTest {
                                                 "com/baeldung/reactive/model/Employee", false),
                                                 new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
-                                new HashSet<>());
+                                new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint4 = new Endpoint("/bla/uri/s/argumentem/{id}",
                                 Set.of(HttpMethod.PUT), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
-                                new HashSet<>());
+                                new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint5 = new Endpoint("/prvni/uri/tridaNONSTATICtest",
                                 Set.of(HttpMethod.PUT), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint7 = new Endpoint("/employee", Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint8 = new Endpoint("/nejaka/uri/s/argumentem/{id}",
                                 Set.of(HttpMethod.POST), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
-                                new HashSet<>());
+                                new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint9 = new Endpoint("/test", HttpMethod.PUT);
+                final Endpoint endpoint10 = new Endpoint("/accept", HttpMethod.PUT)
+                                .setConsumes(Set.of("application/json"));
 
                 springWebClientExpectedEndpoints = Map.of(endpoint1.getUrl(), endpoint1,
                                 endpoint2.getUrl(), endpoint2, endpoint3.getUrl(), endpoint3,
                                 endpoint4.getUrl(), endpoint4, endpoint5.getUrl(), endpoint5,
                                 endpoint9.getUrl(), endpoint9, endpoint7.getUrl(), endpoint7,
-                                endpoint8.getUrl(), endpoint8
+                                endpoint8.getUrl(), endpoint8, endpoint10.getUrl(), endpoint10
 
                 );
         }
@@ -82,21 +84,21 @@ public class ProcessorTest {
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("com/app/demo/service/ApiService",
                                                 false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint2 = new Endpoint("http://localhost:8090/api/user/addUser",
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint3 = new Endpoint("http://localhost:8090/api/user/patchUser/",
                                 Set.of(HttpMethod.PATCH),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
-                                new HashSet<>(), new HashSet<>());
-                final Endpoint endpoint4 =
-                                new Endpoint("http://localhost:8090/api/user/deleteUser/",
-                                                Set.of(HttpMethod.DELETE), new HashSet<>(),
-                                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                final Endpoint endpoint4 = new Endpoint(
+                                "http://localhost:8090/api/user/deleteUser/",
+                                Set.of(HttpMethod.DELETE), new HashSet<>(), new HashSet<>(),
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 springResttemplateExpectedEndpoints = Map.of(endpoint1.getUrl(), endpoint1,
                                 endpoint2.getUrl(), endpoint2, endpoint3.getUrl(), endpoint3,
                                 endpoint4.getUrl(), endpoint4
@@ -109,30 +111,30 @@ public class ProcessorTest {
                 final Endpoint endpoint1 = new Endpoint(baseUrl, "/emp", Set.of(HttpMethod.GET),
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/util/List", true)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint2 = new Endpoint(baseUrl, "/emp/addemp",
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody(
                                                 "com/nagarro/hrmanager/model/Employee", false)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
 
                 final Endpoint endpoint3 = new Endpoint(baseUrl, "/emp/update",
                                 Set.of(HttpMethod.PUT),
                                 Set.of(new EndpointRequestBody(
                                                 "com/nagarro/hrmanager/model/Employee", false)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint4 = new Endpoint(baseUrl, "/emp/delete/",
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("javax/ws/rs/core/Response", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint5 = new Endpoint(baseUrl, "/emp/getemp/",
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("javax/ws/rs/core/Response", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint6 = new Endpoint(baseUrl, "/user/getUser/",
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("javax/ws/rs/core/Response", false)),
-                                new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(), new HashSet<>());
 
                 jaxRsExpectedEndpoints = Map.of(endpoint1.getUrl(), endpoint1, endpoint2.getUrl(),
                                 endpoint2, endpoint3.getUrl(), endpoint3, endpoint4.getUrl(),

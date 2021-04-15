@@ -11,7 +11,7 @@ apiCall:
   - class: javax.ws.rs.client.Client
     methods:
       - name: target
-        type: BASEURL
+        type: PATH
         args:
           - - BASEURL
   - class: javax.ws.rs.client.WebTarget

@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.definition.ConfigTools;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerConfigMap;
@@ -100,8 +98,15 @@ class EndpointHandler extends MethodProcessor {
         if (ed.containsKey(operation.getOwner())) {
             HashMap<String, EnumFieldOrMethodConfig> enumClass = ed.get(operation.getOwner());
             if (enumClass.containsKey(operation.getFieldName())) {
-                values.push(new Variable(enumClass.get(operation.getFieldName()).getHttpMethod())
-                        .setType(VariableType.SIMPLE));
+                EnumFieldOrMethodConfig enumField = enumClass.get(operation.getFieldName());
+                if (enumField.getContentType() != null) {
+                    values.push(
+                            new Variable(enumField.getContentType()).setType(VariableType.SIMPLE));
+                } else if (enumField.getHttpMethod() != null) {
+                    values.push(
+                            new Variable(enumField.getHttpMethod()).setType(VariableType.SIMPLE));
+
+                }
             }
         }
     }
@@ -144,6 +149,9 @@ class EndpointHandler extends MethodProcessor {
                 case EXPECT:
                 case PATH:
                 case EXCHANGE:
+                case GENERIC:
+                case CONTENTTYPE:
+                case ACCEPT:
                     processGENERIC(values, methodDefinition, operation);
                     break;
                 default:

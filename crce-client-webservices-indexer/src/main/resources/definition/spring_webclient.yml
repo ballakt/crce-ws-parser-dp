@@ -1,3 +1,111 @@
+enums:
+  - class: org.springframework.http.MediaType
+    fields:
+      - name: ALL
+        contentType: all
+      - name: APPLICATION_ATOM_XML
+        contentType: application/atom+xml
+      - name: APPLICATION_ATOM_XML_VALUE
+        contentType: application/atom+xml
+      - name: APPLICATION_CBOR
+        contentType: application/atom+xml
+      - name: APPLICATION_FORM_URLENCODED
+        contentType: application/x-www-form-urlencoded
+      - name: APPLICATION_FORM_URLENCODED_VALUE
+        contentType: application/x-www-form-urlencoded
+      - name: APPLICATION_JSON
+        contentType: application/json
+      - name: APPLICATION_JSON_UTF8
+        contentType: application/json
+      - name: APPLICATION_JSON_UTF8_VALUE
+        contentType: application/json
+      - name: APPLICATION_JSON_VALUE
+        contentType: application/json
+      - name: APPLICATION_NDJSON
+        contentType: application/x-ndjson
+      - name: APPLICATION_NDJSON_VALUE
+        contentType: application/x-ndjson
+      - name: APPLICATION_OCTET_STREAM
+        contentType: application/octet-stream
+      - name: APPLICATION_OCTET_STREAM_VALUE
+        contentType: application/octet-stream
+      - name: APPLICATION_PDF
+        contentType: application/pdf
+      - name: APPLICATION_PDF_VALUE
+        contentType: APPLICATION_PDF_VALUE
+      - name: APPLICATION_PROBLEM_JSON
+        contentType: application/problem+json
+      - name: APPLICATION_PROBLEM_JSON_UTF8
+        contentType: application/problem+json
+      - name: APPLICATION_PROBLEM_JSON_UTF8_VALUE
+        contentType: application/problem+json
+      - name: APPLICATION_PROBLEM_JSON_VALUE
+        contentType: application/problem+json
+      - name: APPLICATION_PROBLEM_XML
+        contentType: application/problem+xm
+      - name: APPLICATION_PROBLEM_XML_VALUE
+        contentType: application/problem+xm
+      - name: APPLICATION_RSS_XML
+        contentType: application/rss+xml
+      - name: APPLICATION_RSS_XML_VALUE
+        contentType: application/rss+xml
+      - name: APPLICATION_STREAM_JSON
+        contentType: application/stream+json
+      - name: APPLICATION_STREAM_JSON_VALUE
+        contentType: application/stream+json
+      - name: APPLICATION_XHTML_XML
+        contentType: application/xhtml+xml
+      - name: APPLICATION_XHTML_XML_VALUE
+        contentType: application/xhtml+xml
+      - name: APPLICATION_XML
+        contentType: application/xml
+      - name: APPLICATION_XML_VALUE
+        contentType: application/xml
+      - name: IMAGE_GIF
+        contentType: image/gif
+      - name: IMAGE_GIF_VALUE
+        contentType: image/gif
+      - name: IMAGE_JPEG
+        contentType: image/jpeg
+      - name: IMAGE_JPEG_VALUE
+        contentType: image/jpeg
+      - name: IMAGE_PNG
+        contentType: image/png
+      - name: IMAGE_PNG_VALUE
+        contentType: image/png
+      - name: MULTIPART_FORM_DATA
+        contentType: multipart/form-data
+      - name: MULTIPART_FORM_DATA_VALUE
+        contentType: multipart/form-data
+      - name: MULTIPART_MIXED
+        contentType: multipart/mixed
+      - name: MULTIPART_MIXED_VALUE
+        contentType: multipart/mixed
+      - name: MULTIPART_RELATED
+        contentType: multipart/related
+      - name: MULTIPART_RELATED_VALUE
+        contentType: multipart/related
+      - name: TEXT_EVENT_STREAM
+        contentType: text/event-stream
+      - name: TEXT_EVENT_STREAM_VALUE
+        contentType: text/event-stream
+      - name: TEXT_HTML
+        contentType: text/html
+      - name: TEXT_HTML_VALUE
+        contentType: text/html
+      - name: TEXT_MARKDOWN
+        contentType: text/markdown
+      - name: TEXT_MARKDOWN_VALUE
+        contentType: text/markdown
+      - name: TEXT_PLAIN
+        contentType: text/plain
+      - name: TEXT_PLAIN_VALUE
+        contentType: text/plain
+      - name: TEXT_XML
+        contentType: text/xml
+      - name: TEXT_XML_VALUE
+        contentType: text/xml
+
 apiCall:
   - class: org.springframework.web.reactive.function.client.WebClient
     methods:
@@ -23,6 +131,10 @@ apiCall:
           - - PATH
             - PARAM
           - - PATH
+      - name: accept
+        type: GENERIC
+        args:
+          - - ACCEPT
   - class: org.springframework.web.reactive.function.client.WebClient$RequestBodySpec
     methods:
       - name: syncBody
@@ -32,6 +144,10 @@ apiCall:
       - name: bodyValue
         args:
           - - SEND
+      - name: accept
+        type: GENERIC
+        args:
+          - - ACCEPT
   - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersUriSpec
     methods:
       - name: uri
@@ -40,6 +156,10 @@ apiCall:
           - - PATH
             - PARAM
           - - PATH
+      - name: accept
+        type: GENERIC
+        args:
+          - - ACCEPT
   - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersSpec
     methods:
       - name: retrieve

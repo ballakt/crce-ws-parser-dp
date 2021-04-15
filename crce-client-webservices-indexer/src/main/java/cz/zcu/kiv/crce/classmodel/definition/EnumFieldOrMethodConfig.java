@@ -10,6 +10,9 @@ public class EnumFieldOrMethodConfig {
     @JsonProperty
     private HttpMethod httpMethod;
 
+    @JsonProperty
+    private String contentType;
+
     /**
      * @return the name
      */
@@ -36,5 +39,19 @@ public class EnumFieldOrMethodConfig {
      */
     public void setHttpMethod(HttpMethod httpMethod) {
         this.httpMethod = httpMethod;
+    }
+
+    /**
+     * @return the contentType
+     */
+    public String getContentType() {
+        return contentType;
+    }
+
+    /**
+     * @param contentType the contentType to set
+     */
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 }

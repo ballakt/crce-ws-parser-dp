@@ -247,6 +247,7 @@ public class ArgTools {
         Object param = params.getOrDefault(ArgConfigType.PARAM.name(), null);
         Object send = params.getOrDefault(ArgConfigType.SEND.name(), null);
         Object contentType = params.getOrDefault(ArgConfigType.CONTENTTYPE.name(), null);
+        Object accept = params.getOrDefault(ArgConfigType.ACCEPT.name(), null);
 
 
         if (path != null) {
@@ -275,6 +276,10 @@ public class ArgTools {
         if (contentType != null) {
             handleEndpointAttrWrapper(contentType, endpoint,
                     (String cType, Endpoint e) -> e.addProduces(cType));
+        }
+        if (accept != null) {
+            handleEndpointAttrWrapper(accept, endpoint,
+                    (String aType, Endpoint e) -> e.addConsumes(aType));
         }
     }
 

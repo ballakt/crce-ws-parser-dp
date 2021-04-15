@@ -21,6 +21,7 @@ public class Endpoint implements Serializable {
     protected Set<EndpointRequestBody> requestBodies;
     protected Set<EndpointRequestBody> expectedResponses;
     protected Set<String> produces;
+    protected Set<String> consumes;
 
 
     public Endpoint(String path, Set<HttpMethod> httpMethods) {
@@ -30,20 +31,21 @@ public class Endpoint implements Serializable {
 
     public Endpoint(String baseUrl, String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
-            Set<EndpointParameter> parameters, Set<String> produces) {
-        this(path, httpMethods, requestBodies, expectedResponses, parameters, produces);
+            Set<EndpointParameter> parameters, Set<String> produces, Set<String> consumes) {
+        this(path, httpMethods, requestBodies, expectedResponses, parameters, produces, consumes);
         this.baseUrl = baseUrl;
     }
 
     public Endpoint(String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
-            Set<EndpointParameter> parameters, Set<String> produces) {
+            Set<EndpointParameter> parameters, Set<String> produces, Set<String> consumes) {
         this.setPath(path);
         this.httpMethods = httpMethods;
         this.requestBodies = requestBodies;
         this.expectedResponses = expectedResponses;
         this.parameters = parameters;
         this.produces = produces;
+        this.consumes = consumes;
     }
 
     public Endpoint(String path, HttpMethod type) {
@@ -58,6 +60,7 @@ public class Endpoint implements Serializable {
         this.expectedResponses = new HashSet<>();
         this.parameters = new HashSet<>();
         this.produces = new HashSet<>();
+        this.consumes = new HashSet<>();
     }
 
     public enum HttpMethod {
@@ -131,7 +134,10 @@ public class Endpoint implements Serializable {
         final boolean expectedResponsesEq =
                 expectedResponses.containsAll(endpoint.getExpectedResponses());
         final boolean parametersEq = parameters.containsAll(endpoint.getParameters());
-        return httpMethodEq && reqBodiesEq && expectedResponsesEq && parametersEq;
+        final boolean consumesEq = consumes.containsAll(endpoint.getConsumes());
+        final boolean producesEq = produces.containsAll(endpoint.getProduces());
+        return httpMethodEq && reqBodiesEq && expectedResponsesEq && parametersEq && consumesEq
+                && producesEq;
     }
 
 
@@ -142,7 +148,9 @@ public class Endpoint implements Serializable {
                 + ToStringTools.setToString(httpMethods) + ", \"requestBodies\": "
                 + ToStringTools.setToString(requestBodies) + ", \"responses\": "
                 + ToStringTools.setToString(expectedResponses) + ", \"parameters\": "
-                + ToStringTools.setToString(parameters) + " }";
+                + ToStringTools.setToString(parameters) + ", \"produces\": "
+                + ToStringTools.setToString(produces) + ", \"consumes\": "
+                + ToStringTools.setToString(consumes) + " }";
     }
 
 
@@ -201,6 +209,29 @@ public class Endpoint implements Serializable {
      */
     public Endpoint addProduces(String produces) {
         this.produces.add(produces);
+        return this;
+    }
+
+    /**
+     * @return the consumes
+     */
+    public Set<String> getConsumes() {
+        return consumes;
+    }
+
+    /**
+     * @param consumes the consumes to set
+     */
+    public Endpoint setConsumes(Set<String> consumes) {
+        this.consumes = consumes;
+        return this;
+    }
+
+    /**
+     * @param consumes the consumes to set
+     */
+    public Endpoint addConsumes(String consumes) {
+        this.consumes.add(consumes);
         return this;
     }
 

@@ -60,7 +60,6 @@ public class BasicProcessor {
      * @param values    String values
      */
     protected void processFIELD(Operation operation, Stack<Variable> values) {
-        // TODO: handle FIELD NAMES like GET,POST from HttpMethod
         switch (operation.getOpcode()) {
             case Opcodes.GETFIELD:
                 processGETFIELD(values, operation);
@@ -136,7 +135,9 @@ public class BasicProcessor {
             return;
         }
         VarArray varArray = (VarArray) array.getValue();
-        varArray.set(arrayItem.getDescription());
+        varArray.set((VariableTools.isEmpty(arrayItem) || arrayItem.getValue().toString().isEmpty())
+                ? arrayItem.getDescription()
+                : (String) arrayItem.getValue());
         values.push(array);
     }
 
