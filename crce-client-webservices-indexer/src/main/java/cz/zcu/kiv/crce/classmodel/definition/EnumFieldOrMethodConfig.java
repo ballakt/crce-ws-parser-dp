@@ -13,6 +13,9 @@ public class EnumFieldOrMethodConfig {
     @JsonProperty
     private String contentType;
 
+    @JsonProperty
+    private String headerType;
+
     /**
      * @return the name
      */
@@ -53,5 +56,19 @@ public class EnumFieldOrMethodConfig {
      */
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    /**
+     * @return the headerType
+     */
+    public String getHeaderType() {
+        return headerType;
+    }
+
+    /**
+     * @param headerType the headerType to set
+     */
+    public void setHeaderType(String headerType) {
+        this.headerType = headerType;
     }
 }

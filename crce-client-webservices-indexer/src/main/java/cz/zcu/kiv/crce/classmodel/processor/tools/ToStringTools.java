@@ -28,7 +28,7 @@ public class ToStringTools {
     public static <T> String setToString(Set<T> set) {
         String stringified = "[";
         for (T item : set) {
-            if (item instanceof String || item instanceof Enum || item instanceof Boolean) {
+            if (item instanceof String || item instanceof Enum) {
                 stringified += objToString(item) + ",";
             } else {
                 stringified += item.toString() + ",";

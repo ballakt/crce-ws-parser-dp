@@ -1,6 +1,7 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.io.Serializable;
+import java.util.Objects;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 
 public class EndpointRequestBody implements Serializable {
@@ -47,7 +48,7 @@ public class EndpointRequestBody implements Serializable {
 
     @Override
     public int hashCode() {
-        return (getStructure() + isArray).hashCode();
+        return Objects.hash(structure, isArray);
     }
 
     @Override

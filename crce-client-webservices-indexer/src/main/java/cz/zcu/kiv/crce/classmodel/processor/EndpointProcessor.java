@@ -106,6 +106,9 @@ class EndpointHandler extends MethodProcessor {
                     values.push(
                             new Variable(enumField.getHttpMethod()).setType(VariableType.SIMPLE));
 
+                } else if (enumField.getHeaderType() != null) {
+                    values.push(
+                            new Variable(enumField.getHeaderType()).setType(VariableType.SIMPLE));
                 }
             }
         }
@@ -137,8 +140,6 @@ class EndpointHandler extends MethodProcessor {
                     methodDefinitionMap.get(operation.getMethodName());
             ApiCallMethodType type = methodDefinition.getType();
 
-            // TODO: handle acceptt
-
             switch (type) {
                 case INIT:
                     values.push(new Variable().setType(VariableType.ENDPOINT));
@@ -152,6 +153,7 @@ class EndpointHandler extends MethodProcessor {
                 case GENERIC:
                 case CONTENTTYPE:
                 case ACCEPT:
+                case HEADER:
                     processGENERIC(values, methodDefinition, operation);
                     break;
                 default:

@@ -3,6 +3,7 @@ package cz.zcu.kiv.crce.classmodel.processor;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
 
@@ -20,8 +21,8 @@ public class Endpoint implements Serializable {
     protected Set<EndpointParameter> parameters;
     protected Set<EndpointRequestBody> requestBodies;
     protected Set<EndpointRequestBody> expectedResponses;
-    protected Set<String> produces;
-    protected Set<String> consumes;
+    protected Set<Header> produces;
+    protected Set<Header> consumes;
 
 
     public Endpoint(String path, Set<HttpMethod> httpMethods) {
@@ -31,14 +32,14 @@ public class Endpoint implements Serializable {
 
     public Endpoint(String baseUrl, String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
-            Set<EndpointParameter> parameters, Set<String> produces, Set<String> consumes) {
+            Set<EndpointParameter> parameters, Set<Header> produces, Set<Header> consumes) {
         this(path, httpMethods, requestBodies, expectedResponses, parameters, produces, consumes);
         this.baseUrl = baseUrl;
     }
 
     public Endpoint(String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
-            Set<EndpointParameter> parameters, Set<String> produces, Set<String> consumes) {
+            Set<EndpointParameter> parameters, Set<Header> produces, Set<Header> consumes) {
         this.setPath(path);
         this.httpMethods = httpMethods;
         this.requestBodies = requestBodies;
@@ -200,14 +201,14 @@ public class Endpoint implements Serializable {
     /**
      * @return the produces
      */
-    public Set<String> getProduces() {
+    public Set<Header> getProduces() {
         return produces;
     }
 
     /**
      * @param produces the produces to set
      */
-    public Endpoint addProduces(String produces) {
+    public Endpoint addProduces(Header produces) {
         this.produces.add(produces);
         return this;
     }
@@ -215,14 +216,14 @@ public class Endpoint implements Serializable {
     /**
      * @return the consumes
      */
-    public Set<String> getConsumes() {
+    public Set<Header> getConsumes() {
         return consumes;
     }
 
     /**
      * @param consumes the consumes to set
      */
-    public Endpoint setConsumes(Set<String> consumes) {
+    public Endpoint setConsumes(Set<Header> consumes) {
         this.consumes = consumes;
         return this;
     }
@@ -230,7 +231,7 @@ public class Endpoint implements Serializable {
     /**
      * @param consumes the consumes to set
      */
-    public Endpoint addConsumes(String consumes) {
+    public Endpoint addConsumes(Header consumes) {
         this.consumes.add(consumes);
         return this;
     }

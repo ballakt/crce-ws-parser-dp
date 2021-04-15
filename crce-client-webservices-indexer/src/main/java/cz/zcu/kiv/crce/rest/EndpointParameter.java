@@ -1,6 +1,7 @@
 package cz.zcu.kiv.crce.rest;
 
 import java.io.Serializable;
+import java.util.Objects;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 
 /**
@@ -68,8 +69,7 @@ public class EndpointParameter implements Serializable {
 
     @Override
     public int hashCode() {
-        // TODO: add more params
-        return dataType.hashCode();
+        return Objects.hash(name, dataType, isArray);
     }
 
     @Override

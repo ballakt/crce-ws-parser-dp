@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
 
@@ -68,7 +69,10 @@ public class ProcessorTest {
                                 new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint9 = new Endpoint("/test", HttpMethod.PUT);
                 final Endpoint endpoint10 = new Endpoint("/accept", HttpMethod.PUT)
-                                .setConsumes(Set.of("application/json"));
+                                .setConsumes(Set.of(new Header("Content-Type", "application/json")))
+                                .addProduces(new Header("Content-Type", "application/json"))
+                                .addExpectedResponse(
+                                                new EndpointRequestBody("java/lang/String", false));
 
                 springWebClientExpectedEndpoints = Map.of(endpoint1.getUrl(), endpoint1,
                                 endpoint2.getUrl(), endpoint2, endpoint3.getUrl(), endpoint3,

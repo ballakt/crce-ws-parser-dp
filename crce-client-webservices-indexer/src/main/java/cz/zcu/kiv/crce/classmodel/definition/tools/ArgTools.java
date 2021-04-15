@@ -9,6 +9,7 @@ import cz.zcu.kiv.crce.classmodel.definition.ArgConfigType;
 import cz.zcu.kiv.crce.classmodel.definition.ConfigTools;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerConfigMap;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerMethodConfig;
+import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint;
 import cz.zcu.kiv.crce.classmodel.processor.EndpointRequestBody;
@@ -73,7 +74,8 @@ public class ArgTools {
         final Set<EndpointRequestBody> expected = varEndpoint.getExpectedResponses();
         final Set<EndpointRequestBody> request = varEndpoint.getRequestBodies();
         final Set<EndpointParameter> eParams = varEndpoint.getParameters();
-        final Set<String> contentType = varEndpoint.getProduces();
+        final Set<Header> contentType = varEndpoint.getProduces();
+        final Set<Header> acceptType = varEndpoint.getConsumes();
 
         if (baseUrl != null) {
             params.put(ArgConfigType.BASEURL.name(), baseUrl);
@@ -117,8 +119,20 @@ public class ArgTools {
 
         if (contentType != null && contentType.size() > 0) {
             String[] eContentTypeArray = new String[contentType.size()];
-            contentType.toArray(eContentTypeArray);
+            int i = 0;
+            for (Header header : contentType) {
+                eContentTypeArray[i++] = header.toString();
+            }
             params.put(ArgConfigType.CONTENTTYPE.name(), eContentTypeArray);
+        }
+
+        if (acceptType != null && acceptType.size() > 0) {
+            String[] eAcceptTypeArray = new String[acceptType.size()];
+            int i = 0;
+            for (Header header : acceptType) {
+                eAcceptTypeArray[i++] = header.toString();
+            }
+            params.put(ArgConfigType.ACCEPT.name(), eAcceptTypeArray);
         }
 
     }
@@ -180,6 +194,30 @@ public class ArgTools {
 
     private static interface HandleEndpointAttrI {
         public void run(String param, Endpoint endpoint);
+    }
+    private static interface HandleEndpointPairAttrI {
+        public void run(String param1, String param2, Endpoint endpoint);
+    }
+
+    private static void handleAttrPair(Object param1, Object param2, Endpoint endpoint,
+            HandleEndpointPairAttrI method) {
+        if (param1 instanceof String[] && param2 instanceof String[]) {
+            String[] params1 = (String[]) param1;
+            String[] params2 = (String[]) param2;
+            if (params1.length != params2.length) {
+                return;
+            }
+            for (int i = 0; i < params1.length; i++) {
+                method.run(params1[i], params2[i], endpoint);
+            }
+        } else if (param1 instanceof String && param2 instanceof String) {
+            method.run((String) param1, (String) param2, endpoint);
+        } else if (param1 instanceof String && param2 instanceof String[]) {
+            String[] params2 = (String[]) param2;
+            for (int i = 0; i < params2.length; i++) {
+                method.run((String) param1, params2[i], endpoint);
+            }
+        }
     }
 
     private static void handleEndpointAttrWrapper(Object param, Endpoint endpoint,
@@ -247,6 +285,7 @@ public class ArgTools {
         Object param = params.getOrDefault(ArgConfigType.PARAM.name(), null);
         Object send = params.getOrDefault(ArgConfigType.SEND.name(), null);
         Object contentType = params.getOrDefault(ArgConfigType.CONTENTTYPE.name(), null);
+        Object headerType = params.getOrDefault(ArgConfigType.HEADERTYPE.name(), null);
         Object accept = params.getOrDefault(ArgConfigType.ACCEPT.name(), null);
 
 
@@ -273,13 +312,17 @@ public class ArgTools {
                     .addHttpMethod(HttpMethod.valueOf(httpmethod)));
             // endpoint.addHttpMethod(HttpMethod.valueOf(httpMethod));
         }
-        if (contentType != null) {
+        if (headerType != null) {
+            handleAttrPair(headerType, contentType, endpoint,
+                    (String headerName, String headerValue, Endpoint e) -> e
+                            .addProduces(new Header(headerName, headerValue)));
+        } else if (contentType != null) {
             handleEndpointAttrWrapper(contentType, endpoint,
-                    (String cType, Endpoint e) -> e.addProduces(cType));
+                    (String cType, Endpoint e) -> e.addProduces(new Header("Content-Type", cType)));
         }
         if (accept != null) {
             handleEndpointAttrWrapper(accept, endpoint,
-                    (String aType, Endpoint e) -> e.addConsumes(aType));
+                    (String aType, Endpoint e) -> e.addConsumes(new Header("Content-Type", aType)));
         }
     }
 
