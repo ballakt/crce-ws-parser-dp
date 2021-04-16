@@ -19,6 +19,7 @@ import cz.zcu.kiv.crce.classmodel.processor.VarEndpointData;
 import cz.zcu.kiv.crce.classmodel.processor.Variable;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.HeaderTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
@@ -26,12 +27,16 @@ import cz.zcu.kiv.crce.rest.EndpointParameter;
 
 public class ArgTools {
 
+    private static final String ACCEPT = "Accept";
     private static EDataContainerConfigMap eDataConfig = ConfigTools.getEDataContainerConfigMap();
 
     private static boolean isURI(Object uri) {
         return (uri instanceof String);
     }
 
+    private static boolean isAcceptance(String headerType) {
+        return headerType.startsWith(ACCEPT);
+    }
 
     /**
      * Extracts arguments from args of method
@@ -193,7 +198,7 @@ public class ArgTools {
         return newEndpointData.setValue(setParamsToEndpoint(params, varEndpointData));
     }
 
-    public static Variable setDataFromArgs(Stack<Variable> values,
+    public static Variable setEndpointAttrFromArgs(Stack<Variable> values,
             Set<ArrayList<ArgConfigType>> argDefs, Operation operation) {
         Stack<Variable> args = methodArgsFromValues(values, operation);
 
@@ -250,12 +255,17 @@ public class ArgTools {
         if (httpMethod != null) {
             handleEndpointAttrWrapper(httpMethod, endpoint, (String httpmethod, Endpoint e) -> e
                     .addHttpMethod(HttpMethod.valueOf(httpmethod)));
-            // endpoint.addHttpMethod(HttpMethod.valueOf(httpMethod));
         }
         if (headerType != null) {
             handleAttrPair(headerType, contentType, endpoint,
-                    (String headerName, String headerValue, Endpoint e) -> e
-                            .addProduces(new Header(headerName, headerValue)));
+                    (String headerName, String headerValue, Endpoint e) -> {
+                        final Header header = new Header(headerName, headerValue);
+                        if (HeaderTools.isConsumingType(headerName)) {
+                            e.addConsumes(header);
+                        } else {
+                            e.addProduces(header);
+                        }
+                    });
         } else if (contentType != null) {
             handleEndpointAttrWrapper(contentType, endpoint,
                     (String cType, Endpoint e) -> e.addProduces(new Header("Content-Type", cType)));

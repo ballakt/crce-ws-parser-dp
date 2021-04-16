@@ -104,21 +104,13 @@ class EndpointHandler extends MethodProcessor {
     private void processGENERIC(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
             Operation operation) {
         Variable varEndpoint =
-                ArgTools.setDataFromArgs(values, methodDefinition.getArgs(), operation);
+                ArgTools.setEndpointAttrFromArgs(values, methodDefinition.getArgs(), operation);
         if (varEndpoint != null) {
             Helpers.EndpointF.merge(endpoints, (Endpoint) varEndpoint.getValue());
         }
 
     }
 
-    /*
-     * private void processEDATALIST(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
-     * Operation operation) { VarEndpointData eData = new VarEndpointData(); List<VarEndpointData> =
-     * Variable var = new Variable(eData).setType(VariableType.ENDPOINTDATA);
-     * 
-     * 
-     * }
-     */
 
     private void processHTTPMetod(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
             ApiCallMethodType type, Operation operation) {

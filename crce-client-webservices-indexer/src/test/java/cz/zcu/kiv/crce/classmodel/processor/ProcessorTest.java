@@ -67,9 +67,10 @@ public class ProcessorTest {
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
                                 new HashSet<>(), new HashSet<>());
-                final Endpoint endpoint9 =
-                                new Endpoint("/test", HttpMethod.PUT).addExpectedResponse(
-                                                new EndpointRequestBody("java/lang/String", false));
+                final Endpoint endpoint9 = new Endpoint("/test", HttpMethod.PUT)
+                                .addExpectedResponse(
+                                                new EndpointRequestBody("java/lang/String", false))
+                                .addConsumes(new Header("Accept", "application/json"));
                 final Endpoint endpoint10 = new Endpoint("/accept", HttpMethod.PUT)
                                 .setConsumes(Set.of(new Header("Content-Type", "application/json")))
                                 .addProduces(new Header("Content-Type", "application/json"))
@@ -92,7 +93,7 @@ public class ProcessorTest {
                                                 false)),
                                 new HashSet<>(),
                                 Set.of(new Header("Content-Type", "application/json")),
-                                new HashSet<>());
+                                Set.of(new Header("Accept", "application/json")));
                 final Endpoint endpoint2 = new Endpoint("http://localhost:8090/api/user/addUser",
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
@@ -119,7 +120,9 @@ public class ProcessorTest {
                 final Endpoint endpoint1 = new Endpoint(baseUrl, "/emp", Set.of(HttpMethod.GET),
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/util/List", true)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(),
+                                Set.of(new Header("Content-Type", "application/json")),
+                                Set.of(new Header("Accept", "application/json")));
                 final Endpoint endpoint2 = new Endpoint(baseUrl, "/emp/addemp",
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody(
