@@ -7,6 +7,131 @@ endpointDataContainers:
             - CONTENTTYPE
 genericWrappers:
   - javax.ws.rs.core.GenericType
+enums:
+  - class: javax.ws.rs.core.MediaType
+    fields:
+      - name: CHARSET_PARAMETER
+        contentType: charset
+      - name: MEDIA_TYPE_WILDCARD
+        contentType: "*"
+      - name: WILDCARD
+        contentType: "*/*"
+      - name: WILDCARD_TYPE
+        contentType: "*/*"
+      - name: APPLICATION_XML
+        contentType: application/xml
+      - name: APPLICATION_XML_TYPE
+        contentType: application/xml
+      - name: APPLICATION_ATOM_XML
+        contentType: application/atom+xml
+      - name: APPLICATION_ATOM_XML_TYPE
+        contentType: application/atom+xml
+      - name: APPLICATION_XHTML_XML
+        contentType: application/xhtml+xml
+      - name: APPLICATION_XHTML_XML_TYPE
+        contentType: application/xhtml+xml
+      - name: APPLICATION_SVG_XML
+        contentType: application/svg+xml
+      - name: APPLICATION_SVG_XML_TYPE
+        contentType: application/svg+xml
+      - name: APPLICATION_JSON
+        contentType: application/json
+      - name: APPLICATION_JSON_TYPE
+        contentType: application/json
+      - name: APPLICATION_FORM_URLENCODED
+        contentType: application/x-www-form-urlencoded
+      - name: APPLICATION_FORM_URLENCODED_TYPE
+        contentType: application/x-www-form-urlencoded
+      - name: MULTIPART_FORM_DATA
+        contentType: multipart/form-data
+      - name: MULTIPART_FORM_DATA_TYPE
+        contentType: multipart/form-data
+      - name: APPLICATION_OCTET_STREAM
+        contentType: application/octet-stream
+      - name: APPLICATION_OCTET_STREAM_TYPE
+        contentType: application/octet-stream
+      - name: TEXT_PLAIN
+        contentType: text/plain
+      - name: TEXT_PLAIN_TYPE
+        contentType: text/plain
+      - name: TEXT_XML
+        contentType: text/xml
+      - name: TEXT_XML_TYPE
+        contentType: text/xml
+      - name: TEXT_HTML
+        contentType: text/html
+      - name: TEXT_HTML_TYPE
+        contentType: text/html
+      - name: SERVER_SENT_EVENTS
+        contentType: text/event-stream
+      - name: SERVER_SENT_EVENTS_TYPE
+        contentType: text/event-stream
+      - name: APPLICATION_JSON_PATCH_JSON
+        contentType: application/json-patch+json
+  - class: javax.ws.rs.core.HttpHeaders
+    fields: 
+     - name: ACCEPT 
+       headerType: Accept
+     - name: ACCEPT_CHARSET 
+       headerType: Accept-Charset              
+     - name: ACCEPT_ENCODING 
+       headerType: Accept-Encoding              
+     - name: ACCEPT_LANGUAGE 
+       headerType: Accept-Language              
+     - name: ALLOW 
+       headerType: Allow              
+     - name: AUTHORIZATION 
+       headerType: Authorization              
+     - name: CACHE_CONTROL 
+       headerType: Cache-Control              
+     - name: CONTENT_DISPOSITION 
+       headerType: Content-Disposition              
+     - name: CONTENT_ENCODING 
+       headerType: Content-Encoding              
+     - name: CONTENT_ID 
+       headerType: Content-ID              
+     - name: CONTENT_LANGUAGE 
+       headerType: Content-Language              
+     - name: CONTENT_LENGTH 
+       headerType: Content-Length              
+     - name: CONTENT_LOCATION 
+       headerType: Content-Location              
+     - name: CONTENT_TYPE 
+       headerType: Content-Type              
+     - name: DATE 
+       headerType: Date              
+     - name: ETAG 
+       headerType: ETag              
+     - name: EXPIRES 
+       headerType: Expires              
+     - name: HOST 
+       headerType: Host              
+     - name: IF_MATCH 
+       headerType: If-Match              
+     - name: IF_MODIFIED_SINCE 
+       headerType: If-Modified-Since              
+     - name: IF_NONE_MATCH 
+       headerType: If-None-Match              
+     - name: IF_UNMODIFIED_SINCE 
+       headerType: If-Unmodified-Since              
+     - name: LAST_MODIFIED 
+       headerType: Last-Modified              
+     - name: LOCATION 
+       headerType: Location              
+     - name: LINK 
+       headerType: Link              
+     - name: RETRY_AFTER 
+       headerType: Retry-After              
+     - name: USER_AGENT 
+       headerType: User-Agent              
+     - name: VARY 
+       headerType: Vary              
+     - name: WWW_AUTHENTICATE 
+       headerType: WWW-Authenticate              
+     - name: COOKIE 
+       headerType: Cookie         
+     - name: SET_COOKIE 
+       headerType: Set-Cookie
 apiCall:
   - class: javax.ws.rs.client.Client
     methods:
@@ -60,3 +185,12 @@ apiCall:
         type: TRACE
         args:
           - - EXPECT
+      - name: accept
+        type: ACCEPT
+        args:
+          - - ACCEPT
+      - name: header
+        type: HEADER
+        args:
+          - - HEADERTYPE
+            - CONTENTTYPE
