@@ -93,7 +93,7 @@ public class BasicProcessor {
         String newValue = operation.getValue() != null ? operation.getValue().toString() : null;
         Variable last = Helpers.StackF.peek(values);
         if (newValue != null && NumTools.isNumeric(newValue) && last != null
-                && last.getType() == VariableType.ARRAY) {
+                && last.getType() == VariableType.ARRAY && last.getValue() instanceof VarArray) {
             VarArray array = (VarArray) last.getValue();
             array.setPosition(Integer.valueOf(newValue));
             return;

@@ -10,7 +10,7 @@ public class MethodTools {
 
     private static final String initString = "<init>";
     private static final Pattern argPattern = Pattern.compile("\\((.*?)\\)");
-    private static final Pattern methodNamePattern = Pattern.compile("\\.\\W?(\\w*)\\W?\\(");
+    private static final Pattern methodNamePattern = Pattern.compile("\\.<?(\\w*)>?-?\\(");
 
     /**
      * Checkes if

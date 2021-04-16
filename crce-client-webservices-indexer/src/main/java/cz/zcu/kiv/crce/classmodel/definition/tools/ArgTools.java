@@ -65,82 +65,11 @@ public class ArgTools {
         return val;
     }
 
-    private static void varEndpointToParams(VarEndpointData varEndpoint,
-            Map<String, Object> params) {
-        // TODO: mozna predpokladat ze vsechno muze byt pole??
-        final String path = varEndpoint.getPath();
-        final String baseUrl = varEndpoint.getBaseUrl();
-        final Set<HttpMethod> httpMethod = varEndpoint.getHttpMethods();
-        final Set<EndpointRequestBody> expected = varEndpoint.getExpectedResponses();
-        final Set<EndpointRequestBody> request = varEndpoint.getRequestBodies();
-        final Set<EndpointParameter> eParams = varEndpoint.getParameters();
-        final Set<Header> contentType = varEndpoint.getProduces();
-        final Set<Header> acceptType = varEndpoint.getConsumes();
-
-        if (baseUrl != null) {
-            params.put(ArgConfigType.BASEURL.name(), baseUrl);
-        }
-
-        if (path != null) {
-            params.put(ArgConfigType.PATH.name(), path);
-        }
-
-        if (httpMethod != null && httpMethod.size() > 0) {
-            params.put(ArgConfigType.HTTPMETHOD.name(), httpMethod);
-        }
-
-        if (expected != null && expected.size() > 0) {
-            String[] expArray = new String[expected.size()];
-            int i = 0;
-            for (EndpointRequestBody expItem : expected) {
-                expArray[i++] = expItem.getStructure();
-            }
-            params.put(ArgConfigType.EXPECT.name(), expArray);
-        }
-
-        if (request != null && request.size() > 0) {
-            String[] reqArray = new String[request.size()];
-            int i = 0;
-            for (EndpointRequestBody reqItem : request) {
-                reqArray[i++] = reqItem.getStructure();
-            }
-            params.put(ArgConfigType.SEND.name(), reqArray);
-        }
-
-        if (eParams != null && eParams.size() > 0) {
-            String[] eParamsArray = new String[eParams.size()];
-            int i = 0;
-            for (EndpointParameter param : eParams) {
-                // TODO: ukládat param jako celý objekt -> potřebuju udržet i MATRIX atd...
-                eParamsArray[i++] = param.getDataType();
-            }
-            params.put(ArgConfigType.PARAM.name(), eParamsArray);
-        }
-
-        if (contentType != null && contentType.size() > 0) {
-            String[] eContentTypeArray = new String[contentType.size()];
-            int i = 0;
-            for (Header header : contentType) {
-                eContentTypeArray[i++] = header.toString();
-            }
-            params.put(ArgConfigType.CONTENTTYPE.name(), eContentTypeArray);
-        }
-
-        if (acceptType != null && acceptType.size() > 0) {
-            String[] eAcceptTypeArray = new String[acceptType.size()];
-            int i = 0;
-            for (Header header : acceptType) {
-                eAcceptTypeArray[i++] = header.toString();
-            }
-            params.put(ArgConfigType.ACCEPT.name(), eAcceptTypeArray);
-        }
-
-    }
 
     public static Map<String, Object> getParams(Stack<Variable> values,
             Set<ArrayList<ArgConfigType>> args) {
         Map<String, Object> output = new HashMap<>();
-        if (args == null) {
+        if (args == null || values.isEmpty()) {
             return output;
         }
         for (final ArrayList<ArgConfigType> versionOfArgs : args) {
@@ -148,6 +77,9 @@ public class ArgTools {
                 for (ArgConfigType definition : versionOfArgs) {
                     final Variable var = values.pop();
                     final Object val = var.getValue();
+                    if (definition == ArgConfigType.SKIP) {
+                        continue;
+                    }
                     if (output.containsKey(definition.name())) {
                         output.put(definition.name(),
                                 output.get(definition.name()) + getStringValueVar(var));
@@ -155,7 +87,7 @@ public class ArgTools {
                         VarArray arrayCasted = (VarArray) val;
                         output.put(definition.name(), arrayCasted.getInnerArray());
                     } else if (val instanceof VarEndpointData) {
-                        varEndpointToParams((VarEndpointData) val, output);
+                        output.put(definition.name(), val);
                     } else {
                         output.put(definition.name(), getStringValueVar(var));
                     }
@@ -237,7 +169,7 @@ public class ArgTools {
             Operation operation) {
         String[] methodArgsDef = MethodTools.getArgsFromSignature(operation.getDescription());
         Stack<Variable> output = new Stack<>();
-        if (methodArgsDef == null || methodArgsDef.length == 0) {
+        if (methodArgsDef == null || methodArgsDef.length == 0 || values.isEmpty()) {
             return output;
         }
 
@@ -247,6 +179,8 @@ public class ArgTools {
         return output;
     }
 
+
+
     public static Variable getEndpointDataFromContainer(Stack<Variable> values,
             Operation operation) {
         Stack<Variable> args = methodArgsFromValues(values, operation);
@@ -254,9 +188,9 @@ public class ArgTools {
                 .get(MethodTools.getMethodNameFromSignature(operation.getDescription()));
         Map<String, Object> params = ArgTools.getParams(args, methodConfig.getArgs());
         VarEndpointData varEndpointData = new VarEndpointData();
-        Variable newEndpointData = new Variable(varEndpointData).setType(VariableType.ENDPOINTDATA);
-        setParamsToEndpoint(params, varEndpointData);
-        return newEndpointData;
+        Variable newEndpointData = new Variable(varEndpointData).setType(VariableType.ENDPOINTDATA)
+                .setOwner(operation.getOwner());
+        return newEndpointData.setValue(setParamsToEndpoint(params, varEndpointData));
     }
 
     public static Variable setDataFromArgs(Stack<Variable> values,
@@ -273,11 +207,10 @@ public class ArgTools {
             return varEndpoint;
         }
         Map<String, Object> params = getParams(args, argDefs);
-        setParamsToEndpoint(params, (Endpoint) varEndpoint.getValue());
-        return varEndpoint;
+        return varEndpoint.setValue(setParamsToEndpoint(params, (Endpoint) varEndpoint.getValue()));
     }
 
-    private static void setParamsToEndpoint(Map<String, Object> params, Endpoint endpoint) {
+    private static Endpoint setParamsToEndpoint(Map<String, Object> params, Endpoint endpoint) {
         final String path = (String) params.getOrDefault(ArgConfigType.PATH.name(), null);
         final String baseURL = (String) params.getOrDefault(ArgConfigType.BASEURL.name(), null);
         Object httpMethod = params.getOrDefault(ArgConfigType.HTTPMETHOD.name(), null);
@@ -287,6 +220,7 @@ public class ArgTools {
         Object contentType = params.getOrDefault(ArgConfigType.CONTENTTYPE.name(), null);
         Object headerType = params.getOrDefault(ArgConfigType.HEADERTYPE.name(), null);
         Object accept = params.getOrDefault(ArgConfigType.ACCEPT.name(), null);
+        Object eData = params.getOrDefault(ArgConfigType.EDATA.name(), null); // TODO:new
 
 
         if (path != null) {
@@ -304,8 +238,14 @@ public class ArgTools {
                     (String p, Endpoint e) -> addExpectedResponseToEndpoint(p, e));
         }
         if (send != null) {
-            handleEndpointAttrWrapper(send, endpoint,
-                    (String p, Endpoint e) -> addRequestBodyToEndpoint(p, e));
+            if (send instanceof VarEndpointData) {
+                VarEndpointData varEData = (VarEndpointData) send;
+                endpoint.merge(varEData);
+                varEData.merge(endpoint);
+            } else {
+                handleEndpointAttrWrapper(send, endpoint,
+                        (String p, Endpoint e) -> addRequestBodyToEndpoint(p, e));
+            }
         }
         if (httpMethod != null) {
             handleEndpointAttrWrapper(httpMethod, endpoint, (String httpmethod, Endpoint e) -> e
@@ -324,6 +264,15 @@ public class ArgTools {
             handleEndpointAttrWrapper(accept, endpoint,
                     (String aType, Endpoint e) -> e.addConsumes(new Header("Content-Type", aType)));
         }
+        if (eData != null) {
+            // TODO: new
+            if (eData instanceof VarEndpointData) {
+                VarEndpointData varEData = (VarEndpointData) eData;
+                endpoint.merge(varEData);
+                varEData.merge(endpoint);
+            }
+        }
+        return endpoint;
     }
 
     public static String getURI(Stack<Variable> values, Set<ArrayList<ArgConfigType>> args) {

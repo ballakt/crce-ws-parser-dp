@@ -67,7 +67,9 @@ public class ProcessorTest {
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
                                 new HashSet<>(), new HashSet<>());
-                final Endpoint endpoint9 = new Endpoint("/test", HttpMethod.PUT);
+                final Endpoint endpoint9 =
+                                new Endpoint("/test", HttpMethod.PUT).addExpectedResponse(
+                                                new EndpointRequestBody("java/lang/String", false));
                 final Endpoint endpoint10 = new Endpoint("/accept", HttpMethod.PUT)
                                 .setConsumes(Set.of(new Header("Content-Type", "application/json")))
                                 .addProduces(new Header("Content-Type", "application/json"))
@@ -88,7 +90,9 @@ public class ProcessorTest {
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("com/app/demo/service/ApiService",
                                                 false)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(),
+                                Set.of(new Header("Content-Type", "application/json")),
+                                new HashSet<>());
                 final Endpoint endpoint2 = new Endpoint("http://localhost:8090/api/user/addUser",
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody("com/app/demo/model/User", false)),
@@ -120,13 +124,17 @@ public class ProcessorTest {
                                 Set.of(HttpMethod.POST),
                                 Set.of(new EndpointRequestBody(
                                                 "com/nagarro/hrmanager/model/Employee", false)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(),
+                                Set.of(new Header("Content-Type", "application/json")),
+                                new HashSet<>());
 
                 final Endpoint endpoint3 = new Endpoint(baseUrl, "/emp/update",
                                 Set.of(HttpMethod.PUT),
                                 Set.of(new EndpointRequestBody(
                                                 "com/nagarro/hrmanager/model/Employee", false)),
-                                new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+                                new HashSet<>(), new HashSet<>(),
+                                Set.of(new Header("Content-Type", "application/json")),
+                                new HashSet<>());
                 final Endpoint endpoint4 = new Endpoint(baseUrl, "/emp/delete/",
                                 Set.of(HttpMethod.GET), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("javax/ws/rs/core/Response", false)),
@@ -178,7 +186,8 @@ public class ProcessorTest {
         @Test
         @DisplayName("Testing the compatiblity with Spring framework (RestTemplate class)")
         public void testResttemplateSpring() {
-                File file = new File(classLoader.getResource("spring_resttemplate.jar").getFile());
+                File file = new File(
+                                classLoader.getResource("spring_resttemplate.jar").getFile());
                 try {
                         springResttemplateEndpoints = Processor.process(file);
                 } catch (IOException e) {

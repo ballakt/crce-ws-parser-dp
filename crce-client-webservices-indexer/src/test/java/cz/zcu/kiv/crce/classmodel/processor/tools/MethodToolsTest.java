@@ -26,6 +26,8 @@ public class MethodToolsTest {
                 "org/springframework/web/client/RestTemplate.postForEntity(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;";
         methodNameFromSignature.add(new String[] {oneArg, "init"});
         methodNameFromSignature.add(new String[] {threeArgsWithReturnStmnt, "postForEntity"});
+        methodNameFromSignature.add(
+                new String[] {"org/springframework/http/HttpHeaders.<init>-()V-false", "init"});
 
 
     }

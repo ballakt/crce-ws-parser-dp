@@ -17,6 +17,7 @@ import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 import cz.zcu.kiv.crce.classmodel.processor.Variable.VariableType;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ClassTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.VariableTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.MethodTools.MethodType;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassMap;
 import cz.zcu.kiv.crce.classmodel.processor.wrappers.ClassWrapper;
@@ -46,9 +47,13 @@ class EndpointHandler extends MethodProcessor {
 
     @Override
     protected void processINVOKESPECIAL(Stack<Variable> values, Operation operation) {
-        removeMethodArgsFromStack(values, operation);
-
-        if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
+        if (eDataConfig.containsKey(operation.getOwner())) {
+            // TODO: new
+            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            mergeVarEndpointData(values, newEndointData);
+            return;
+        } else if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
+            removeMethodArgsFromStack(values, operation);
             ClassWrapper class_ = this.classes.getOrDefault(operation.getOwner(), null);
             if (class_ != null && typeHolders.contains(class_.getClassStruct().getParent())
                     && class_.getClassStruct().getSignature() != null) {
@@ -61,6 +66,7 @@ class EndpointHandler extends MethodProcessor {
                 return;
             }
         } else {
+            removeMethodArgsFromStack(values, operation);
             handleAccessingObject(values, operation);
         }
         super.processINVOKESPECIAL(values, operation);
@@ -71,9 +77,28 @@ class EndpointHandler extends MethodProcessor {
         super.processINVOKEINTERFACE(values, operation);
     }
 
+    private static void mergeVarEndpointData(Stack<Variable> values, Variable var) {
+        Variable lastVar = Helpers.StackF.peek(values);
+        if (!VariableTools.isEmpty(lastVar) && lastVar.getValue() instanceof VarEndpointData) {
+            VarEndpointData lastVarEData = (VarEndpointData) lastVar.getValue();
+            VarEndpointData varEData = (VarEndpointData) var.getValue();
+
+            lastVarEData.merge(varEData);
+        } else {
+            values.push(var);
+        }
+    }
+
     @Override
     protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
-        super.processINVOKEVIRTUAL(values, operation);
+        if (eDataConfig.containsKey(operation.getOwner())) {
+            // TODO: new
+            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            mergeVarEndpointData(values, newEndointData);
+            return;
+        } else {
+            super.processINVOKEVIRTUAL(values, operation);
+        }
     }
 
     private void processGENERIC(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
@@ -85,6 +110,15 @@ class EndpointHandler extends MethodProcessor {
         }
 
     }
+
+    /*
+     * private void processEDATALIST(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
+     * Operation operation) { VarEndpointData eData = new VarEndpointData(); List<VarEndpointData> =
+     * Variable var = new Variable(eData).setType(VariableType.ENDPOINTDATA);
+     * 
+     * 
+     * }
+     */
 
     private void processHTTPMetod(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
             ApiCallMethodType type, Operation operation) {

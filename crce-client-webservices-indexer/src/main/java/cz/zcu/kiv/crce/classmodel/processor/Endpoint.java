@@ -121,6 +121,8 @@ public class Endpoint implements Serializable {
         this.httpMethods.addAll(endpoint.getHttpMethods());
         this.requestBodies.addAll(endpoint.getRequestBodies());
         this.expectedResponses.addAll(endpoint.getExpectedResponses());
+        this.produces.addAll(endpoint.getProduces());
+        this.consumes.addAll(endpoint.getConsumes());
         this.parameters.addAll(endpoint.getParameters());
     }
 
@@ -133,10 +135,14 @@ public class Endpoint implements Serializable {
         final boolean httpMethodEq = httpMethods.equals(endpoint.getHttpMethods());
         final boolean reqBodiesEq = requestBodies.containsAll(endpoint.getRequestBodies());
         final boolean expectedResponsesEq =
-                expectedResponses.containsAll(endpoint.getExpectedResponses());
-        final boolean parametersEq = parameters.containsAll(endpoint.getParameters());
-        final boolean consumesEq = consumes.containsAll(endpoint.getConsumes());
-        final boolean producesEq = produces.containsAll(endpoint.getProduces());
+                expectedResponses.containsAll(endpoint.getExpectedResponses())
+                        && endpoint.getExpectedResponses().containsAll(expectedResponses);
+        final boolean parametersEq = parameters.containsAll(endpoint.getParameters())
+                && endpoint.getParameters().containsAll(parameters);
+        final boolean consumesEq = consumes.containsAll(endpoint.getConsumes())
+                && endpoint.getConsumes().containsAll(consumes);
+        final boolean producesEq = produces.containsAll(endpoint.getProduces())
+                && endpoint.getProduces().containsAll(produces);
         return httpMethodEq && reqBodiesEq && expectedResponsesEq && parametersEq && consumesEq
                 && producesEq;
     }
