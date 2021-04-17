@@ -82,7 +82,7 @@ public class ConfigTools {
                         .readValue(inputStream, Config.class);
         Set<ApiCallConfig> methodsConfig = config.getMethods();
         Set<EnumConfigItem> enumConfigs = config.getEnums();
-        Set<String> httpTypeContainer = config.getHttpTypesContainer();
+        Set<String> httpTypeContainer = config.getGenerics();
         Set<EDataContainerConfig> eDataConfig = config.getEndpointDataContainers();
         if (methodsConfig != null) {
             for (ApiCallConfig one : methodsConfig) {
@@ -191,7 +191,7 @@ public class ConfigTools {
     /**
      * @return the typeHolders
      */
-    public static Set<String> getTypeHolders() {
+    public static Set<String> getGenerics() {
         if (httpTypeEnums == null) {
             initStructures();
             loadDefinitions();

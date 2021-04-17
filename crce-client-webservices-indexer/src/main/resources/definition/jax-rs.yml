@@ -5,7 +5,7 @@ endpointDataContainers:
         args:
           - - SEND
             - CONTENTTYPE
-genericWrappers:
+generics:
   - javax.ws.rs.core.GenericType
 enums:
   - class: javax.ws.rs.core.MediaType

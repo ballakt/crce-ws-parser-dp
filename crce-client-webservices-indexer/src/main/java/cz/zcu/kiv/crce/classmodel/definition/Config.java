@@ -15,7 +15,7 @@ public class Config {
     private Set<EnumConfigItem> enums;
 
     @JsonProperty
-    private Set<String> genericWrappers;
+    private Set<String> generics;
 
     @JsonProperty
     private Set<EDataContainerConfig> endpointDataContainers;
@@ -65,12 +65,12 @@ public class Config {
     /**
      * @param httpTypeContainer the typeHolders to set
      */
-    public void setGenericWrappers(Set<String> genericWrappers) {
+    public void setGenerics(Set<String> genericWrappers) {
         Set<String> genericWrappersParsed = new HashSet<>();
         for (String type : genericWrappers) {
             genericWrappersParsed.add(DefinitionValuesProcessor.processClassName(type));
         }
-        this.genericWrappers = genericWrappersParsed;
+        this.generics = genericWrappersParsed;
     }
 
     /**
@@ -90,8 +90,8 @@ public class Config {
     /**
      * @return the httpTypeContainer
      */
-    public Set<String> getHttpTypesContainer() {
-        return genericWrappers;
+    public Set<String> getGenerics() {
+        return generics;
     }
 
 

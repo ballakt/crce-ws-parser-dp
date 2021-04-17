@@ -12,7 +12,7 @@ endpointDataContainers:
         args:
           - - SKIP
             - EDATA
-typeHolders:
+generics:
   - org.springframework.core.ParameterizedTypeReference
 enums:
   - class: org.springframework.http.HttpMethod

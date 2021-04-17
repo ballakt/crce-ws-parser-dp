@@ -89,8 +89,7 @@ public class ProcessorTest {
         public static void initResttemplate() {
                 final Endpoint endpoint1 = new Endpoint("http://localhost:8090/api/user/users",
                                 Set.of(HttpMethod.GET), new HashSet<>(),
-                                Set.of(new EndpointRequestBody("com/app/demo/service/ApiService",
-                                                false)),
+                                Set.of(new EndpointRequestBody("java/util/List", true)),
                                 new HashSet<>(),
                                 Set.of(new Header("Content-Type", "application/json")),
                                 Set.of(new Header("Accept", "application/json")));
@@ -189,8 +188,7 @@ public class ProcessorTest {
         @Test
         @DisplayName("Testing the compatiblity with Spring framework (RestTemplate class)")
         public void testResttemplateSpring() {
-                File file = new File(
-                                classLoader.getResource("spring_resttemplate.jar").getFile());
+                File file = new File(classLoader.getResource("spring_resttemplate.jar").getFile());
                 try {
                         springResttemplateEndpoints = Processor.process(file);
                 } catch (IOException e) {

@@ -26,7 +26,7 @@ import cz.zcu.kiv.crce.classmodel.processor.wrappers.MethodWrapper;
 class EndpointHandler extends MethodProcessor {
 
     private Map<String, Endpoint> endpoints = new HashMap<>();
-    private Set<String> typeHolders = ConfigTools.getTypeHolders();
+    private Set<String> typeHolders = ConfigTools.getGenerics();
     private EnumConfigMap ed = ConfigTools.getEnumDefinitions();
     private MethodConfigMap md = ConfigTools.getMethodDefinitions();
     private EDataContainerConfigMap eDataConfig = ConfigTools.getEDataContainerConfigMap();
