@@ -4,7 +4,7 @@ endpointDataContainers:
       - name: add
         args:
           - - HEADERTYPE
-            - CONTENTTYPE
+            - HEADERVALUE
       - name: init
   - class: org.springframework.http.HttpEntity
     methods:

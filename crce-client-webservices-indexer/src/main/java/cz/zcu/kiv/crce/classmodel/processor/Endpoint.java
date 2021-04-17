@@ -1,11 +1,16 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import cz.zcu.kiv.crce.classmodel.definition.Header;
+import cz.zcu.kiv.crce.classmodel.processor.tools.HeaderTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
+import cz.zcu.kiv.crce.classmodel.processor.tools.UrlTools;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
+import cz.zcu.kiv.crce.rest.ParameterCategory;
 
 public class Endpoint implements Serializable {
 
@@ -26,7 +31,8 @@ public class Endpoint implements Serializable {
 
 
     public Endpoint(String path, Set<HttpMethod> httpMethods) {
-        this.path = path;
+        this();
+        this.setPath(path);
         this.httpMethods = httpMethods;
     }
 
@@ -40,13 +46,13 @@ public class Endpoint implements Serializable {
     public Endpoint(String path, Set<HttpMethod> httpMethods,
             Set<EndpointRequestBody> requestBodies, Set<EndpointRequestBody> expectedResponses,
             Set<EndpointParameter> parameters, Set<Header> produces, Set<Header> consumes) {
-        this.setPath(path);
         this.httpMethods = httpMethods;
         this.requestBodies = requestBodies;
         this.expectedResponses = expectedResponses;
         this.parameters = parameters;
         this.produces = produces;
         this.consumes = consumes;
+        this.setPath(path);
     }
 
     public Endpoint(String path, HttpMethod type) {
@@ -111,6 +117,18 @@ public class Endpoint implements Serializable {
     public Endpoint setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
         return this;
+    }
+
+    public void addHeader(Header header) {
+        if (HeaderTools.isConsumingType(header.getName())) {
+            this.addConsumes(header);
+        } else if (HeaderTools.isProducingType(header.getName())) {
+            this.addProduces(header);
+        } else {
+            // some other header attrs
+            this.addParameter(new EndpointParameter(null, header.getValue(), false,
+                    ParameterCategory.HEADER));
+        }
     }
 
     public void merge(Endpoint endpoint) {
@@ -195,9 +213,15 @@ public class Endpoint implements Serializable {
     public Endpoint setPath(String path) {
 
         if (path != null) {
-            this.path = path.replace("//", "");
-            if (this.path.endsWith("/")) {
-                this.path = this.path.substring(0, this.path.length() - 1);
+            this.path = path.replace("//", "/");
+            String query = UrlTools.getQuery(path);
+            String queryMatrix = UrlTools.getMatrixQuery(path);
+            if (query != null) {
+                parameters.add(new EndpointParameter(null, query, false, ParameterCategory.QUERY));
+            }
+            if (queryMatrix != null) {
+                parameters.add(
+                        new EndpointParameter(null, queryMatrix, false, ParameterCategory.MATRIX));
             }
         }
 

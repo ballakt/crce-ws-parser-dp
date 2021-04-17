@@ -151,7 +151,7 @@ class EndpointHandler extends MethodProcessor {
      * Processes possible endpoints by detecting method CALL like .uri(), .put() etc.
      * 
      * @param operation Operation to be handled
-     * @param values    String values
+     * @param values String values
      */
     @Override
     protected void processCALL(Operation operation, Stack<Variable> values) {
@@ -179,6 +179,7 @@ class EndpointHandler extends MethodProcessor {
                 case GENERIC:
                 case CONTENTTYPE:
                 case ACCEPT:
+                case HEADERTYPE:
                 case HEADER:
                     processGENERIC(values, methodDefinition, operation);
                     break;

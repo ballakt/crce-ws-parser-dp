@@ -14,14 +14,20 @@ public class EndpointParameter implements Serializable {
      */
     private static final long serialVersionUID = -6837202021942397888L;
 
-    private String name;
-    private String dataType; // T
-    private boolean isArray;
+    private String name = "";
+    private String dataType = ""; // T
+    private boolean isArray = false;
 
     private ParameterCategory category;
 
+    public EndpointParameter(String name, String datatype, boolean isArray,
+            ParameterCategory category) {
+        this(name, datatype, isArray);
+        this.category = category;
+    }
+
     public EndpointParameter(String name, String datatype, boolean isArray) {
-        this.name = name;
+        this.name = name != null ? name : "";
         this.dataType = datatype;
         this.isArray = isArray;
     }
@@ -69,7 +75,7 @@ public class EndpointParameter implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, dataType, isArray);
+        return Objects.hash(name, dataType, isArray, category);
     }
 
     @Override

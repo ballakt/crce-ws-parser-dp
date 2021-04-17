@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
+import cz.zcu.kiv.crce.rest.ParameterCategory;
 
 public class ProcessorTest {
 
@@ -31,26 +32,28 @@ public class ProcessorTest {
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
-                                Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
+                                Set.of(new EndpointParameter(null, "java/lang/Integer", false,
+                                                null)),
                                 new HashSet<>(), new HashSet<>());
-                final Endpoint endpoint2 = new Endpoint("/prvni/uri/trida", Set.of(HttpMethod.PUT),
+                Endpoint endpoint2 = new Endpoint("/prvni/uri/trida", Set.of(HttpMethod.PUT),
                                 new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
                                 new HashSet<>(), new HashSet<>(), new HashSet<>());
-                final Endpoint endpoint3 = new Endpoint(
-                                "/employee/{id}/prvni/uri/tridaNONSTATICtest",
+                Endpoint endpoint3 = new Endpoint("/employee/{id}/prvni/uri/tridaNONSTATICtest",
                                 Set.of(HttpMethod.PUT, HttpMethod.DELETE),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false),
                                                 new EndpointRequestBody("java/lang/String", false)),
-                                Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
+                                new HashSet<>(Set.of(new EndpointParameter(null,
+                                                "java/lang/Integer", false, null))),
                                 new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint4 = new Endpoint("/bla/uri/s/argumentem/{id}",
                                 Set.of(HttpMethod.PUT), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
-                                Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
+                                new HashSet<>(Set.of(new EndpointParameter(null,
+                                                "java/lang/Integer", false, null))),
                                 new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint5 = new Endpoint("/prvni/uri/tridaNONSTATICtest",
                                 Set.of(HttpMethod.PUT), new HashSet<>(),
@@ -65,7 +68,8 @@ public class ProcessorTest {
                 final Endpoint endpoint8 = new Endpoint("/nejaka/uri/s/argumentem/{id}",
                                 Set.of(HttpMethod.POST), new HashSet<>(),
                                 Set.of(new EndpointRequestBody("java/lang/String", false)),
-                                Set.of(new EndpointParameter(null, "java/lang/Integer", false)),
+                                new HashSet<>(Set.of(new EndpointParameter(null,
+                                                "java/lang/Integer", false, null))),
                                 new HashSet<>(), new HashSet<>());
                 final Endpoint endpoint9 = new Endpoint("/test", HttpMethod.PUT)
                                 .addExpectedResponse(
@@ -167,7 +171,7 @@ public class ProcessorTest {
         @Test
         @DisplayName("Testing the compatiblity with Spring framework (WebClient class)")
         public void testWebClientSpring() {
-                File file = new File(classLoader.getResource("spring_webclient.jar").getFile());
+                File file = new File(classLoader.getResource("spring_webclient_v2.jar").getFile());
                 try {
                         springWebClientEndpoints = Processor.process(file);
                 } catch (IOException e) {

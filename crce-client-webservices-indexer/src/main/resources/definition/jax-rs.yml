@@ -193,4 +193,4 @@ apiCall:
         type: HEADER
         args:
           - - HEADERTYPE
-            - CONTENTTYPE
+            - HEADERVALUE
