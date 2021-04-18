@@ -232,13 +232,17 @@ apiCall:
   - class: org.springframework.web.reactive.function.client.WebClient
     methods:
       - name: get
-        type: GET
+        type: HTTPMETHOD
+        value: GET
       - name: post
-        type: POST
+        type: HTTPMETHOD
+        value: POST
       - name: put
-        type: PUT
+        type: HTTPMETHOD
+        value: PUT
       - name: delete
-        type: DELETE
+        type: HTTPMETHOD
+        value: DELETE
       - name: create
         type: BASEURL
         args:
@@ -248,15 +252,63 @@ apiCall:
   - class: org.springframework.web.reactive.function.client.WebClient$RequestBodyUriSpec
     methods:
       - name: uri
-        type: PATH
+        type: GENERIC
+        value: PATH
         args:
           - - PATH
             - PARAM
           - - PATH
       - name: accept
-        type: GENERIC
+        type: ACCEPT
+        value: Accept
         args:
           - - ACCEPT
+      - name: acceptCharset
+        type: ACCEPT
+        value: Accept-Charset
+        args:
+          - - ACCEPT
+      - name: attribute
+        type: PARAM
+        value: QUERY
+        args:
+          - - PARAMKEY
+            - PARAMVALUE
+      - name: attributes #SKIP
+        type: GENERIC
+      - name: context #SKIP
+        type: GENERIC
+      - name: cookie
+        type: PARAM
+        value: COOKIE
+        args:
+          - - PARAMKEY
+            - PARAMVALUE
+      - name: cookies
+        type: GENERIC #SKIP
+      - name: exchange
+        type: GENERIC #SKIP
+      - name: exchangeToFlux
+        type: GENERIC #SKIP
+      - name: exchangeToMono
+        type: GENERIC #SKIP
+      - name: header
+        type: GENERIC
+        args:
+          - - HEADERTYPE
+            - HEADERVALUE
+      - name: headers #SKIP
+        type: GENERIC
+      - name: httpRequest #SKIP
+        type: GENERIC
+      - name: ifModifiedSince #SKIP
+        type: GENERIC
+      - name: ifNoneMatch
+        type: HEADER
+        value: If-None-Match
+        args:
+          - - HEADERVALUE
+
   - class: org.springframework.web.reactive.function.client.WebClient$RequestBodySpec
     methods:
       - name: syncBody
@@ -274,11 +326,11 @@ apiCall:
         type: HEADER
         args:
           - - HEADERTYPE
-            - CONTENTTYPE
+            - HEADERVALUE
   - class: org.springframework.web.reactive.function.client.WebClient$RequestHeadersUriSpec
     methods:
       - name: uri
-        type: PATH
+        type: GENERIC
         args:
           - - PATH
             - PARAM

@@ -185,9 +185,13 @@ public class ArgTools {
     }
 
 
+    interface HandlePathParam {
 
-    public static Variable getEndpointDataFromContainer(Stack<Variable> values,
-            Operation operation) {
+        public void run(Map<String, Object> params, Variable var, Stack<Variable> args);
+    }
+
+    private static Variable getEndpointDataFromContainer(Stack<Variable> values,
+            Operation operation, HandlePathParam callback) {
         Stack<Variable> args = methodArgsFromValues(values, operation);
         EDataContainerMethodConfig methodConfig = eDataConfig.get(operation.getOwner())
                 .get(MethodTools.getMethodNameFromSignature(operation.getDescription()));
@@ -195,11 +199,71 @@ public class ArgTools {
         VarEndpointData varEndpointData = new VarEndpointData();
         Variable newEndpointData = new Variable(varEndpointData).setType(VariableType.ENDPOINTDATA)
                 .setOwner(operation.getOwner());
-        return newEndpointData.setValue(setParamsToEndpoint(params, varEndpointData));
+        // setEndpointParam(args, methodConfig, newEndpointData, category, params);
+        callback.run(params, newEndpointData, args);
+        return newEndpointData;
+    }
+
+    public static Variable setEndpointAttrFromContainer(Stack<Variable> values,
+            Operation operation) {
+        return getEndpointDataFromContainer(values, operation,
+                (Map<String, Object> params, Variable var,
+                        Stack<Variable> args) -> setParamsToEndpoint(params,
+                                (Endpoint) var.getValue()));
+    }
+
+    public static Variable setPathParamFromContainer(Stack<Variable> values,
+            EDataContainerMethodConfig methodConfig, Operation operation,
+            ParameterCategory category) {
+
+        return getEndpointDataFromContainer(values, operation,
+                (Map<String, Object> params, Variable var, Stack<Variable> args) -> setPathParam(
+                        args, methodConfig, var, category, params));
+    }
+
+
+    private static void setPathParam(Stack<Variable> args, EDataContainerMethodConfig methodConfig,
+            Variable var, ParameterCategory category, Map<String, Object> params) {
+
+        Object param = params.getOrDefault(ArgConfigType.PARAM.name(), null);
+        Object paramKey = params.getOrDefault(ArgConfigType.PARAMKEY.name(), null);
+        Object paramValue = params.getOrDefault(ArgConfigType.PARAMVALUE.name(), null);
+
+        if (param != null) {
+            handleAttr(param, (Endpoint) var.getValue(), (String p, Endpoint e) -> e
+                    .addParameter(new EndpointParameter(null, p, false, category)));
+            params.remove(ArgConfigType.PARAM.name());
+        } else if (paramKey != null && paramValue != null) {
+            handleAttrPair(paramKey, paramValue, (Endpoint) var.getValue(),
+                    (String pKey, String pValue, Endpoint e) -> e
+                            .addParameter(new EndpointParameter(null,
+                                    new Header(pKey, pValue).toString(), false, category)));
+            params.remove(ArgConfigType.PARAMKEY.name());
+            params.remove(ArgConfigType.PARAMVALUE.name());
+        }
+    }
+
+    public static Variable setPathParamFromArgs(Stack<Variable> values,
+            Set<ArrayList<ArgConfigType>> argDefs, Operation operation,
+            ParameterCategory category) {
+        EDataContainerMethodConfig methodConfig = eDataConfig.get(operation.getOwner())
+                .get(MethodTools.getMethodNameFromSignature(operation.getDescription()));
+        return setEndpointAttrFromArgs(values, argDefs, operation,
+                (Map<String, Object> params_, Variable var, Stack<Variable> args) -> {
+                    setPathParam(args, methodConfig, var, category, params_);
+                    var.setValue(setParamsToEndpoint(params_, (Endpoint) var.getValue()));
+                });
     }
 
     public static Variable setEndpointAttrFromArgs(Stack<Variable> values,
             Set<ArrayList<ArgConfigType>> argDefs, Operation operation) {
+        return setEndpointAttrFromArgs(values, argDefs, operation,
+                (Map<String, Object> params_, Variable var, Stack<Variable> args) -> var
+                        .setValue(setParamsToEndpoint(params_, (Endpoint) var.getValue())));
+    }
+
+    public static Variable setEndpointAttrFromArgs(Stack<Variable> values,
+            Set<ArrayList<ArgConfigType>> argDefs, Operation operation, HandlePathParam callback) {
         Stack<Variable> args = methodArgsFromValues(values, operation);
 
         Variable varEndpoint = Helpers.StackF.peekEndpoint(values);
@@ -212,7 +276,8 @@ public class ArgTools {
             return varEndpoint;
         }
         Map<String, Object> params = getParams(args, argDefs);
-        return varEndpoint.setValue(setParamsToEndpoint(params, (Endpoint) varEndpoint.getValue()));
+        callback.run(params, varEndpoint, args);
+        return varEndpoint;
     }
 
     private static Endpoint setParamsToEndpoint(Map<String, Object> params, Endpoint endpoint) {

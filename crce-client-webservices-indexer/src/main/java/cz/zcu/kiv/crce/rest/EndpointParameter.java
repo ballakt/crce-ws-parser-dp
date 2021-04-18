@@ -2,6 +2,7 @@ package cz.zcu.kiv.crce.rest;
 
 import java.io.Serializable;
 import java.util.Objects;
+import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 
 /**
@@ -14,11 +15,19 @@ public class EndpointParameter implements Serializable {
      */
     private static final long serialVersionUID = -6837202021942397888L;
 
+    private Header dataTypeH = null;
     private String name = "";
     private String dataType = ""; // T
     private boolean isArray = false;
 
     private ParameterCategory category;
+
+    public EndpointParameter(String name, Header dataType, boolean isArray,
+            ParameterCategory category) {
+        this(name, null, isArray);
+        this.category = category;
+        this.dataTypeH = dataType;
+    }
 
     public EndpointParameter(String name, String datatype, boolean isArray,
             ParameterCategory category) {
@@ -30,6 +39,20 @@ public class EndpointParameter implements Serializable {
         this.name = name != null ? name : "";
         this.dataType = datatype;
         this.isArray = isArray;
+    }
+
+    /**
+     * @return the dataTypeH
+     */
+    public Header getDataTypeH() {
+        return dataTypeH;
+    }
+
+    /**
+     * @param dataTypeH the dataTypeH to set
+     */
+    public void setDataTypeH(Header dataTypeH) {
+        this.dataTypeH = dataTypeH;
     }
 
     public EndpointParameter() {
@@ -68,11 +91,6 @@ public class EndpointParameter implements Serializable {
         isArray = array;
     }
 
-    /*
-     * @Override public boolean equals(Object obj) { // TODO Auto-generated method stub return
-     * super.equals(obj); }
-     */
-
     @Override
     public int hashCode() {
         return Objects.hash(name, dataType, isArray, category);
@@ -87,7 +105,9 @@ public class EndpointParameter implements Serializable {
                     dataType == eParam.getDataType() || dataType.equals(eParam.getDataType());
             final boolean isArrayEq = isArray == eParam.isArray();
             final boolean categoryEq = category == eParam.getCategory();
-            return nameEq && dataTypeEq && isArrayEq && categoryEq;
+            final boolean dataTypeHEq =
+                    dataTypeH == eParam.getDataTypeH() || dataTypeH.equals(eParam.getDataTypeH());
+            return nameEq && dataTypeEq && isArrayEq && categoryEq && dataTypeHEq;
         }
         return false;
     }

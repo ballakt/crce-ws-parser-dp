@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import cz.zcu.kiv.crce.classmodel.structures.Operation;
+import cz.zcu.kiv.crce.rest.ParameterCategory;
 import cz.zcu.kiv.crce.classmodel.definition.ConfigTools;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerConfigMap;
+import cz.zcu.kiv.crce.classmodel.definition.EDataContainerMethodConfig;
 import cz.zcu.kiv.crce.classmodel.definition.ApiCallMethodType;
 import cz.zcu.kiv.crce.classmodel.definition.EnumConfigMap;
 import cz.zcu.kiv.crce.classmodel.definition.EnumFieldOrMethodConfig;
@@ -38,7 +40,7 @@ class EndpointHandler extends MethodProcessor {
     @Override
     protected void processINVOKESTATIC(Stack<Variable> values, Operation operation) {
         if (eDataConfig.containsKey(operation.getOwner())) {
-            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            Variable newEndointData = ArgTools.setEndpointAttrFromContainer(values, operation);
             values.push(newEndointData);
             return;
         }
@@ -49,7 +51,7 @@ class EndpointHandler extends MethodProcessor {
     protected void processINVOKESPECIAL(Stack<Variable> values, Operation operation) {
         if (eDataConfig.containsKey(operation.getOwner())) {
             // TODO: new
-            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            Variable newEndointData = ArgTools.setEndpointAttrFromContainer(values, operation);
             mergeVarEndpointData(values, newEndointData);
             return;
         } else if (MethodTools.getType(operation.getDescription()) == MethodType.INIT) {
@@ -93,7 +95,7 @@ class EndpointHandler extends MethodProcessor {
     protected void processINVOKEVIRTUAL(Stack<Variable> values, Operation operation) {
         if (eDataConfig.containsKey(operation.getOwner())) {
             // TODO: new
-            Variable newEndointData = ArgTools.getEndpointDataFromContainer(values, operation);
+            Variable newEndointData = ArgTools.setEndpointAttrFromContainer(values, operation);
             mergeVarEndpointData(values, newEndointData);
             return;
         } else {
@@ -115,10 +117,35 @@ class EndpointHandler extends MethodProcessor {
     private void processHTTPMetod(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
             ApiCallMethodType type, Operation operation) {
         processGENERIC(values, methodDefinition, operation);
-        HttpMethod eType = HttpMethod.values()[type.ordinal()];
+        HttpMethod eType = HttpMethod.valueOf(methodDefinition.getValue());
         Endpoint endpoint = (Endpoint) Helpers.StackF.peekEndpoint(values).getValue();
         endpoint.addHttpMethod(eType);
     }
+
+    private void processPathParam(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
+            Operation operation) {
+        Variable varEndpoint = ArgTools.setPathParamFromArgs(values, methodDefinition.getArgs(),
+                operation, ParameterCategory.valueOf(methodDefinition.getValue()));
+        if (varEndpoint != null) {
+            Helpers.EndpointF.merge(endpoints, (Endpoint) varEndpoint.getValue());
+        }
+    }
+
+    private void processPathParamEDataContainer(Stack<Variable> values,
+            EDataContainerMethodConfig methodDefinition, Operation operation) {
+        ParameterCategory category = ParameterCategory.valueOf(methodDefinition.getValue());
+        Variable varEndpoint =
+                ArgTools.setPathParamFromContainer(values, methodDefinition, operation, category);
+        mergeVarEndpointData(values, varEndpoint);
+    }
+
+    private void processPathParamEDataContainerGENERIC(Stack<Variable> values,
+            EDataContainerMethodConfig methodDefinition, Operation operation) {
+        Variable varEndpoint = ArgTools.setEndpointAttrFromContainer(values, operation);
+        mergeVarEndpointData(values, varEndpoint);
+    }
+
+
 
     private void processGETFIELDLibEnum(Stack<Variable> values, Operation operation) {
         if (ed.containsKey(operation.getOwner())) {
@@ -183,8 +210,30 @@ class EndpointHandler extends MethodProcessor {
                 case HEADER:
                     processGENERIC(values, methodDefinition, operation);
                     break;
-                default:
+                case HTTPMETHOD:
                     processHTTPMetod(values, methodDefinition, type, operation);
+                    break;
+                case PARAM:
+                    processPathParam(values, methodDefinition, operation);
+                default:;
+
+            }
+        } else if (eDataConfig.containsKey(operation.getOwner())) {
+            HashMap<String, EDataContainerMethodConfig> methodDefinitionMap =
+                    eDataConfig.get(operation.getOwner());
+            final String mName = MethodTools.getMethodNameFromSignature(operation.getDescription());
+            if (!methodDefinitionMap.containsKey(mName)) {
+                return;
+            }
+            EDataContainerMethodConfig methodDefinition = methodDefinitionMap.get(mName);
+
+            switch (methodDefinition.getType()) {
+                case PARAM:
+                    processPathParamEDataContainer(values, methodDefinition, operation);
+                    break;
+                case GENERIC:
+                    processPathParamEDataContainerGENERIC(values, methodDefinition, operation);
+                default:;
             }
         } else {
             super.processCALL(operation, values);

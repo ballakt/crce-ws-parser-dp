@@ -1,8 +1,6 @@
 package cz.zcu.kiv.crce.classmodel.processor;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import cz.zcu.kiv.crce.classmodel.definition.Header;

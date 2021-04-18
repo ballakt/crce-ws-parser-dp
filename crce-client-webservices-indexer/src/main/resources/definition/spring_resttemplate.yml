@@ -2,13 +2,16 @@ endpointDataContainers:
   - class: org.springframework.http.HttpHeaders
     methods:
       - name: add
+        type: GENERIC
         args:
           - - HEADERTYPE
             - HEADERVALUE
       - name: init
+        type: GENERIC
   - class: org.springframework.http.HttpEntity
     methods:
       - name: init
+        type: GENERIC
         args:
           - - SKIP
             - EDATA
@@ -162,19 +165,22 @@ apiCall:
   - class: org.springframework.web.client.RestTemplate
     methods:
       - name: delete
-        type: DELETE
+        type: HTTPMETHOD
+        value: DELETE
         args:
           - - PATH
             - PARAM
           - - PATH
       - name: put
-        type: PUT
+        type: HTTPMETHOD
+        value: PUT
         args:
           - - PATH
             - PARAM
           - - PATH
       - name: getForEntity
-        type: GET
+        type: HTTPMETHOD
+        value: GET
         args:
           - - PATH
             - EXPECT
@@ -182,7 +188,8 @@ apiCall:
           - - PATH
             - EXPECT
       - name: getForObject
-        type: GET
+        type: HTTPMETHOD
+        value: GET
         args:
           - - PATH
             - EXPECT
@@ -190,19 +197,22 @@ apiCall:
           - - PATH
             - EXPECT
       - name: headForHeaders
-        type: HEAD
+        type: HTTPMETHOD
+        value: HEAD
         args:
           - - PATH
             - PARAM
           - - PATH
       - name: optionsForAllow
-        type: OPTIONS
+        type: HTTPMETHOD
+        method: OPTIONS
         args:
           - - PATH
             - PARAM
           - - PATH
       - name: patchForObject
-        type: PATCH
+        type: HTTPMETHOD
+        value: PATCH
         args:
           - - PATH
             - SEND
@@ -212,14 +222,16 @@ apiCall:
             - SEND
             - EXPECT
       - name: patchForEntity
-        type: PATCH
+        type: HTTPMETHOD
+        value: PATCH
         args:
           - - PATH
             - SEND
             - EXPECT
             - PARAM
       - name: postForObject
-        type: POST
+        type: HTTPMETHOD
+        value: POST
         args:
           - - PATH
             - SEND
@@ -229,7 +241,8 @@ apiCall:
             - SEND
             - EXPECT
       - name: postForEntity
-        type: POST
+        type: HTTPMETHOD
+        value: POST
         args:
           - - PATH
             - SEND
@@ -240,7 +253,8 @@ apiCall:
             - EXPECT
 
       - name: postForLocation
-        type: POST
+        type: HTTPMETHOD
+        value: POST
         args:
           - - PATH
             - SEND

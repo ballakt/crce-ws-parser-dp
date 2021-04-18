@@ -8,11 +8,28 @@ public class ApiCallMethodConfig {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("value")
+    private String value;
+
+    /**
+     * @return the value
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * @param value the value to set
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     @JsonProperty("args")
     private Set<ArrayList<ArgConfigType>> args;
 
     @JsonProperty("type")
-    private ApiCallMethodType type;
+    protected ApiCallMethodType type;
 
     /**
      * @return the name
