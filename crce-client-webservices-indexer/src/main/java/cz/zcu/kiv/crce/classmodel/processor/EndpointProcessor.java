@@ -103,6 +103,14 @@ class EndpointHandler extends MethodProcessor {
         }
     }
 
+    private void processHEADER(Stack<Variable> values, ApiCallMethodConfig methodConfig,
+            Operation operation) {
+        Variable varEndpoint = ArgTools.setHeaderParamFromArgs(values, methodConfig, operation);
+        if (varEndpoint != null) {
+            Helpers.EndpointF.merge(endpoints, (Endpoint) varEndpoint.getValue());
+        }
+    }
+
     private void processGENERIC(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
             Operation operation) {
         Variable varEndpoint =
@@ -120,6 +128,9 @@ class EndpointHandler extends MethodProcessor {
         HttpMethod eType = HttpMethod.valueOf(methodDefinition.getValue());
         Endpoint endpoint = (Endpoint) Helpers.StackF.peekEndpoint(values).getValue();
         endpoint.addHttpMethod(eType);
+        if (endpoint != null) {
+            Helpers.EndpointF.merge(endpoints, endpoint);
+        }
     }
 
     private void processPathParam(Stack<Variable> values, ApiCallMethodConfig methodDefinition,
@@ -183,16 +194,18 @@ class EndpointHandler extends MethodProcessor {
     @Override
     protected void processCALL(Operation operation, Stack<Variable> values) {
 
+
         if (md.containsKey(operation.getOwner())) {
+
 
             HashMap<String, ApiCallMethodConfig> methodDefinitionMap = md.get(operation.getOwner());
             if (!methodDefinitionMap.containsKey(operation.getMethodName())) {
+                removeMethodArgsFromStack(values, operation);
                 return;
             }
             ApiCallMethodConfig methodDefinition =
                     methodDefinitionMap.get(operation.getMethodName());
             ApiCallMethodType type = methodDefinition.getType();
-
             switch (type) {
                 case INIT:
                     values.push(new Variable().setType(VariableType.ENDPOINT));
@@ -205,9 +218,6 @@ class EndpointHandler extends MethodProcessor {
                 case EXCHANGE:
                 case GENERIC:
                 case CONTENTTYPE:
-                case ACCEPT:
-                case HEADERTYPE:
-                case HEADER:
                     processGENERIC(values, methodDefinition, operation);
                     break;
                 case HTTPMETHOD:
@@ -215,7 +225,13 @@ class EndpointHandler extends MethodProcessor {
                     break;
                 case PARAM:
                     processPathParam(values, methodDefinition, operation);
-                default:;
+                    break;
+                case HEADER:
+                case ACCEPT:
+                    processHEADER(values, methodDefinition, operation);
+                    break;
+                default:
+                    removeMethodArgsFromStack(values, operation);
 
             }
         } else if (eDataConfig.containsKey(operation.getOwner())) {
@@ -245,6 +261,9 @@ class EndpointHandler extends MethodProcessor {
      */
     @Override
     public void process(MethodWrapper method) {
+        if (method.getMethodStruct().getName().equals("gettingAndPostingCustomers")) {
+            System.out.println("TEST");
+        }
         super.process(method);
     }
 

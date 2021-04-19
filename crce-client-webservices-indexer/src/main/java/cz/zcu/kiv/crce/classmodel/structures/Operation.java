@@ -115,7 +115,8 @@ public class Operation {
     @Override
     public String toString() {
         return description + ": " + type + "(opcode=" + opcode + ", name=" + this.getMethodName()
-                + ", value=" + value + "), " + (desc == null ? "" : desc);
+                + ", value=" + value + "), " + (desc == null ? "" : desc) + ", description="
+                + description;
     }
 
     public int getOpcode() {

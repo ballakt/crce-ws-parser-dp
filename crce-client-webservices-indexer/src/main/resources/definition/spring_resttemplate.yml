@@ -17,6 +17,8 @@ endpointDataContainers:
             - EDATA
 generics:
   - org.springframework.core.ParameterizedTypeReference
+  - org.springframework.web.client.ResponseExtractor
+  - org.springframework.http.RequestEntity
 enums:
   - class: org.springframework.http.HttpMethod
     fields:
@@ -171,13 +173,28 @@ apiCall:
           - - PATH
             - PARAM
           - - PATH
-      - name: put
-        type: HTTPMETHOD
-        value: PUT
+      - name: doExecute
+        type: GENERIC
         args:
           - - PATH
+            - HTTPMETHOD
+            - SKIP
+            - EXPECT
+      - name: exchange
+        type: GENERIC
+        args:
+          - - SEND
+            - EXPECT
+          - - PATH
+            - HTTPMETHOD
+            - EDATA
+            - EXPECT
             - PARAM
           - - PATH
+            - HTTPMETHOD
+            - EDATA
+            - EXPECT
+
       - name: getForEntity
         type: HTTPMETHOD
         value: GET
@@ -196,6 +213,9 @@ apiCall:
             - PARAM
           - - PATH
             - EXPECT
+      - name: headersExtractor
+        type: HTTPMETHOD
+        value: HEAD
       - name: headForHeaders
         type: HTTPMETHOD
         value: HEAD
@@ -205,7 +225,7 @@ apiCall:
           - - PATH
       - name: optionsForAllow
         type: HTTPMETHOD
-        method: OPTIONS
+        value: OPTIONS
         args:
           - - PATH
             - PARAM
@@ -213,25 +233,6 @@ apiCall:
       - name: patchForObject
         type: HTTPMETHOD
         value: PATCH
-        args:
-          - - PATH
-            - SEND
-            - EXPECT
-            - PARAM
-          - - PATH
-            - SEND
-            - EXPECT
-      - name: patchForEntity
-        type: HTTPMETHOD
-        value: PATCH
-        args:
-          - - PATH
-            - SEND
-            - EXPECT
-            - PARAM
-      - name: postForObject
-        type: HTTPMETHOD
-        value: POST
         args:
           - - PATH
             - SEND
@@ -251,7 +252,6 @@ apiCall:
           - - PATH
             - SEND
             - EXPECT
-
       - name: postForLocation
         type: HTTPMETHOD
         value: POST
@@ -260,12 +260,24 @@ apiCall:
             - SEND
             - PARAM
           - - PATH
-            - SKIP
-      - name: exchange
-        type: EXCHANGE
+            - SEND
+      - name: postForObject
+        type: HTTPMETHOD
+        value: POST
         args:
           - - PATH
-            - HTTPMETHOD
-            - EDATA
+            - SEND
             - EXPECT
             - PARAM
+          - - PATH
+            - SEND
+            - EXPECT
+      - name: put
+        type: HTTPMETHOD
+        value: PUT
+        args:
+          - - PATH
+            - SEND
+            - EXPECT
+          - - PATH
+            - SEND

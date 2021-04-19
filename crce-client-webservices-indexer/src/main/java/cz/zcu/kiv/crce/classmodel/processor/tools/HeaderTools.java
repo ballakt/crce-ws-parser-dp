@@ -3,7 +3,8 @@ package cz.zcu.kiv.crce.classmodel.processor.tools;
 public class HeaderTools {
     private static final String ACCEPT = "Accept";
 
-    public static final String CONTENTTYPE = "Content-Type";
+    private static String CONTENTBASE = "Content";
+    public static final String CONTENTTYPE = CONTENTBASE + "-Type";
 
     public static boolean isConsumingType(String headerType) {
         return headerType.startsWith(ACCEPT);

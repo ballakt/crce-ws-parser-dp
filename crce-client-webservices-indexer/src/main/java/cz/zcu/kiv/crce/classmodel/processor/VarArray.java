@@ -29,6 +29,10 @@ public class VarArray {
         for (String item : value) {
             toStringVal += item + delimeter;
         }
+        int finalSize = toStringVal.length() - delimeter.length();
+        if (finalSize <= 0) {
+            return "{}";
+        }
         toStringVal = toStringVal.substring(0, toStringVal.length() - delimeter.length());
         return toStringVal;
     }

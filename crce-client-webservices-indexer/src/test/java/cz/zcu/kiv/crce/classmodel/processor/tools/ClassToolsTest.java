@@ -3,6 +3,7 @@ package cz.zcu.kiv.crce.classmodel.processor.tools;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ public class ClassToolsTest {
                                 "Lorg/springframework/web/reactive/function/client/WebClient$1.<init>-(Lcom/app/demo/service/ApiService;)V-false;";
                 final String initWithoutDollarSignAndParams =
                                 "Lorg/springframework/web/reactive/function/client/WebClient.<init>-()V-false;";
+
 
                 baseDescriptionVersions = new String[] {baseDescription, withSemi, withIdent,
                                 withSemiIdent, withArg, withEmptyArg, initLike,

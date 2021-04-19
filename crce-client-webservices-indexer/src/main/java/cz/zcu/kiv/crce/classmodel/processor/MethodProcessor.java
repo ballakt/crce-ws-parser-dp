@@ -72,6 +72,7 @@ public class MethodProcessor extends BasicProcessor {
             this.stringOP = Helpers.StringC.OperationType.APPEND;
         } else {
             handleAccessingObject(values, operation);
+            removeMethodArgsFromStack(values, operation);
             if (!this.classes.containsKey(operation.getOwner())) {
                 return;
             }
@@ -101,6 +102,7 @@ public class MethodProcessor extends BasicProcessor {
     }
 
     protected void processINVOKEINTERFACE(Stack<Variable> values, Operation operation) {
+        removeMethodArgsFromStack(values, operation);
         handleAccessingObject(values, operation);
     }
 
@@ -122,12 +124,12 @@ public class MethodProcessor extends BasicProcessor {
             this.process(methodWrapper);
         }
         Variable newVar = new Variable();
-        // TODO: check if var is simple
         if (ClassTools.isPrimitive(methodWrapper.getDescription())) {
             newVar.setType(VariableType.SIMPLE);
         } else {
             newVar.setType(VariableType.OTHER);
         }
+        removeMethodArgsFromStack(values, operation);
         newVar.setValue(method.getReturnValue());
         values.push(newVar);
     }
@@ -136,7 +138,7 @@ public class MethodProcessor extends BasicProcessor {
      * Process CALL operation (toString, append - operation with Strings)
      * 
      * @param operation Operation to be handled
-     * @param values    String values
+     * @param values String values
      */
     protected void processCALL(Operation operation, Stack<Variable> values) {
         switch (operation.getOpcode()) {
@@ -159,8 +161,8 @@ public class MethodProcessor extends BasicProcessor {
      * Processes return values of each method and sets its return value
      * 
      * @param methodWrapper Method to be processed
-     * @param operation     Explicit operation
-     * @param values        String values
+     * @param operation Explicit operation
+     * @param values String values
      */
     protected void processRETURN(MethodWrapper methodWrapper, Operation operation,
             Stack<Variable> values) {

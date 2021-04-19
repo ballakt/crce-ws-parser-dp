@@ -114,8 +114,20 @@ public class EndpointParameter implements Serializable {
 
     @Override
     public String toString() {
+        String dateTypeObj = ", \"dateType\": ";
+        if (dataType == null || dataTypeH == null) {
+            if (dataType != null && !dataType.isEmpty()) {
+                dateTypeObj += ToStringTools.objToString(dataType);
+            } else if (dataTypeH != null) {
+                dateTypeObj += dataTypeH;
+            } else {
+                dateTypeObj = "";
+            }
+        }
+        System.out.println("DATA=" + dataType);
+        System.out.println("DATATYPE=" + dataTypeH);
         return "{" + "\"name\": " + ToStringTools.objToString(getName()) + ", \"category\": "
-                + ToStringTools.objToString(getCategory()) + ", \"dataType\": "
-                + ToStringTools.objToString(getDataType()) + ", \"isArray\": " + isArray() + "}";
+                + ToStringTools.objToString(getCategory()) + dateTypeObj + ", \"isArray\": "
+                + isArray() + "}";
     }
 }

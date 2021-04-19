@@ -66,7 +66,7 @@ public class Variable {
 
     @Override
     public String toString() {
-        return value.toString();
+        return value != null ? value.toString() : "";
     }
 
     public void add(String newString) {

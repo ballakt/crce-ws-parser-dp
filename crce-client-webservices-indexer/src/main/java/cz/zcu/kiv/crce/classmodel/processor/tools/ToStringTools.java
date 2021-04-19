@@ -21,11 +21,13 @@ public class ToStringTools {
                     .writeValueAsString(mapper.readValue(notIndentedJSON, Object.class));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            System.out.println(notIndentedJSON);
         }
         return "";
     }
 
     public static <T> String setToString(Set<T> set) {
+
         String stringified = "[";
         for (T item : set) {
             if (item instanceof String || item instanceof Enum) {
@@ -44,6 +46,9 @@ public class ToStringTools {
     public static String objToString(Object obj) {
         if (obj == null) {
             return null;
+        }
+        if (obj instanceof String && ((String) obj).startsWith("{")) {
+            return (String) obj;
         }
         return "\"" + obj + "\"";
     }

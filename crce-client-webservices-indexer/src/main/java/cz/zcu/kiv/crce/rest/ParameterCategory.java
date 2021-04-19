@@ -9,6 +9,7 @@ public enum ParameterCategory {
     MATRIX, // www.example.com/context/resource;matrixParam=paramValue
     PATH, // www.example.com/context/resource/pathParamValue
     FORM, // in request body: formParamName=formParamValue
+    BODY, // request body
     HEADER, // request/response header
     COOKIE; // request/response cookie (represented by Cookie and Set-Cookie headers)
 }

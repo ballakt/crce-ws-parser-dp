@@ -161,46 +161,84 @@ apiCall:
           - - BASEURL
   - class: javax.ws.rs.client.WebTarget
     methods:
-      - name: path
-        type: GENERIC
-        args:
-          - - PATH
       - name: matrixParam
         type: PARAM
         value: MATRIX
         args:
           - - PARAMKEY
-          - - PARAMVALUE
+            - PARAMVALUE
+      - name: path
+        type: GENERIC
+        args:
+          - - PATH
       - name: queryParam
         type: PARAM
         value: QUERY
         args:
           - - PARAMKEY
-          - - PARAMVALUE
+            - PARAMVALUE
+      - name: request
+        type: HEADER
+        value: Accept
+        args:
+          - - HEADERVALUE
   - class: javax.ws.rs.client.Invocation$Builder
     methods:
-      - name: get
+      - name: accept
+        type: HEADER
+        value: Accept
+        args:
+          - - HEADERVALUE
+      - name: acceptEncoding
+        type: HEADER
+        value: Accept-Encoding
+        args:
+          - - HEADERVALUE
+      - name: acceptLanguage
+        type: HEADER
+        value: Accept-Language
+        args:
+          - - HEADERVALUE
+      - name: build
+        type: GENERIC
+        args:
+          - - SKIP
+            - EDATA
+      - name: buildDelete
+        type: HTTPMETHOD
+        value: DELETE
+      - name: buildGet
         type: HTTPMETHOD
         value: GET
-        args:
-          - - EXPECT
-      - name: put
-        type: HTTPMETHOD
-        value: PUT
-        args:
-          - - SEND
-          - - SEND
-            - EXPECT
-      - name: post
+      - name: buildPost
         type: HTTPMETHOD
         value: POST
         args:
-          - - SEND
-          - - SEND
-            - EXPECT
+          - - EDATA
+      - name: buildPut
+        type: HTTPMETHOD
+        value: PUT
+        args:
+          - - EDATA
+      - name: cookie
+        type: HEADER
+        value: COOKIE
+        args:
+          - - HEADERTYPE
+            - HEADERVALUE
+      - name: header
+        type: GENERIC
+        args:
+          - - HEADERTYPE
+            - HEADERVALUE
       - name: delete
         type: HTTPMETHOD
         value: DELETE
+        args:
+          - - EXPECT
+      - name: get
+        type: HTTPMETHOD
+        value: GET
         args:
           - - EXPECT
       - name: head
@@ -211,23 +249,31 @@ apiCall:
         value: OPTIONS
         args:
           - - EXPECT
+      - name: post
+        type: HTTPMETHOD
+        value: POST
+        args:
+          - - SEND
+          - - SEND
+            - EXPECT
+      - name: put
+        type: HTTPMETHOD
+        value: PUT
+        args:
+          - - EDATA
+            - EXPECT
+          - - EDATA
       - name: trace
         type: HTTPMETHOD
         value: TRACE
         args:
           - - EXPECT
-      - name: accept
-        type: ACCEPT
+      - name: method
+        type: GENERIC
         args:
-          - - ACCEPT
-      - name: header
-        type: HEADER
-        args:
-          - - HEADERTYPE
-            - HEADERVALUE
-      - name: cookie
-        type: PARAM
-        value: COOKIE
-        args:
-          - - PARAMKEY
-          - - PARAMVALUE
+          - - SKIP
+          - - SKIP
+            - EXPECT
+          - - SKIP
+            - SEND
+            - EXPECT

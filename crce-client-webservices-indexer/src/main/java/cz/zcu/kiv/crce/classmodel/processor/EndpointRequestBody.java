@@ -19,8 +19,7 @@ public class EndpointRequestBody implements Serializable {
         this.isArray = isArray;
     }
 
-    public EndpointRequestBody() {
-    }
+    public EndpointRequestBody() {}
 
     public String getStructure() {
         return structure;

@@ -18,6 +18,7 @@ import cz.zcu.kiv.crce.classmodel.structures.Field;
 public class ClassTools {
     private static final String descrOwnerRegexp = "^((\\((\\w|\\/|;)*\\)\\[?)?[A-Z])";
     private static final String descrOwnerRegexpEnd = "((\\$|\\.).*)";
+    private static final String descrClassNameRegexpEnd = "((\\.).*)";
     private static final String methodSetGetPrefixRegExp = "^(set)";
     private static final String baseTypeRegex = "[BCDFIJSZ]";
     private static final Pattern baseTypePattern = Pattern.compile(baseTypeRegex);
@@ -48,6 +49,12 @@ public class ClassTools {
     public static String descriptionToOwner(String description) {
         String output = description.replaceFirst(descrOwnerRegexp, "")
                 .replaceAll(descrOwnerRegexpEnd, "").replaceAll(";", "");
+        return output;
+    }
+
+    public static String descriptionToClassName(String description) {
+        String output = description.replaceFirst(descrOwnerRegexp, "")
+                .replaceAll(descrClassNameRegexpEnd, "").replaceAll(";", "").replace("$", ".");
         return output;
     }
 
@@ -85,7 +92,8 @@ public class ClassTools {
                     } else {
                         types.push(innerType.replaceFirst("L", "").replace(";", ""));
                     }
-                    String outerType = signature.replaceFirst("<" + innerType + ">", "");
+                    String remove = "<" + innerType + ">";
+                    String outerType = signature.replace(remove, "");
                     processTypes(outerType, types);
                 }
             }

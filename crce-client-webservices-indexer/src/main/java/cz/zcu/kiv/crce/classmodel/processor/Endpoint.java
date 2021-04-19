@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import cz.zcu.kiv.crce.classmodel.definition.Header;
+import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
 import cz.zcu.kiv.crce.classmodel.processor.tools.HeaderTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.ToStringTools;
 import cz.zcu.kiv.crce.classmodel.processor.tools.UrlTools;
@@ -86,7 +87,12 @@ public class Endpoint implements Serializable {
     }
 
     public Endpoint addParameter(EndpointParameter param) {
-        parameters.add(param);
+        if (param.getCategory() == ParameterCategory.BODY) {
+            addRequestBody(new EndpointRequestBody(param.getDataType(),
+                    BytecodeDescriptorsProcessor.isArrayOrCollection(param.getDataType())));
+        } else {
+            parameters.add(param);
+        }
         return this;
     }
 
@@ -124,8 +130,7 @@ public class Endpoint implements Serializable {
             this.addProduces(header);
         } else {
             // some other header attrs
-            this.addParameter(new EndpointParameter(null, header.getValue(), false,
-                    ParameterCategory.HEADER));
+            this.addParameter(new EndpointParameter(null, header, false, ParameterCategory.HEADER));
         }
     }
 

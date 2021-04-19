@@ -43,9 +43,10 @@ public class ProcessorTest {
                                 Set.of(HttpMethod.PUT, HttpMethod.DELETE),
                                 Set.of(new EndpointRequestBody(
                                                 "com/baeldung/reactive/model/Employee", false)),
-                                Set.of(new EndpointRequestBody(
-                                                "com/baeldung/reactive/model/Employee", false),
-                                                new EndpointRequestBody("java/lang/String", false)),
+                                Set.of(new EndpointRequestBody("java/lang/String", false),
+                                                new EndpointRequestBody(
+                                                                "com/baeldung/reactive/model/Employee",
+                                                                false)),
                                 new HashSet<>(Set.of(new EndpointParameter(null,
                                                 "java/lang/Integer", false, null))),
                                 new HashSet<>(), new HashSet<>());
@@ -76,7 +77,7 @@ public class ProcessorTest {
                                                 new EndpointRequestBody("java/lang/String", false))
                                 .addConsumes(new Header("Accept", "application/json"));
                 final Endpoint endpoint10 = new Endpoint("/accept", HttpMethod.PUT)
-                                .setConsumes(Set.of(new Header("Content-Type", "application/json")))
+                                .setConsumes(Set.of(new Header("Accept", "application/json")))
                                 .addProduces(new Header("Content-Type", "application/json"))
                                 .addExpectedResponse(
                                                 new EndpointRequestBody("java/lang/String", false));

@@ -57,7 +57,7 @@ public class BasicProcessor {
      * Processes operations with fields of concrete class
      * 
      * @param operation Operation performed on field
-     * @param values    String values
+     * @param values String values
      */
     protected void processFIELD(Operation operation, Stack<Variable> values) {
         switch (operation.getOpcode()) {
@@ -87,7 +87,7 @@ public class BasicProcessor {
      * Processes constants like String, Integer, Float...
      * 
      * @param operation Operation create constant
-     * @param values    String values
+     * @param values String values
      */
     protected void processCONSTANT(Operation operation, Stack<Variable> values) {
         String newValue = operation.getValue() != null ? operation.getValue().toString() : null;
@@ -104,9 +104,9 @@ public class BasicProcessor {
     /**
      * Stores values into local variables aka const pool
      * 
-     * @param method    Method which includes concrete const pool
+     * @param method Method which includes concrete const pool
      * @param operation Operation for storing into variable
-     * @param values    String values
+     * @param values String values
      */
     protected void processSTORE(MethodWrapper method, Operation operation, Stack<Variable> values) {
         // ConstPool constPool = method.getConstPool();
@@ -131,7 +131,8 @@ public class BasicProcessor {
         Variable arrayItem = Helpers.StackF.pop(values);
         Variable array = Helpers.StackF.pop(values);
         if (arrayItem == null || VariableTools.isEmpty(array)
-                || array.getType() != VariableType.ARRAY) {
+                || array.getType() != VariableType.ARRAY || !(array.getValue() instanceof VarArray)
+                || (arrayItem.getValue() instanceof VarArray)) {
             return;
         }
         VarArray varArray = (VarArray) array.getValue();
@@ -144,9 +145,9 @@ public class BasicProcessor {
     /**
      * Loads value from constant pool into values stack
      * 
-     * @param method    Method where is Load performed
+     * @param method Method where is Load performed
      * @param operation Loading operation
-     * @param values    String values
+     * @param values String values
      */
     protected void processLOAD(MethodWrapper method, Operation operation, Stack<Variable> values) {
         VariablesContainer variables = method.getVariables();
@@ -196,9 +197,9 @@ public class BasicProcessor {
     /**
      * Processes operation of given method and stores/modifies values holder
      * 
-     * @param method    Method where is operation performed
+     * @param method Method where is operation performed
      * @param operation Concrete operation
-     * @param values    String values
+     * @param values String values
      */
     protected void processOperation(MethodWrapper method, Operation operation,
             Stack<Variable> values) {

@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import cz.zcu.kiv.crce.classmodel.definition.ApiCallMethodConfig;
 import cz.zcu.kiv.crce.classmodel.definition.ArgConfigType;
 import cz.zcu.kiv.crce.classmodel.definition.ConfigTools;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerConfigMap;
 import cz.zcu.kiv.crce.classmodel.definition.EDataContainerMethodConfig;
 import cz.zcu.kiv.crce.classmodel.definition.Header;
+import cz.zcu.kiv.crce.classmodel.definition.MethodConfigMap;
 import cz.zcu.kiv.crce.classmodel.extracting.BytecodeDescriptorsProcessor;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint;
 import cz.zcu.kiv.crce.classmodel.processor.EndpointRequestBody;
@@ -28,15 +31,11 @@ import cz.zcu.kiv.crce.rest.ParameterCategory;
 
 public class ArgTools {
 
-    private static final String ACCEPT = "Accept";
     private static EDataContainerConfigMap eDataConfig = ConfigTools.getEDataContainerConfigMap();
+    private static MethodConfigMap md = ConfigTools.getMethodDefinitions();
 
     private static boolean isURI(Object uri) {
         return (uri instanceof String);
-    }
-
-    private static boolean isAcceptance(String headerType) {
-        return headerType.startsWith(ACCEPT);
     }
 
     /**
@@ -94,6 +93,8 @@ public class ArgTools {
                         output.put(definition.name(), arrayCasted.getInnerArray());
                     } else if (val instanceof VarEndpointData) {
                         output.put(definition.name(), val);
+                    } else if (val instanceof Endpoint) {
+                        output.put(definition.name(), val);
                     } else {
                         output.put(definition.name(), getStringValueVar(var));
                     }
@@ -107,14 +108,14 @@ public class ArgTools {
     private static void addParamToEndpoint(String param, Endpoint endpoint) {
         EndpointParameter newParam = new EndpointParameter();
         newParam.setArray(BytecodeDescriptorsProcessor.isArrayOrCollection(param));
-        newParam.setDataType(ClassTools.descriptionToOwner(param));
+        newParam.setDataType(ClassTools.descriptionToClassName(param));
         endpoint.addParameter(newParam);
     }
 
     private static void addExpectedResponseToEndpoint(String response, Endpoint endpoint) {
         EndpointRequestBody responseBody = new EndpointRequestBody();
         responseBody.setArray(BytecodeDescriptorsProcessor.isArrayOrCollection(response));
-        response = ClassTools.descriptionToOwner(response);
+        response = ClassTools.descriptionToClassName(response);
         responseBody.setStructure(response);
         endpoint.addExpectedResponse(responseBody);
     }
@@ -125,7 +126,7 @@ public class ArgTools {
         }
         EndpointRequestBody requestBody = new EndpointRequestBody();
         requestBody.setArray(BytecodeDescriptorsProcessor.isArrayOrCollection(rBody));
-        rBody = ClassTools.descriptionToOwner(rBody);
+        rBody = ClassTools.descriptionToClassName(rBody);
         requestBody.setStructure(rBody);
         endpoint.addRequestBody(requestBody);
     }
@@ -222,7 +223,29 @@ public class ArgTools {
     }
 
 
-    private static void setPathParam(Stack<Variable> args, EDataContainerMethodConfig methodConfig,
+    public static Variable setHeaderParamFromArgs(Stack<Variable> values,
+            ApiCallMethodConfig methodConfig, Operation operation) {
+
+        return setEndpointAttrFromArgs(values, methodConfig.getArgs(), operation,
+                (Map<String, Object> params_, Variable var, Stack<Variable> args) -> {
+                    setHeaderParams(args, methodConfig, var, params_);
+                    var.setValue(setParamsToEndpoint(params_, (Endpoint) var.getValue()));
+                });
+    }
+
+
+    private static void setHeaderParams(Stack<Variable> args, ApiCallMethodConfig methodConfig,
+            Variable var, Map<String, Object> params) {
+        String headerType = methodConfig.getValue();
+        Object acceptValue = params.getOrDefault(ArgConfigType.HEADERVALUE.name(), null);
+        if (acceptValue != null) {
+            handleAttr(acceptValue, (Endpoint) var.getValue(),
+                    (String value, Endpoint e) -> e.addHeader(new Header(headerType, value)));
+            params.remove(ArgConfigType.ACCEPT.name());
+        }
+    }
+
+    private static void setPathParam(Stack<Variable> args, ApiCallMethodConfig methodConfig,
             Variable var, ParameterCategory category, Map<String, Object> params) {
 
         Object param = params.getOrDefault(ArgConfigType.PARAM.name(), null);
@@ -246,7 +269,7 @@ public class ArgTools {
     public static Variable setPathParamFromArgs(Stack<Variable> values,
             Set<ArrayList<ArgConfigType>> argDefs, Operation operation,
             ParameterCategory category) {
-        EDataContainerMethodConfig methodConfig = eDataConfig.get(operation.getOwner())
+        ApiCallMethodConfig methodConfig = md.get(operation.getOwner())
                 .get(MethodTools.getMethodNameFromSignature(operation.getDescription()));
         return setEndpointAttrFromArgs(values, argDefs, operation,
                 (Map<String, Object> params_, Variable var, Stack<Variable> args) -> {
@@ -281,8 +304,8 @@ public class ArgTools {
     }
 
     private static Endpoint setParamsToEndpoint(Map<String, Object> params, Endpoint endpoint) {
-        final String path = (String) params.getOrDefault(ArgConfigType.PATH.name(), null);
-        final String baseURL = (String) params.getOrDefault(ArgConfigType.BASEURL.name(), null);
+        Object path = params.getOrDefault(ArgConfigType.PATH.name(), null);
+        Object baseURL = params.getOrDefault(ArgConfigType.BASEURL.name(), null);
         Object httpMethod = params.getOrDefault(ArgConfigType.HTTPMETHOD.name(), null);
         Object expect = params.getOrDefault(ArgConfigType.EXPECT.name(), null);
         Object param = params.getOrDefault(ArgConfigType.PARAM.name(), null);
@@ -293,15 +316,31 @@ public class ArgTools {
         Object accept = params.getOrDefault(ArgConfigType.ACCEPT.name(), null);
         Object eData = params.getOrDefault(ArgConfigType.EDATA.name(), null);
 
-
+        // TODO: handle param which is EndpointDATA - instanceof etc.
         if (path != null) {
-            endpoint.setPath(path);
+            if (path instanceof Endpoint || path instanceof VarEndpointData) {
+                Endpoint pathData = (Endpoint) path;
+                endpoint.setBaseUrl(pathData.getBaseUrl());
+            } else if (path instanceof String) {
+                endpoint.setPath((String) path);
+            }
         }
         if (baseURL != null) {
-            endpoint.setBaseUrl(baseURL);
+            if (baseURL instanceof Endpoint || baseURL instanceof VarEndpointData) {
+                Endpoint baseURLData = (Endpoint) baseURL;
+                endpoint.setBaseUrl(baseURLData.getBaseUrl());
+            } else if (baseURL instanceof String) {
+                endpoint.setBaseUrl((String) baseURL);
+            }
         }
         if (param != null) {
-            handleAttr(param, endpoint, (String p, Endpoint e) -> addParamToEndpoint(p, e));
+            if (param instanceof VarEndpointData) {
+                VarEndpointData varEData = (VarEndpointData) param;
+                endpoint.merge(varEData);
+                varEData.merge(endpoint);
+            } else {
+                handleAttr(param, endpoint, (String p, Endpoint e) -> addParamToEndpoint(p, e));
+            }
         }
         if (expect != null) {
             handleAttr(expect, endpoint,
@@ -309,10 +348,10 @@ public class ArgTools {
         }
         if (send != null) {
             if (send instanceof VarEndpointData) {
-                VarEndpointData varEData = (VarEndpointData) send;
+                Endpoint varEData = (Endpoint) send;
                 endpoint.merge(varEData);
                 varEData.merge(endpoint);
-            } else {
+            } else if (!(send instanceof Endpoint)) {
                 handleAttr(send, endpoint,
                         (String p, Endpoint e) -> addRequestBodyToEndpoint(p, e));
             }
