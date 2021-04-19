@@ -261,9 +261,6 @@ class EndpointHandler extends MethodProcessor {
      */
     @Override
     public void process(MethodWrapper method) {
-        if (method.getMethodStruct().getName().equals("gettingAndPostingCustomers")) {
-            System.out.println("TEST");
-        }
         super.process(method);
     }
 
