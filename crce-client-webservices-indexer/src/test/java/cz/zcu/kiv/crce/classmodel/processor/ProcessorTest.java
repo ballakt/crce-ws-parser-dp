@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import cz.zcu.kiv.crce.classmodel.definition.Header;
 import cz.zcu.kiv.crce.classmodel.processor.Endpoint.HttpMethod;
 import cz.zcu.kiv.crce.rest.EndpointParameter;
-import cz.zcu.kiv.crce.rest.ParameterCategory;
 
 public class ProcessorTest {
 

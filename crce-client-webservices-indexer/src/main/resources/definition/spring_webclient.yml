@@ -278,7 +278,7 @@ apiCall:
         type: ACCEPT
         value: Accept-Charset
         args:
-          - - ACCEPT
+          - - HEADERVALUE
       - name: attribute
         type: PARAM
         value: QUERY
@@ -357,7 +357,7 @@ apiCall:
         type: ACCEPT
         value: Accept-Charset
         args:
-          - - ACCEPT
+          - - HEADERVALUE
       - name: attribute
         type: PARAM
         value: QUERY
@@ -415,7 +415,7 @@ apiCall:
         type: ACCEPT
         value: Accept-Charset
         args:
-          - - ACCEPT
+          - - HEADERVALUE
       - name: attribute
         type: PARAM
         value: QUERY
@@ -467,7 +467,7 @@ apiCall:
         type: ACCEPT
         value: Accept-Charset
         args:
-          - - ACCEPT
+          - - HEADERVALUE
       - name: attribute
         type: PARAM
         value: QUERY

@@ -124,8 +124,6 @@ public class EndpointParameter implements Serializable {
                 dateTypeObj = "";
             }
         }
-        System.out.println("DATA=" + dataType);
-        System.out.println("DATATYPE=" + dataTypeH);
         return "{" + "\"name\": " + ToStringTools.objToString(getName()) + ", \"category\": "
                 + ToStringTools.objToString(getCategory()) + dateTypeObj + ", \"isArray\": "
                 + isArray() + "}";
